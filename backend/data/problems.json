@@ -1,0 +1,890 @@
+[
+  {
+    "id": "two_sum",
+    "title": "Two Sum",
+    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+    "difficulty": "easy",
+    "topic": "arrays",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Two Sum",
+      "Hint 2 for Two Sum",
+      "Hint 3 for Two Sum"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Arrays"
+    ]
+  },
+  {
+    "id": "product_except_self",
+    "title": "Product of Array Except Self",
+    "description": "Return array where each element is product of all other elements.",
+    "difficulty": "medium",
+    "topic": "arrays",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Product of Array Except Self",
+      "Hint 2 for Product of Array Except Self",
+      "Hint 3 for Product of Array Except Self"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Arrays"
+    ]
+  },
+  {
+    "id": "three_sum",
+    "title": "3Sum",
+    "description": "Find all unique triplets that sum to zero.",
+    "difficulty": "medium",
+    "topic": "arrays",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for 3Sum",
+      "Hint 2 for 3Sum",
+      "Hint 3 for 3Sum"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Arrays"
+    ]
+  },
+  {
+    "id": "valid_anagram",
+    "title": "Valid Anagram",
+    "description": "Check if two strings are anagrams.",
+    "difficulty": "easy",
+    "topic": "strings",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Valid Anagram",
+      "Hint 2 for Valid Anagram",
+      "Hint 3 for Valid Anagram"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Strings"
+    ]
+  },
+  {
+    "id": "longest_substring_no_repeat",
+    "title": "Longest Substring Without Repeating Characters",
+    "description": "Find longest substring without repeating characters.",
+    "difficulty": "medium",
+    "topic": "strings",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Longest Substring Without Repeating Characters",
+      "Hint 2 for Longest Substring Without Repeating Characters",
+      "Hint 3 for Longest Substring Without Repeating Characters"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Strings"
+    ]
+  },
+  {
+    "id": "minimum_window_substring",
+    "title": "Minimum Window Substring",
+    "description": "Find minimum window substring containing all characters.",
+    "difficulty": "hard",
+    "topic": "strings",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Minimum Window Substring",
+      "Hint 2 for Minimum Window Substring",
+      "Hint 3 for Minimum Window Substring"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Strings"
+    ]
+  },
+  {
+    "id": "reverse_linked_list",
+    "title": "Reverse Linked List",
+    "description": "Reverse a singly linked list.",
+    "difficulty": "easy",
+    "topic": "linked-lists",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Reverse Linked List",
+      "Hint 2 for Reverse Linked List",
+      "Hint 3 for Reverse Linked List"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Linked Lists"
+    ]
+  },
+  {
+    "id": "remove_nth_from_end",
+    "title": "Remove Nth Node From End of List",
+    "description": "Remove nth node from end of list.",
+    "difficulty": "medium",
+    "topic": "linked-lists",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Remove Nth Node From End of List",
+      "Hint 2 for Remove Nth Node From End of List",
+      "Hint 3 for Remove Nth Node From End of List"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Linked Lists"
+    ]
+  },
+  {
+    "id": "merge_k_sorted_lists",
+    "title": "Merge k Sorted Lists",
+    "description": "Merge k sorted linked lists.",
+    "difficulty": "hard",
+    "topic": "linked-lists",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Merge k Sorted Lists",
+      "Hint 2 for Merge k Sorted Lists",
+      "Hint 3 for Merge k Sorted Lists"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Linked Lists"
+    ]
+  },
+  {
+    "id": "maximum_depth_binary_tree",
+    "title": "Maximum Depth of Binary Tree",
+    "description": "Find maximum depth of binary tree.",
+    "difficulty": "easy",
+    "topic": "trees",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Maximum Depth of Binary Tree",
+      "Hint 2 for Maximum Depth of Binary Tree",
+      "Hint 3 for Maximum Depth of Binary Tree"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Trees"
+    ]
+  },
+  {
+    "id": "binary_tree_level_order_traversal",
+    "title": "Binary Tree Level Order Traversal",
+    "description": "Return level order traversal of binary tree.",
+    "difficulty": "medium",
+    "topic": "trees",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Binary Tree Level Order Traversal",
+      "Hint 2 for Binary Tree Level Order Traversal",
+      "Hint 3 for Binary Tree Level Order Traversal"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Trees"
+    ]
+  },
+  {
+    "id": "binary_tree_maximum_path_sum",
+    "title": "Binary Tree Maximum Path Sum",
+    "description": "Find maximum path sum in binary tree.",
+    "difficulty": "hard",
+    "topic": "trees",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Binary Tree Maximum Path Sum",
+      "Hint 2 for Binary Tree Maximum Path Sum",
+      "Hint 3 for Binary Tree Maximum Path Sum"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Trees"
+    ]
+  },
+  {
+    "id": "number_of_islands",
+    "title": "Number of Islands",
+    "description": "Count number of islands in 2D grid.",
+    "difficulty": "medium",
+    "topic": "graphs",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Number of Islands",
+      "Hint 2 for Number of Islands",
+      "Hint 3 for Number of Islands"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Graphs"
+    ]
+  },
+  {
+    "id": "course_schedule",
+    "title": "Course Schedule",
+    "description": "Check if all courses can be finished.",
+    "difficulty": "medium",
+    "topic": "graphs",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Course Schedule",
+      "Hint 2 for Course Schedule",
+      "Hint 3 for Course Schedule"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Graphs"
+    ]
+  },
+  {
+    "id": "word_ladder",
+    "title": "Word Ladder",
+    "description": "Find shortest transformation sequence.",
+    "difficulty": "hard",
+    "topic": "graphs",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Word Ladder",
+      "Hint 2 for Word Ladder",
+      "Hint 3 for Word Ladder"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Graphs"
+    ]
+  },
+  {
+    "id": "climbing_stairs",
+    "title": "Climbing Stairs",
+    "description": "Count ways to climb stairs.",
+    "difficulty": "easy",
+    "topic": "dynamic-programming",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Climbing Stairs",
+      "Hint 2 for Climbing Stairs",
+      "Hint 3 for Climbing Stairs"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Dynamic Programming"
+    ]
+  },
+  {
+    "id": "coin_change",
+    "title": "Coin Change",
+    "description": "Find minimum coins to make amount.",
+    "difficulty": "medium",
+    "topic": "dynamic-programming",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Coin Change",
+      "Hint 2 for Coin Change",
+      "Hint 3 for Coin Change"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Dynamic Programming"
+    ]
+  },
+  {
+    "id": "longest_common_subsequence",
+    "title": "Longest Common Subsequence",
+    "description": "Find length of longest common subsequence.",
+    "difficulty": "medium",
+    "topic": "dynamic-programming",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Longest Common Subsequence",
+      "Hint 2 for Longest Common Subsequence",
+      "Hint 3 for Longest Common Subsequence"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Dynamic Programming"
+    ]
+  },
+  {
+    "id": "valid_parentheses_stack",
+    "title": "Valid Parentheses",
+    "description": "Check if parentheses are valid using stack.",
+    "difficulty": "easy",
+    "topic": "stacks",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Valid Parentheses",
+      "Hint 2 for Valid Parentheses",
+      "Hint 3 for Valid Parentheses"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Stacks"
+    ]
+  },
+  {
+    "id": "daily_temperatures",
+    "title": "Daily Temperatures",
+    "description": "Find next warmer temperature.",
+    "difficulty": "medium",
+    "topic": "stacks",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Daily Temperatures",
+      "Hint 2 for Daily Temperatures",
+      "Hint 3 for Daily Temperatures"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Stacks"
+    ]
+  },
+  {
+    "id": "largest_rectangle_histogram",
+    "title": "Largest Rectangle in Histogram",
+    "description": "Find largest rectangle in histogram.",
+    "difficulty": "hard",
+    "topic": "stacks",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Largest Rectangle in Histogram",
+      "Hint 2 for Largest Rectangle in Histogram",
+      "Hint 3 for Largest Rectangle in Histogram"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Stacks"
+    ]
+  },
+  {
+    "id": "kth_largest_element",
+    "title": "Kth Largest Element in Array",
+    "description": "Find kth largest element.",
+    "difficulty": "medium",
+    "topic": "heaps",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Kth Largest Element in Array",
+      "Hint 2 for Kth Largest Element in Array",
+      "Hint 3 for Kth Largest Element in Array"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Heaps"
+    ]
+  },
+  {
+    "id": "top_k_frequent_elements",
+    "title": "Top K Frequent Elements",
+    "description": "Find k most frequent elements.",
+    "difficulty": "medium",
+    "topic": "heaps",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Top K Frequent Elements",
+      "Hint 2 for Top K Frequent Elements",
+      "Hint 3 for Top K Frequent Elements"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Heaps"
+    ]
+  },
+  {
+    "id": "find_median_data_stream",
+    "title": "Find Median from Data Stream",
+    "description": "Find median from data stream.",
+    "difficulty": "hard",
+    "topic": "heaps",
+    "examples": [
+      {
+        "input": "Example 1 input",
+        "output": "Output 1",
+        "explanation": "Explanation 1"
+      },
+      {
+        "input": "Example 2 input",
+        "output": "Output 2",
+        "explanation": "Explanation 2"
+      },
+      {
+        "input": "Example 3 input",
+        "output": "Output 3",
+        "explanation": "Explanation 3"
+      }
+    ],
+    "hints": [
+      "Hint 1 for Find Median from Data Stream",
+      "Hint 2 for Find Median from Data Stream",
+      "Hint 3 for Find Median from Data Stream"
+    ],
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2",
+      "Constraint 3"
+    ],
+    "tags": [
+      "Heaps"
+    ]
+  }
+]
