@@ -1,30 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Home from "./pages/Home";
+import Problems from "./pages/Problems";
 
 function App() {
-  const [backendStatus, setBackendStatus] = useState("Checking backend...");
+  const [page, setPage] = useState("home");
+  const [selectedProblem, setSelectedProblem] = useState(null);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/health")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Backend request failed");
-        }
-
-        return response.json();
-      })
-      .then((data) => {
-        setBackendStatus(data.status);
-      })
-      .catch(() => {
-        setBackendStatus("Backend connection failed");
-      });
-  }, []);
+  if (page === "problems") {
+    return (
+      <Problems
+        onNavigate={setPage}
+        onSelectProblem={(problem) => {
+          setSelectedProblem(problem);
+          console.log("Selected problem:", problem);
+        }}
+      />
+    );
+  }
 
   return (
-    <div>
-      <h1>DSA Interview Platform</h1>
-      <p>Backend status: {backendStatus}</p>
-    </div>
+    <Home onNavigate={setPage} />
   );
 }
 
