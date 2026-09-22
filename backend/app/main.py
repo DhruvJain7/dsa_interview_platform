@@ -106,21 +106,20 @@ def execute_code(request: ExecuteRequest):
             detail="This problem does not have test cases yet",
         )
 
-    if request.language != "python":
-        raise HTTPException(
-            status_code=400,
-            detail="Automated judging currently supports Python only",
-        )
+
 
     runner = TestRunner()
     test_cases = runner.get_test_cases(problem)
 
     execution = json.loads(problem["execution"])
+    print("DEBUG execution:", execution)
+    print("DEBUG execution type:", type(execution))
 
     harness = generate_harness(
         user_code=request.code,
         execution=execution,
         test_cases=test_cases,
+        language=request.language,
     )
 
     provider = JDoodleProvider()
