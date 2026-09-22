@@ -1,10 +1,30 @@
 import json
-from pathlib import Path
+import os
+
+import redis
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Agentic DSA Interview Platform")
 
+load_dotenv()
+
+app = FastAPI(title="Articula")
+
+
+# Redis connection
+redis_url = os.getenv("REDIS_URL")
+
+if not redis_url:
+    raise RuntimeError("REDIS_URL is not set")
+
+r = redis.from_url(
+    redis_url,
+    decode_responses=True,
+)
+
+
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -13,17 +33,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# problems dataset
-PROBLEMS_FILE = Path(__file__).parent.parent/"data"/"problems.json"
-
-def load_problems():
-    with open(PROBLEMS_FILE,"r",encoding = "utf-8") as file:
-        return json.load(file)
 
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
 
+
 @app.get("/problems")
 def get_problems():
-    return load_problems()
+    problems = []
+
+    for key in r.scan_iter(match="problem:*"):
+        problem = r.hgetall(key)
+
+        if problem:
+            problem["examples"] = json.loads(problem["examples"])
+            problem["hints"] = json.loads(problem["hints"])
+            problem["constraints"] = json.loads(problem["constraints"])
+            problem["tags"] = json.loads(problem["tags"])
+
+            problems.append(problem)
+
+    return problems
