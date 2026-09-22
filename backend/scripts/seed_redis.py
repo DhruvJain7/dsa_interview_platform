@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 
 
 # Load environment variables from backend/.env
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-PROBLEMS_FILE = BASE_DIR / "data" / "problems.json"
+PROBLEMS_FILE = BASE_DIR / "backend" / "data" / "problems.json"
 
 
 # Redis connection
@@ -43,17 +43,19 @@ for problem in problems:
 
     r.hset(
         key,
-        mapping={
+        mapping = {
             "id": problem["id"],
             "title": problem["title"],
             "description": problem["description"],
             "difficulty": problem["difficulty"],
             "topic": problem["topic"],
             "examples": json.dumps(problem["examples"]),
+            "test_cases": json.dumps(problem["test_cases"]),
+            "execution": json.dumps(problem["execution"]),
             "hints": json.dumps(problem["hints"]),
             "constraints": json.dumps(problem["constraints"]),
             "tags": json.dumps(problem["tags"]),
-        },
+        }
     )
 
 print(f"Seeded {len(problems)} problems into Redis")

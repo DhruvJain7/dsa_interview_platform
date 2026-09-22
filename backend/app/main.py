@@ -6,7 +6,12 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Query
-
+from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Query
+from app.services.jdoodle_provider import JDoodleProvider
+from app.services.harness_generator import generate_harness
+from app.services.test_runner import TestRunner
+from app.services.jdoodle_provider import JDoodleProvider
 
 load_dotenv()
 
@@ -38,6 +43,98 @@ app.add_middleware(
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+class TestRequest(BaseModel):
+    language: str
+    code: str
+    problem_id: str
+
+class ExecuteRequest(BaseModel):
+    language: str
+    code: str
+    problem_id: str
+
+@app.post("/execute-tests")
+def execute_tests(request: TestRequest):
+    problem = r.hgetall(f"problem:{request.problem_id}")
+
+    if not problem:
+        raise HTTPException(status_code=404, detail="Problem not found")
+
+    examples = json.loads(problem["examples"])
+
+    provider = JDoodleProvider()
+
+    results = []
+
+    for index, example in enumerate(examples):
+        result = provider.execute(
+            language=request.language,
+            code=request.code,
+            stdin=example["input"],
+        )
+
+        actual_output = (result.get("output") or "").strip()
+        expected_output = example["output"].strip()
+
+        results.append({
+            "test_case": index + 1,
+            "input": example["input"],
+            "expected_output": expected_output,
+            "actual_output": actual_output,
+            "passed": actual_output == expected_output,
+        })
+
+    return {
+        "problem_id": request.problem_id,
+        "results": results,
+    }
+
+@app.post("/execute")
+def execute_code(request: ExecuteRequest):
+    problem = r.hgetall(f"problem:{request.problem_id}")
+
+    if not problem:
+        raise HTTPException(
+            status_code=404,
+            detail="Problem not found",
+        )
+
+    if not problem.get("test_cases"):
+        raise HTTPException(
+            status_code=400,
+            detail="This problem does not have test cases yet",
+        )
+
+    if request.language != "python":
+        raise HTTPException(
+            status_code=400,
+            detail="Automated judging currently supports Python only",
+        )
+
+    runner = TestRunner()
+    test_cases = runner.get_test_cases(problem)
+
+    execution = json.loads(problem["execution"])
+
+    harness = generate_harness(
+        user_code=request.code,
+        execution=execution,
+        test_cases=test_cases,
+    )
+
+    provider = JDoodleProvider()
+
+    execution_result = provider.execute(
+        language=request.language,
+        code=harness,
+    )
+
+    return runner.evaluate_execution(
+        execution_result,
+        test_cases,
+        execution,
+    )
 
 def escape_tag(value: str) -> str:
     special_characters = r",.<>{}[]\"':;!@#$%^&*()-+=~"

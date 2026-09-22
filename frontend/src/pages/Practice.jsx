@@ -51,6 +51,7 @@ function Practice({ problem, onNavigate }) {
           {/* Code editor */}
           <section className="mt-16">
             <CodeEditor
+              problemId={problem.id}
               language={language}
               onLanguageChange={setLanguage}
               value={code}

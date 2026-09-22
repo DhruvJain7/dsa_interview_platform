@@ -5,21 +5,43 @@
     "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
     "difficulty": "easy",
     "topic": "arrays",
+    "function_name": "twoSum",
+    "function_parameters": ["nums", "target"],
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "2 7 11 15\n9",
+        "output": "0 1",
+        "explanation": "The numbers at indices 0 and 1 add up to the target 9."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "3 2 4\n6",
+        "output": "1 2",
+        "explanation": "The numbers at indices 1 and 2 add up to the target 6."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "3 3\n6",
+        "output": "0 1",
+        "explanation": "The two numbers at indices 0 and 1 add up to the target 6."
+      }
+
+    ],
+    "execution": {
+      "type": "function",
+      "function_name": "twoSum",
+      "parameters": ["nums", "target"]
+    },
+    "test_cases": [
+      {
+        "input": [[2, 7, 11, 15], 9],
+        "expected": [0, 1]
+      },
+      {
+        "input": [[3, 2, 4], 6],
+        "expected": [1, 2]
+      },
+      {
+        "input": [[3, 3], 6],
+        "expected": [0, 1]
       }
     ],
     "hints": [
@@ -35,190 +57,302 @@
     "tags": [
       "Arrays"
     ]
+
   },
   {
     "id": "product_except_self",
     "title": "Product of Array Except Self",
-    "description": "Return array where each element is product of all other elements.",
+    "description": "Return an array where each element is the product of all elements in the array except the element at that position.",
     "difficulty": "medium",
     "topic": "arrays",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[1, 2, 3, 4]",
+        "output": "[24, 12, 8, 6]",
+        "explanation": "For each position, multiply every number except the number at that position."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[-1, 1, 0, -3, 3]",
+        "output": "[0, 0, 9, 0, 0]",
+        "explanation": "Because the array contains zero, the products for every position except the zero position become zero."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[2, 3, 4, 5]",
+        "output": "[60, 40, 30, 24]",
+        "explanation": "Each result contains the product of the other three numbers."
       }
     ],
     "hints": [
-      "Hint 1 for Product of Array Except Self",
-      "Hint 2 for Product of Array Except Self",
-      "Hint 3 for Product of Array Except Self"
+      "Consider calculating prefix products.",
+      "Consider calculating suffix products.",
+      "You can achieve O(n) time without using division."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "The array contains at least two integers.",
+      "Do not use division.",
+      "Aim for O(n) time complexity."
     ],
     "tags": [
       "Arrays"
+    ],
+    "execution": {
+      "type": "function",
+      "function_name": "productExceptSelf",
+      "parameters": [
+        "nums"
+      ]
+    },
+    "test_cases": [
+      {
+        "input": [
+          [1, 2, 3, 4]
+        ],
+        "expected": [24, 12, 8, 6]
+      },
+      {
+        "input": [
+          [-1, 1, 0, -3, 3]
+        ],
+        "expected": [0, 0, 9, 0, 0]
+      },
+      {
+        "input": [
+          [2, 3, 4, 5]
+        ],
+        "expected": [60, 40, 30, 24]
+      }
     ]
   },
   {
     "id": "three_sum",
     "title": "3Sum",
-    "description": "Find all unique triplets that sum to zero.",
+    "description": "Find all unique triplets in the array that sum to zero.",
     "difficulty": "medium",
     "topic": "arrays",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[-1, 0, 1, 2, -1, -4]",
+        "output": "[[-1, -1, 2], [-1, 0, 1]]",
+        "explanation": "The unique triplets that sum to zero are [-1, -1, 2] and [-1, 0, 1]."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[0, 1, 1]",
+        "output": "[]",
+        "explanation": "There are no three numbers whose sum is zero."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[0, 0, 0]",
+        "output": "[[0, 0, 0]]",
+        "explanation": "The three zeros form one unique triplet."
       }
     ],
     "hints": [
-      "Hint 1 for 3Sum",
-      "Hint 2 for 3Sum",
-      "Hint 3 for 3Sum"
+      "Sort the array before searching for triplets.",
+      "Use two pointers after fixing the first element.",
+      "Skip duplicate values to avoid duplicate triplets."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "Return only unique triplets.",
+      "Each triplet must contain exactly three numbers.",
+      "The target sum is zero."
     ],
     "tags": [
       "Arrays"
+    ],
+    "execution": {
+      "type": "function",
+      "function_name": "threeSum",
+      "parameters": [
+        "nums"
+      ],
+      "comparison": "unordered"
+    },
+    "test_cases": [
+      {
+        "input": [
+          [-1, 0, 1, 2, -1, -4]
+        ],
+        "expected": [
+          [-1, -1, 2],
+          [-1, 0, 1]
+        ]
+      },
+      {
+        "input": [
+          [0, 1, 1]
+        ],
+        "expected": []
+      },
+      {
+        "input": [
+          [0, 0, 0]
+        ],
+        "expected": [
+          [0, 0, 0]
+        ]
+      }
     ]
   },
   {
     "id": "valid_anagram",
     "title": "Valid Anagram",
-    "description": "Check if two strings are anagrams.",
+    "description": "Given two strings s and t, return true if t is an anagram of s, and false otherwise.",
     "difficulty": "easy",
     "topic": "strings",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "anagram\nnagaram",
+        "output": "true",
+        "explanation": "Both strings contain the same characters with the same frequencies."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "rat\ncar",
+        "output": "false",
+        "explanation": "The strings contain different characters, so they are not anagrams."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "a\nab",
+        "output": "false",
+        "explanation": "The strings have different lengths and therefore cannot be anagrams."
       }
     ],
     "hints": [
-      "Hint 1 for Valid Anagram",
-      "Hint 2 for Valid Anagram",
-      "Hint 3 for Valid Anagram"
+      "Anagrams must have the same length.",
+      "Count the frequency of each character in both strings.",
+      "You can also sort both strings and compare them."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "s and t consist of lowercase English letters.",
+      "The strings can have different lengths.",
+      "Return true only when the character frequencies are identical."
     ],
-    "tags": [
-      "Strings"
+    "tags": ["Strings"],
+    "execution": {
+      "type": "function",
+      "function_name": "isAnagram",
+      "parameters": ["s", "t"]
+    },
+    "test_cases": [
+      {
+        "input": ["anagram", "nagaram"],
+        "expected": true
+      },
+      {
+        "input": ["rat", "car"],
+        "expected": false
+      },
+      {
+        "input": ["a", "ab"],
+        "expected": false
+      }
     ]
   },
   {
     "id": "longest_substring_no_repeat",
     "title": "Longest Substring Without Repeating Characters",
-    "description": "Find longest substring without repeating characters.",
+    "description": "Given a string s, find the length of the longest substring without repeating characters.",
     "difficulty": "medium",
     "topic": "strings",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "abcabcbb",
+        "output": "3",
+        "explanation": "The longest substring without repeating characters is \"abc\", which has length 3."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "bbbbb",
+        "output": "1",
+        "explanation": "Every character is the same, so the longest substring contains only one character."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "pwwkew",
+        "output": "3",
+        "explanation": "The longest substring without repeating characters is \"wke\", which has length 3."
       }
     ],
     "hints": [
-      "Hint 1 for Longest Substring Without Repeating Characters",
-      "Hint 2 for Longest Substring Without Repeating Characters",
-      "Hint 3 for Longest Substring Without Repeating Characters"
+      "Use a sliding window to maintain a substring without duplicate characters.",
+      "Keep track of the characters currently inside the window.",
+      "Move the left side of the window when a duplicate character is found."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "0 <= s.length <= 50000.",
+      "s consists of English letters, digits, symbols, and spaces.",
+      "Return the length of the longest substring without repeating characters."
     ],
-    "tags": [
-      "Strings"
+    "tags": ["Strings", "Sliding Window"],
+    "execution": {
+      "type": "function",
+      "function_name": "lengthOfLongestSubstring",
+      "parameters": ["s"]
+    },
+    "test_cases": [
+      {
+        "input": ["abcabcbb"],
+        "expected": 3
+      },
+      {
+        "input": ["bbbbb"],
+        "expected": 1
+      },
+      {
+        "input": ["pwwkew"],
+        "expected": 3
+      }
     ]
   },
   {
     "id": "minimum_window_substring",
     "title": "Minimum Window Substring",
-    "description": "Find minimum window substring containing all characters.",
+    "description": "Given two strings s and t, return the minimum window substring of s that contains every character in t, including duplicate characters.",
     "difficulty": "hard",
     "topic": "strings",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "ADOBECODEBANC\nABC",
+        "output": "BANC",
+        "explanation": "BANC is the smallest substring of s that contains A, B, and C."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "a\na",
+        "output": "a",
+        "explanation": "The entire string contains the required character."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "a\naa",
+        "output": "",
+        "explanation": "There are not enough occurrences of a in s to form a valid window."
       }
     ],
     "hints": [
-      "Hint 1 for Minimum Window Substring",
-      "Hint 2 for Minimum Window Substring",
-      "Hint 3 for Minimum Window Substring"
+      "Use a sliding window with two pointers.",
+      "Track the frequency of characters required from t.",
+      "Expand the right side until the window is valid, then shrink it from the left."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= s.length, t.length <= 100000.",
+      "s and t consist of English letters.",
+      "Return an empty string if no valid window exists."
     ],
-    "tags": [
-      "Strings"
+    "tags": ["Strings", "Sliding Window"],
+    "execution": {
+      "type": "function",
+      "function_name": "minWindow",
+      "parameters": ["s", "t"]
+    },
+    "test_cases": [
+      {
+        "input": ["ADOBECODEBANC", "ABC"],
+        "expected": "BANC"
+      },
+      {
+        "input": ["a", "a"],
+        "expected": "a"
+      },
+      {
+        "input": ["a", "aa"],
+        "expected": ""
+      }
     ]
   },
   {
@@ -227,109 +361,167 @@
     "description": "Reverse a singly linked list.",
     "difficulty": "easy",
     "topic": "linked-lists",
+
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[1, 2, 3, 4, 5]",
+        "output": "[5, 4, 3, 2, 1]",
+        "explanation": "The linked list is reversed."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[1, 2]",
+        "output": "[2, 1]",
+        "explanation": "The two nodes are reversed."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[1]",
+        "output": "[1]",
+        "explanation": "A single-node list remains unchanged."
       }
     ],
+
     "hints": [
       "Hint 1 for Reverse Linked List",
       "Hint 2 for Reverse Linked List",
       "Hint 3 for Reverse Linked List"
     ],
+
     "constraints": [
       "Constraint 1",
       "Constraint 2",
       "Constraint 3"
     ],
-    "tags": [
-      "Linked Lists"
+
+    "tags": ["Linked Lists"],
+
+    "execution": {
+      "type": "linked_list",
+      "function_name": "reverseList",
+      "parameters": ["head"]
+    },
+
+    "test_cases": [
+      {
+        "input": [[1, 2, 3, 4, 5]],
+        "expected": [5, 4, 3, 2, 1]
+      },
+      {
+        "input": [[1, 2]],
+        "expected": [2, 1]
+      },
+      {
+        "input": [[1]],
+        "expected": [1]
+      }
     ]
   },
   {
     "id": "remove_nth_from_end",
     "title": "Remove Nth Node From End of List",
-    "description": "Remove nth node from end of list.",
+    "description": "Given the head of a linked list, remove the nth node from the end of the list and return the head of the modified list.",
     "difficulty": "medium",
     "topic": "linked-lists",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[1,2,3,4,5], n = 2",
+        "output": "[1,2,3,5]",
+        "explanation": "The second node from the end is 4, so it is removed."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[1], n = 1",
+        "output": "[]",
+        "explanation": "The only node is the first node from the end, so removing it leaves an empty list."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[1,2], n = 1",
+        "output": "[1]",
+        "explanation": "The last node, 2, is removed."
       }
     ],
     "hints": [
-      "Hint 1 for Remove Nth Node From End of List",
-      "Hint 2 for Remove Nth Node From End of List",
-      "Hint 3 for Remove Nth Node From End of List"
+      "A two-pointer technique can find the target node in one pass.",
+      "Move the fast pointer n positions ahead of the slow pointer.",
+      "A dummy node can simplify the case where the head itself must be removed."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "The number of nodes in the list is between 1 and 100.",
+      "1 <= n <= number of nodes in the list.",
+      "The node values are integers."
     ],
-    "tags": [
-      "Linked Lists"
+    "tags": ["Linked Lists", "Two Pointers"],
+    "execution": {
+      "type": "linked_list",
+      "function_name": "removeNthFromEnd",
+      "parameters": ["head", "n"]
+    },
+    "test_cases": [
+      {
+        "input": [[1,2,3,4,5], 2],
+        "expected": [1,2,3,5]
+      },
+      {
+        "input": [[1], 1],
+        "expected": []
+      },
+      {
+        "input": [[1,2], 1],
+        "expected": [1]
+      }
     ]
   },
   {
     "id": "merge_k_sorted_lists",
     "title": "Merge k Sorted Lists",
-    "description": "Merge k sorted linked lists.",
+    "description": "Given an array of k linked lists, where each linked list is sorted in ascending order, merge all the linked lists into one sorted linked list.",
     "difficulty": "hard",
     "topic": "linked-lists",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[[1,4,5],[1,3,4],[2,6]]",
+        "output": "[1,1,2,3,4,4,5,6]",
+        "explanation": "The three sorted linked lists are merged into one sorted linked list."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[]",
+        "output": "[]",
+        "explanation": "There are no linked lists to merge."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[[]]",
+        "output": "[]",
+        "explanation": "The only linked list is empty, so the merged result is empty."
       }
     ],
     "hints": [
-      "Hint 1 for Merge k Sorted Lists",
-      "Hint 2 for Merge k Sorted Lists",
-      "Hint 3 for Merge k Sorted Lists"
+      "You can merge the lists pair by pair.",
+      "A priority queue can efficiently keep track of the smallest current node.",
+      "The heap-based approach can achieve O(N log k) time, where N is the total number of nodes."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "k is the number of linked lists.",
+      "0 <= k <= 10000.",
+      "The total number of nodes across all linked lists is at most 10000.",
+      "Each linked list is sorted in ascending order."
     ],
-    "tags": [
-      "Linked Lists"
+    "tags": ["Linked Lists", "Heap", "Divide and Conquer"],
+    "execution": {
+      "type": "linked_list",
+      "function_name": "mergeKLists",
+      "parameters": ["lists"]
+    },
+    "test_cases": [
+      {
+        "input": [[[1,4,5],[1,3,4],[2,6]]],
+        "expected": [1,1,2,3,4,4,5,6]
+      },
+      {
+        "input": [[]],
+        "expected": []
+      },
+      {
+        "input": [[[]]],
+        "expected": []
+      }
     ]
   },
   {
@@ -340,514 +532,812 @@
     "topic": "trees",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[3, 9, 20, null, null, 15, 7]",
+        "output": "3",
+        "explanation": "The maximum depth of the binary tree is 3."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[1, null, 2]",
+        "output": "2",
+        "explanation": "The maximum depth of the binary tree is 2."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[1]",
+        "output": "1",
+        "explanation": "A single-node tree has depth 1."
       }
     ],
     "hints": [
-      "Hint 1 for Maximum Depth of Binary Tree",
-      "Hint 2 for Maximum Depth of Binary Tree",
-      "Hint 3 for Maximum Depth of Binary Tree"
+      "Consider recursively finding the depth of the left and right subtrees.",
+      "The depth of an empty tree is 0.",
+      "The depth of a non-empty tree is one plus the maximum depth of its subtrees."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "The tree may be empty.",
+      "Each node contains an integer value.",
+      "Return the maximum number of nodes along a root-to-leaf path."
     ],
     "tags": [
       "Trees"
+    ],
+    "execution": {
+      "type": "binary_tree",
+      "function_name": "maxDepth",
+      "parameters": [
+        "root"
+      ]
+    },
+    "test_cases": [
+      {
+        "input": [
+          [
+            3,
+            9,
+            20,
+            null,
+            null,
+            15,
+            7
+          ]
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          [
+            1,
+            null,
+            2
+          ]
+        ],
+        "expected": 2
+      },
+      {
+        "input": [
+          [
+            1
+          ]
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          []
+        ],
+        "expected": 0
+      }
     ]
   },
   {
     "id": "binary_tree_level_order_traversal",
     "title": "Binary Tree Level Order Traversal",
-    "description": "Return level order traversal of binary tree.",
+    "description": "Given the root of a binary tree, return its level order traversal as a list of lists, where each inner list contains the node values at one level of the tree.",
     "difficulty": "medium",
     "topic": "trees",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[3,9,20,null,null,15,7]",
+        "output": "[[3],[9,20],[15,7]]",
+        "explanation": "The tree is traversed level by level from left to right."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[1]",
+        "output": "[[1]]",
+        "explanation": "The tree contains a single node, so the traversal has one level."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[]",
+        "output": "[]",
+        "explanation": "An empty tree has no levels."
       }
     ],
     "hints": [
-      "Hint 1 for Binary Tree Level Order Traversal",
-      "Hint 2 for Binary Tree Level Order Traversal",
-      "Hint 3 for Binary Tree Level Order Traversal"
+      "Use breadth-first search to process the tree level by level.",
+      "A queue can store nodes waiting to be processed.",
+      "Process all nodes currently in the queue before moving to the next level."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "The number of nodes in the tree is between 0 and 2000.",
+      "Node values are integers.",
+      "Return an empty list when the tree is empty."
     ],
-    "tags": [
-      "Trees"
+    "tags": ["Trees", "Breadth First Search"],
+    "execution": {
+      "type": "binary_tree",
+      "function_name": "levelOrder",
+      "parameters": ["root"]
+    },
+    "test_cases": [
+      {
+        "input": [[3,9,20,null,null,15,7]],
+        "expected": [[3],[9,20],[15,7]]
+      },
+      {
+        "input": [[1]],
+        "expected": [[1]]
+      },
+      {
+        "input": [[]],
+        "expected": []
+      }
     ]
   },
   {
     "id": "binary_tree_maximum_path_sum",
     "title": "Binary Tree Maximum Path Sum",
-    "description": "Find maximum path sum in binary tree.",
+    "description": "Given the root of a binary tree, return the maximum path sum of any non-empty path in the tree.",
     "difficulty": "hard",
     "topic": "trees",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[1,2,3]",
+        "output": "6",
+        "explanation": "The path 2 → 1 → 3 has the maximum sum of 6."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[-10,9,20,null,null,15,7]",
+        "output": "42",
+        "explanation": "The path 15 → 20 → 7 has the maximum sum of 42."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[2,-1]",
+        "output": "2",
+        "explanation": "The maximum path consists of the root node with value 2."
       }
     ],
     "hints": [
-      "Hint 1 for Binary Tree Maximum Path Sum",
-      "Hint 2 for Binary Tree Maximum Path Sum",
-      "Hint 3 for Binary Tree Maximum Path Sum"
+      "For each node, calculate the maximum path contribution that can be extended to its parent.",
+      "Negative child contributions should not be included in a path.",
+      "Track the maximum path that passes through each node separately from the value returned to its parent."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "The number of nodes in the tree is between 1 and 30000.",
+      "Node values are integers between -1000 and 1000.",
+      "A path may start and end at any nodes but must contain at least one node."
     ],
-    "tags": [
-      "Trees"
+    "tags": ["Trees", "Depth First Search", "Dynamic Programming"],
+    "execution": {
+      "type": "binary_tree",
+      "function_name": "maxPathSum",
+      "parameters": ["root"]
+    },
+    "test_cases": [
+      {
+        "input": [[1,2,3]],
+        "expected": 6
+      },
+      {
+        "input": [[-10,9,20,null,null,15,7]],
+        "expected": 42
+      },
+      {
+        "input": [[2,-1]],
+        "expected": 2
+      }
     ]
   },
   {
     "id": "number_of_islands",
     "title": "Number of Islands",
-    "description": "Count number of islands in 2D grid.",
+    "description": "Given an m x n grid of '1's and '0's, return the number of islands in the grid. An island is surrounded by water and is formed by connecting adjacent land cells horizontally or vertically.",
     "difficulty": "medium",
     "topic": "graphs",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+        "output": "1",
+        "explanation": "All the connected land cells form one island."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]",
+        "output": "3",
+        "explanation": "There are three separate groups of connected land cells."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[[\"0\",\"0\"],[\"0\",\"0\"]]",
+        "output": "0",
+        "explanation": "There are no land cells, so there are no islands."
       }
     ],
     "hints": [
-      "Hint 1 for Number of Islands",
-      "Hint 2 for Number of Islands",
-      "Hint 3 for Number of Islands"
+      "Traverse every cell in the grid.",
+      "When you find an unvisited land cell, start a DFS or BFS to visit the entire island.",
+      "Count how many times a new island traversal is started."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= m, n <= 300.",
+      "grid[i][j] is either '0' or '1'.",
+      "Adjacent land cells are connected horizontally or vertically."
     ],
-    "tags": [
-      "Graphs"
+    "tags": ["Graphs", "Breadth First Search", "Depth First Search"],
+    "execution": {
+      "type": "function",
+      "function_name": "numIslands",
+      "parameters": ["grid"]
+    },
+    "test_cases": [
+      {
+        "input": [[
+          ["1","1","1","1","0"],
+          ["1","1","0","1","0"],
+          ["1","1","0","0","0"],
+          ["0","0","0","0","0"]
+        ]],
+        "expected": 1
+      },
+      {
+        "input": [[
+          ["1","1","0","0","0"],
+          ["1","1","0","0","0"],
+          ["0","0","1","0","0"],
+          ["0","0","0","1","1"]
+        ]],
+        "expected": 3
+      },
+      {
+        "input": [[
+          ["0","0"],
+          ["0","0"]
+        ]],
+        "expected": 0
+      }
     ]
   },
   {
     "id": "course_schedule",
     "title": "Course Schedule",
-    "description": "Check if all courses can be finished.",
+    "description": "There are numCourses courses labeled from 0 to numCourses - 1. Given prerequisite pairs, determine whether it is possible to finish all courses.",
     "difficulty": "medium",
     "topic": "graphs",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "output": "true",
+        "explanation": "Course 0 must be completed before course 1, so both courses can be completed."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
+        "output": "false",
+        "explanation": "The prerequisites form a cycle, so neither course can be completed first."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "numCourses = 3, prerequisites = []",
+        "output": "true",
+        "explanation": "There are no prerequisites, so all courses can be completed."
       }
     ],
     "hints": [
-      "Hint 1 for Course Schedule",
-      "Hint 2 for Course Schedule",
-      "Hint 3 for Course Schedule"
+      "Model the courses and prerequisites as a directed graph.",
+      "A cycle in the prerequisite graph means the courses cannot all be completed.",
+      "You can use DFS cycle detection or Kahn's topological sorting algorithm."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= numCourses <= 2000.",
+      "0 <= prerequisites.length <= 5000.",
+      "Each prerequisite pair contains two course numbers."
     ],
-    "tags": [
-      "Graphs"
+    "tags": ["Graphs", "Topological Sort", "Breadth First Search"],
+    "execution": {
+      "type": "function",
+      "function_name": "canFinish",
+      "parameters": ["numCourses", "prerequisites"]
+    },
+    "test_cases": [
+      {
+        "input": [2, [[1,0]]],
+        "expected": true
+      },
+      {
+        "input": [2, [[1,0],[0,1]]],
+        "expected": false
+      },
+      {
+        "input": [3, []],
+        "expected": true
+      }
     ]
   },
   {
     "id": "word_ladder",
     "title": "Word Ladder",
-    "description": "Find shortest transformation sequence.",
+    "description": "Given two words beginWord and endWord and a dictionary of words, return the number of words in the shortest transformation sequence from beginWord to endWord.",
     "difficulty": "hard",
     "topic": "graphs",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]",
+        "output": "5",
+        "explanation": "One shortest transformation is hit → hot → dot → dog → cog."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]",
+        "output": "0",
+        "explanation": "The end word is not present in the dictionary, so no valid transformation exists."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "beginWord = \"a\", endWord = \"c\", wordList = [\"a\",\"b\",\"c\"]",
+        "output": "2",
+        "explanation": "The transformation a → c changes one character and contains two words."
       }
     ],
     "hints": [
-      "Hint 1 for Word Ladder",
-      "Hint 2 for Word Ladder",
-      "Hint 3 for Word Ladder"
+      "Treat each word as a node in a graph.",
+      "Two words are connected when they differ by exactly one character.",
+      "Breadth-first search finds the shortest transformation sequence."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= beginWord.length <= 10.",
+      "endWord.length equals beginWord.length.",
+      "The word list contains words of the same length.",
+      "All words consist of lowercase English letters."
     ],
-    "tags": [
-      "Graphs"
+    "tags": ["Graphs", "Breadth First Search"],
+    "execution": {
+      "type": "function",
+      "function_name": "ladderLength",
+      "parameters": ["beginWord", "endWord", "wordList"]
+    },
+    "test_cases": [
+      {
+        "input": [
+          "hit",
+          "cog",
+          ["hot","dot","dog","lot","log","cog"]
+        ],
+        "expected": 5
+      },
+      {
+        "input": [
+          "hit",
+          "cog",
+          ["hot","dot","dog","lot","log"]
+        ],
+        "expected": 0
+      },
+      {
+        "input": [
+          "a",
+          "c",
+          ["a","b","c"]
+        ],
+        "expected": 2
+      }
     ]
   },
   {
     "id": "climbing_stairs",
     "title": "Climbing Stairs",
-    "description": "Count ways to climb stairs.",
+    "description": "You are climbing a staircase. It takes n steps to reach the top. Each time you can climb either 1 or 2 steps. Return the number of distinct ways you can reach the top.",
     "difficulty": "easy",
     "topic": "dynamic-programming",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "n = 2",
+        "output": "2",
+        "explanation": "There are two ways to reach the top: 1 + 1 or 2."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "n = 3",
+        "output": "3",
+        "explanation": "There are three ways: 1 + 1 + 1, 1 + 2, and 2 + 1."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "n = 4",
+        "output": "5",
+        "explanation": "The five ways are 1+1+1+1, 1+1+2, 1+2+1, 2+1+1, and 2+2."
       }
     ],
     "hints": [
-      "Hint 1 for Climbing Stairs",
-      "Hint 2 for Climbing Stairs",
-      "Hint 3 for Climbing Stairs"
+      "Think about the last step taken to reach the top.",
+      "The number of ways to reach step n depends on the ways to reach steps n-1 and n-2.",
+      "This problem follows the same recurrence as the Fibonacci sequence."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= n <= 45.",
+      "You can climb either 1 or 2 steps at a time.",
+      "Return the number of distinct ways to reach the top."
     ],
-    "tags": [
-      "Dynamic Programming"
+    "tags": ["Dynamic Programming"],
+    "execution": {
+      "type": "function",
+      "function_name": "climbStairs",
+      "parameters": ["n"]
+    },
+    "test_cases": [
+      {
+        "input": [2],
+        "expected": 2
+      },
+      {
+        "input": [3],
+        "expected": 3
+      },
+      {
+        "input": [4],
+        "expected": 5
+      }
     ]
   },
   {
     "id": "coin_change",
     "title": "Coin Change",
-    "description": "Find minimum coins to make amount.",
+    "description": "Given an array of coin denominations and an integer amount, return the fewest number of coins needed to make up that amount. If the amount cannot be made up, return -1.",
     "difficulty": "medium",
     "topic": "dynamic-programming",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "coins = [1,2,5], amount = 11",
+        "output": "3",
+        "explanation": "The minimum number of coins is 3: 5 + 5 + 1."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "coins = [2], amount = 3",
+        "output": "-1",
+        "explanation": "There is no combination of 2-value coins that produces 3."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "coins = [1], amount = 0",
+        "output": "0",
+        "explanation": "No coins are needed to make an amount of zero."
       }
     ],
     "hints": [
-      "Hint 1 for Coin Change",
-      "Hint 2 for Coin Change",
-      "Hint 3 for Coin Change"
+      "Define a DP state representing the minimum number of coins needed for each amount.",
+      "For every amount, try using each available coin.",
+      "Build the solution from smaller amounts toward the target amount."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= coins.length <= 12.",
+      "1 <= coins[i] <= 2^31 - 1.",
+      "0 <= amount <= 10000.",
+      "Each coin denomination may be used an unlimited number of times."
     ],
-    "tags": [
-      "Dynamic Programming"
+    "tags": ["Dynamic Programming"],
+    "execution": {
+      "type": "function",
+      "function_name": "coinChange",
+      "parameters": ["coins", "amount"]
+    },
+    "test_cases": [
+      {
+        "input": [[1,2,5], 11],
+        "expected": 3
+      },
+      {
+        "input": [[2], 3],
+        "expected": -1
+      },
+      {
+        "input": [[1], 0],
+        "expected": 0
+      }
     ]
   },
   {
     "id": "longest_common_subsequence",
     "title": "Longest Common Subsequence",
-    "description": "Find length of longest common subsequence.",
+    "description": "Given two strings text1 and text2, return the length of their longest common subsequence. A subsequence is formed by deleting some characters without changing the order of the remaining characters.",
     "difficulty": "medium",
     "topic": "dynamic-programming",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "text1 = \"abcde\", text2 = \"ace\"",
+        "output": "3",
+        "explanation": "The longest common subsequence is \"ace\", which has length 3."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "text1 = \"abc\", text2 = \"abc\"",
+        "output": "3",
+        "explanation": "The two strings are identical, so the entire string is their longest common subsequence."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "text1 = \"abc\", text2 = \"def\"",
+        "output": "0",
+        "explanation": "The strings have no characters in common, so their longest common subsequence has length 0."
       }
     ],
     "hints": [
-      "Hint 1 for Longest Common Subsequence",
-      "Hint 2 for Longest Common Subsequence",
-      "Hint 3 for Longest Common Subsequence"
+      "Compare the characters at the current positions in both strings.",
+      "If the characters match, include that character in the subsequence.",
+      "If they do not match, consider skipping a character from either string and keep the larger result."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= text1.length, text2.length <= 1000.",
+      "text1 and text2 consist only of lowercase English characters.",
+      "Return the length of the longest common subsequence."
     ],
-    "tags": [
-      "Dynamic Programming"
+    "tags": ["Dynamic Programming"],
+    "execution": {
+      "type": "function",
+      "function_name": "longestCommonSubsequence",
+      "parameters": ["text1", "text2"]
+    },
+    "test_cases": [
+      {
+        "input": ["abcde", "ace"],
+        "expected": 3
+      },
+      {
+        "input": ["abc", "abc"],
+        "expected": 3
+      },
+      {
+        "input": ["abc", "def"],
+        "expected": 0
+      }
     ]
   },
   {
     "id": "valid_parentheses_stack",
     "title": "Valid Parentheses",
-    "description": "Check if parentheses are valid using stack.",
+    "description": "Given a string containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.",
     "difficulty": "easy",
     "topic": "stacks",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "()",
+        "output": "true",
+        "explanation": "The opening and closing parentheses match correctly."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "()[]{}",
+        "output": "true",
+        "explanation": "Every opening bracket has the correct corresponding closing bracket."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "(]",
+        "output": "false",
+        "explanation": "The opening parenthesis is incorrectly closed by a square bracket."
       }
     ],
     "hints": [
-      "Hint 1 for Valid Parentheses",
-      "Hint 2 for Valid Parentheses",
-      "Hint 3 for Valid Parentheses"
+      "Use a stack to keep track of opening brackets.",
+      "When you encounter a closing bracket, check whether it matches the most recent opening bracket.",
+      "The string is valid only when the stack is empty after processing all characters."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= s.length <= 10000.",
+      "s consists only of parentheses, braces, and square brackets.",
+      "Each closing bracket must match the most recently opened bracket."
     ],
-    "tags": [
-      "Stacks"
+    "tags": ["Stacks"],
+    "execution": {
+      "type": "function",
+      "function_name": "isValid",
+      "parameters": ["s"]
+    },
+    "test_cases": [
+      {
+        "input": ["()"],
+        "expected": true
+      },
+      {
+        "input": ["()[]{}"],
+        "expected": true
+      },
+      {
+        "input": ["(]"],
+        "expected": false
+      }
     ]
   },
   {
     "id": "daily_temperatures",
     "title": "Daily Temperatures",
-    "description": "Find next warmer temperature.",
+    "description": "Given an array of daily temperatures, return an array where each element represents how many days you have to wait until a warmer temperature. If there is no future day with a warmer temperature, use 0.",
     "difficulty": "medium",
     "topic": "stacks",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[73,74,75,71,69,72,76,73]",
+        "output": "[1,1,4,2,1,1,0,0]",
+        "explanation": "For example, after 73 degrees you wait one day for 74 degrees, while after 75 degrees you wait four days for 76 degrees."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[30,40,50,60]",
+        "output": "[1,1,1,0]",
+        "explanation": "Each temperature has a warmer temperature immediately on the next day except the last one."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[30,60,90]",
+        "output": "[1,1,0]",
+        "explanation": "Each temperature is followed by a warmer temperature on the next day except the final temperature."
       }
     ],
     "hints": [
-      "Hint 1 for Daily Temperatures",
-      "Hint 2 for Daily Temperatures",
-      "Hint 3 for Daily Temperatures"
+      "A monotonic decreasing stack can keep track of temperatures that are waiting for a warmer day.",
+      "Store indices rather than only temperature values.",
+      "When the current temperature is warmer than the temperature at the top of the stack, resolve that previous day."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= temperatures.length <= 100000.",
+      "30 <= temperatures[i] <= 100.",
+      "Return 0 for days with no warmer future temperature."
     ],
-    "tags": [
-      "Stacks"
+    "tags": ["Stacks", "Monotonic Stack"],
+    "execution": {
+      "type": "function",
+      "function_name": "dailyTemperatures",
+      "parameters": ["temperatures"]
+    },
+    "test_cases": [
+      {
+        "input": [[73,74,75,71,69,72,76,73]],
+        "expected": [1,1,4,2,1,1,0,0]
+      },
+      {
+        "input": [[30,40,50,60]],
+        "expected": [1,1,1,0]
+      },
+      {
+        "input": [[30,60,90]],
+        "expected": [1,1,0]
+      }
     ]
   },
   {
     "id": "largest_rectangle_histogram",
     "title": "Largest Rectangle in Histogram",
-    "description": "Find largest rectangle in histogram.",
+    "description": "Given an array of integers representing the heights of histogram bars where each bar has width 1, return the area of the largest rectangle that can be formed in the histogram.",
     "difficulty": "hard",
     "topic": "stacks",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "[2,1,5,6,2,3]",
+        "output": "10",
+        "explanation": "The rectangle formed by the bars with heights 5 and 6 has width 2 and area 10."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "[2,4]",
+        "output": "4",
+        "explanation": "The largest rectangle has height 2 and width 2, giving an area of 4."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "[1,1,1]",
+        "output": "3",
+        "explanation": "All three bars have height 1, so the largest rectangle has area 3."
       }
     ],
     "hints": [
-      "Hint 1 for Largest Rectangle in Histogram",
-      "Hint 2 for Largest Rectangle in Histogram",
-      "Hint 3 for Largest Rectangle in Histogram"
+      "Use a monotonic increasing stack of bar indices.",
+      "When a shorter bar is encountered, calculate rectangles using taller bars that can no longer extend.",
+      "Add a sentinel zero height at the end to process all remaining bars."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= heights.length <= 100000.",
+      "0 <= heights[i] <= 10000.",
+      "Each histogram bar has width 1."
     ],
-    "tags": [
-      "Stacks"
+    "tags": ["Stacks", "Monotonic Stack"],
+    "execution": {
+      "type": "function",
+      "function_name": "largestRectangleArea",
+      "parameters": ["heights"]
+    },
+    "test_cases": [
+      {
+        "input": [[2,1,5,6,2,3]],
+        "expected": 10
+      },
+      {
+        "input": [[2,4]],
+        "expected": 4
+      },
+      {
+        "input": [[1,1,1]],
+        "expected": 3
+      }
     ]
   },
   {
     "id": "kth_largest_element",
-    "title": "Kth Largest Element in Array",
-    "description": "Find kth largest element.",
+    "title": "Kth Largest Element in an Array",
+    "description": "Given an integer array nums and an integer k, return the kth largest element in the array.",
     "difficulty": "medium",
     "topic": "heaps",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "output": "5",
+        "explanation": "The sorted array in descending order is [6,5,4,3,2,1], so the 2nd largest element is 5."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "output": "4",
+        "explanation": "The 4th largest element is 4."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "nums = [1], k = 1",
+        "output": "1",
+        "explanation": "The only element is also the largest element."
       }
     ],
     "hints": [
-      "Hint 1 for Kth Largest Element in Array",
-      "Hint 2 for Kth Largest Element in Array",
-      "Hint 3 for Kth Largest Element in Array"
+      "A min-heap of size k can keep track of the k largest elements seen so far.",
+      "When the heap grows beyond k elements, remove its smallest element.",
+      "The element remaining at the top of the heap is the kth largest element."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= k <= nums.length.",
+      "1 <= nums.length <= 100000.",
+      "-10000 <= nums[i] <= 10000.",
+      "Duplicate values are allowed."
     ],
-    "tags": [
-      "Heaps"
+    "tags": ["Heaps"],
+    "execution": {
+      "type": "function",
+      "function_name": "findKthLargest",
+      "parameters": ["nums", "k"]
+    },
+    "test_cases": [
+      {
+        "input": [[3,2,1,5,6,4], 2],
+        "expected": 5
+      },
+      {
+        "input": [[3,2,3,1,2,4,5,5,6], 4],
+        "expected": 4
+      },
+      {
+        "input": [[1], 1],
+        "expected": 1
+      }
     ]
   },
   {
     "id": "top_k_frequent_elements",
     "title": "Top K Frequent Elements",
-    "description": "Find k most frequent elements.",
+    "description": "Given an integer array nums and an integer k, return the k most frequent elements. The answer may be returned in any order.",
     "difficulty": "medium",
     "topic": "heaps",
     "examples": [
       {
-        "input": "Example 1 input",
-        "output": "Output 1",
-        "explanation": "Explanation 1"
+        "input": "nums = [1,1,1,2,2,3], k = 2",
+        "output": "[1,2]",
+        "explanation": "1 appears three times and 2 appears twice, making them the two most frequent elements."
       },
       {
-        "input": "Example 2 input",
-        "output": "Output 2",
-        "explanation": "Explanation 2"
+        "input": "nums = [1], k = 1",
+        "output": "[1]",
+        "explanation": "There is only one distinct element."
       },
       {
-        "input": "Example 3 input",
-        "output": "Output 3",
-        "explanation": "Explanation 3"
+        "input": "nums = [4,4,4,5,5,6,6,6,6], k = 2",
+        "output": "[6,4]",
+        "explanation": "6 appears four times and 4 appears three times, so they are the two most frequent elements."
       }
     ],
     "hints": [
-      "Hint 1 for Top K Frequent Elements",
-      "Hint 2 for Top K Frequent Elements",
-      "Hint 3 for Top K Frequent Elements"
+      "First count the frequency of every distinct number.",
+      "A min-heap of size k can keep the k most frequent elements.",
+      "The order of the returned elements does not matter."
     ],
     "constraints": [
-      "Constraint 1",
-      "Constraint 2",
-      "Constraint 3"
+      "1 <= nums.length <= 100000.",
+      "k is between 1 and the number of distinct elements.",
+      "-10000 <= nums[i] <= 10000.",
+      "The answer may be returned in any order."
     ],
-    "tags": [
-      "Heaps"
+    "tags": ["Heaps"],
+    "execution": {
+      "type": "function",
+      "function_name": "topKFrequent",
+      "parameters": ["nums", "k"],
+      "comparison": "unordered"
+    },
+    "test_cases": [
+      {
+        "input": [[1,1,1,2,2,3], 2],
+        "expected": [1,2]
+      },
+      {
+        "input": [[1], 1],
+        "expected": [1]
+      },
+      {
+        "input": [[4,4,4,5,5,6,6,6,6], 2],
+        "expected": [4,6]
+      }
     ]
   },
   {
@@ -885,6 +1375,60 @@
     ],
     "tags": [
       "Heaps"
+    ],
+    "execution": {
+      "type": "class",
+      "class_name": "MedianFinder"
+    },
+    "test_cases": [
+      {
+        "input": {
+          "operations": [
+            "MedianFinder",
+            "addNum",
+            "addNum",
+            "findMedian"
+          ],
+          "arguments": [
+            [],
+            [1],
+            [2],
+            []
+          ]
+        },
+        "expected": [
+          null,
+          null,
+          null,
+          1.5
+        ]
+      },
+      {
+        "input": {
+          "operations": [
+            "MedianFinder",
+            "addNum",
+            "addNum",
+            "addNum",
+            "findMedian"
+          ],
+          "arguments": [
+            [],
+            [2],
+            [3],
+            [4],
+            []
+          ]
+        },
+        "expected": [
+          null,
+          null,
+          null,
+          null,
+          3.0
+        ]
+      }
     ]
+
   }
 ]
