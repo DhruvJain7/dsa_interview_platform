@@ -89,6 +89,7 @@ function ProblemDetail({ problem, onNavigate }) {
             </p>
 
             <button
+              onClick={() => onNavigate("practice")}
               className="mt-6 border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80"
             >
               Start Practice →

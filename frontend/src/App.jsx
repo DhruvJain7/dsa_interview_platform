@@ -2,6 +2,7 @@ import { useState } from "react";
 import Home from "./pages/Home";
 import Problems from "./pages/Problems";
 import ProblemDetail from "./pages/ProblemDetail";
+import Practice from "./pages/Practice";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -27,7 +28,14 @@ function App() {
       />
     );
   }
-
+  if (page === "practice" && selectedProblem) {
+    return (
+      <Practice
+        problem={selectedProblem}
+        onNavigate={setPage}
+      />
+    );
+  }
   return (
     <Home onNavigate={setPage} />
   );
