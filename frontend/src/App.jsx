@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Home from "./pages/Home";
 import Problems from "./pages/Problems";
+import ProblemDetail from "./pages/ProblemDetail";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -12,8 +13,17 @@ function App() {
         onNavigate={setPage}
         onSelectProblem={(problem) => {
           setSelectedProblem(problem);
-          console.log("Selected problem:", problem);
+          setPage("problem-detail");
         }}
+      />
+    );
+  }
+
+  if (page === "problem-detail" && selectedProblem) {
+    return (
+      <ProblemDetail
+        problem={selectedProblem}
+        onNavigate={setPage}
       />
     );
   }
