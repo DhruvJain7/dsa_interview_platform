@@ -39,42 +39,26 @@ app.add_middleware(
 def health_check():
     return {"status": "ok"}
 
-def escape_tag(value: str) -> str:
-    special_characters = r",.<>{}[]\"':;!@#$%^&*()-+=~"
-
-    for character in special_characters:
-        value = value.replace(character, f"\\{character}")
-
-    return value
 
 @app.get("/problems")
 def get_problems(
     topic: str | None = Query(default=None),
     difficulty: str | None = Query(default=None),
 ):
-    query_parts = []
-
-    if topic:
-        query_parts.append(f"@topic:{{{escape_tag(topic)}}}")
-
-    if difficulty:
-        query_parts.append(f"@difficulty:{{{escape_tag(difficulty)}}}")
-
-    query = " ".join(query_parts) if query_parts else "*"
-
-    result = r.execute_command(
-        "FT.SEARCH",
-        "idx:problems",
-        query,
-        "LIMIT",
-        "0",
-        "100",
-    )
-
     problems = []
 
-    for item in result["results"]:
-        problem = item["extra_attributes"]
+    for key in r.scan_iter(match="problem:*"):
+        problem = r.hgetall(key)
+
+        if not problem:
+            continue
+
+        # Backend-side filtering
+        if topic and problem["topic"] != topic:
+            continue
+
+        if difficulty and problem["difficulty"] != difficulty:
+            continue
 
         problem["examples"] = json.loads(problem["examples"])
         problem["hints"] = json.loads(problem["hints"])

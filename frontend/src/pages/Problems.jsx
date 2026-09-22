@@ -4,9 +4,25 @@ import Navbar from "../components/Navbar";
 function Problems({ onNavigate, onSelectProblem }) {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [topic, setTopic] = useState("");
+  const [difficulty, setDifficulty] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/problems")
+    const params = new URLSearchParams();
+
+    if (topic) {
+      params.append("topic", topic);
+    }
+
+    if (difficulty) {
+      params.append("difficulty", difficulty);
+    }
+
+    const query = params.toString();
+
+    setLoading(true);
+
+    fetch(`http://127.0.0.1:8000/problems${query ? `?${query}` : ""}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch problems");
@@ -20,10 +36,10 @@ function Problems({ onNavigate, onSelectProblem }) {
       })
       .catch((error) => {
         console.error(error);
+        setProblems([]);
         setLoading(false);
       });
-  }, []);
-
+  }, [topic, difficulty]);
   return (
     <div className="min-h-screen bg-[#f3f3f1] p-5">
       <div className="min-h-[calc(100vh-2.5rem)] bg-white">
@@ -50,6 +66,34 @@ function Problems({ onNavigate, onSelectProblem }) {
               Pick a problem and practice explaining your solution,
               not just writing it.
             </p>
+          </div>
+          <div className="mb-10 flex flex-col gap-4 border-y border-black/10 py-5 sm:flex-row">
+            <select
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className="border border-black/15 bg-white px-4 py-3 text-sm outline-none"
+            >
+              <option value="">All Topics</option>
+              <option value="arrays">Arrays</option>
+              <option value="strings">Strings</option>
+              <option value="linked-lists">Linked Lists</option>
+              <option value="trees">Trees</option>
+              <option value="graphs">Graphs</option>
+              <option value="dynamic-programming">Dynamic Programming</option>
+              <option value="stacks">Stacks</option>
+              <option value="heaps">Heaps</option>
+            </select>
+
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+              className="border border-black/15 bg-white px-4 py-3 text-sm outline-none"
+            >
+              <option value="">All Difficulties</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
           </div>
 
           {loading ? (
