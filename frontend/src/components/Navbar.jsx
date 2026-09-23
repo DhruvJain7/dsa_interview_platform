@@ -1,9 +1,27 @@
+import { useEffect, useState } from "react";
+
 function Navbar({ activePage, onNavigate }) {
   const navItems = [
     { label: "Dashboard", page: "dashboard" },
     { label: "Practice", page: "problems" },
     { label: "Interactive", page: "interactive" },
   ];
+
+  const [darkMode, setDarkMode] = useState(() => {
+    return document.documentElement.classList.contains("dark");
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+
+    if (darkMode) {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
 
   return (
     <header className="relative z-10 px-10 pt-10 md:px-16">
@@ -12,13 +30,13 @@ function Navbar({ activePage, onNavigate }) {
         {/* Logo */}
         <button
           onClick={() => onNavigate("home")}
-          className="text-[28px] tracking-tight"
+          className="text-[28px] tracking-tight text-black dark:text-[#F5F5F5]"
         >
           Articula
         </button>
 
         {/* Center Navigation */}
-        <div className="absolute left-1/2 top-10 hidden -translate-x-1/2 items-center rounded-full border border-black/50 bg-[#fffafa] px-2 py-1.5 md:flex">
+        <div className="absolute left-1/2 top-10 hidden -translate-x-1/2 items-center rounded-full border border-black/50 bg-[#fffafa] px-2 py-1.5 md:flex dark:border-white/20 dark:bg-[#222222]">
           {navItems.map((item) => {
             const isActive = activePage === item.page;
 
@@ -28,8 +46,8 @@ function Navbar({ activePage, onNavigate }) {
                 onClick={() => onNavigate(item.page)}
                 className={`rounded-full px-7 py-2 text-[15px] transition-colors ${
                   isActive
-                    ? "bg-black text-white"
-                    : "hover:bg-black hover:text-white"
+                    ? "bg-black text-white dark:bg-[#F5F5F5] dark:text-[#181818]"
+                    : "text-black dark:text-[#F5F5F5] hover:bg-black hover:text-white dark:hover:bg-[#292929] dark:hover:text-[#F5F5F5]"
                 }`}
               >
                 {item.label}
@@ -41,10 +59,21 @@ function Navbar({ activePage, onNavigate }) {
         {/* Right Actions */}
         <div className="flex items-center gap-6">
 
+          {/* Theme Toggle */}
+          <button
+            onClick={() => setDarkMode((prev) => !prev)}
+            aria-label={
+              darkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
+            className="text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
+          >
+            {darkMode ? "☀" : "☾"}
+          </button>
+
           {/* GitHub */}
           <button
             aria-label="GitHub"
-            className="transition-opacity hover:opacity-50"
+            className="text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
           >
             <svg
               width="23"
@@ -64,7 +93,7 @@ function Navbar({ activePage, onNavigate }) {
           {/* Code */}
           <button
             aria-label="Code"
-            className="transition-opacity hover:opacity-50"
+            className="text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
           >
             <svg
               width="26"
