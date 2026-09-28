@@ -11,7 +11,9 @@ from app.services.harnesses.class_problem import (
 from app.services.harnesses.javascript_function import (
     generate_javascript_function_harness,
 )
-
+from app.services.harnesses.javascript_linked_list import (
+    generate_javascript_linked_list_harness,
+)
 
 def generate_harness(
     user_code: str,
@@ -57,6 +59,12 @@ def generate_harness(
                 execution=execution,
                 test_cases=test_cases,
             )
+        if execution_type == "linked_list":
+            return generate_javascript_linked_list_harness(
+                    user_code=user_code,
+                    execution=execution,
+                    test_cases=test_cases,
+                )
 
     raise ValueError(
         f"Unsupported language/execution combination: "
