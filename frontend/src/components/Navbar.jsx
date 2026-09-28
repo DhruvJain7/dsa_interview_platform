@@ -1,3 +1,9 @@
+import {
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { useEffect, useState } from "react";
 
 function Navbar({ activePage, onNavigate }) {
@@ -10,6 +16,39 @@ function Navbar({ activePage, onNavigate }) {
   const [darkMode, setDarkMode] = useState(() => {
     return document.documentElement.classList.contains("dark");
   });
+
+  const [scrolled, setScrolled] = useState(false);
+
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 40);
+  });
+
+  // Dynamic Island transition
+  const horizontalPadding = useTransform(
+    scrollY,
+    [0, 120],
+    [0, 20]
+  );
+
+  const verticalPadding = useTransform(
+    scrollY,
+    [0, 120],
+    [0, 9]
+  );
+
+  const scale = useTransform(
+    scrollY,
+    [0, 120],
+    [1, 0.96]
+  );
+
+  const maxWidth = useTransform(
+    scrollY,
+    [0, 120],
+    ["1350px", "720px"]
+  );
 
   useEffect(() => {
     const root = document.documentElement;
@@ -24,9 +63,38 @@ function Navbar({ activePage, onNavigate }) {
   }, [darkMode]);
 
   return (
-    <header className="relative z-10 px-10 pt-10 md:px-16">
-      <nav className="mx-auto flex max-w-[1350px] items-center justify-between">
-
+    <header className="sticky top-4 z-50 -mb-[72px] px-6 md:px-10">
+      <motion.nav
+        style={{
+          paddingTop: verticalPadding,
+          paddingBottom: verticalPadding,
+          paddingLeft: horizontalPadding,
+          paddingRight: horizontalPadding,
+          scale,
+          maxWidth,
+        }}
+        animate={{
+          borderRadius: scrolled ? 999 : 0,
+          backgroundColor: scrolled
+            ? darkMode
+              ? "rgba(34, 34, 34, 0.82)"
+              : "rgba(255, 255, 255, 0.82)"
+            : "rgba(255, 255, 255, 0)",
+          borderColor: scrolled
+            ? darkMode
+              ? "rgba(255, 255, 255, 0.10)"
+              : "rgba(0, 0, 0, 0.10)"
+            : "rgba(0, 0, 0, 0)",
+          boxShadow: scrolled
+            ? "0 8px 30px rgba(0, 0, 0, 0.08)"
+            : "0 0 0 rgba(0, 0, 0, 0)",
+        }}
+        transition={{
+          duration: 0.45,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+        className="relative mx-auto flex items-center justify-between border backdrop-blur-xl"
+      >
         {/* Logo */}
         <button
           onClick={() => onNavigate("home")}
@@ -36,7 +104,7 @@ function Navbar({ activePage, onNavigate }) {
         </button>
 
         {/* Center Navigation */}
-        <div className="absolute left-1/2 top-10 hidden -translate-x-1/2 items-center rounded-full border border-black/50 bg-[#fffafa] px-2 py-1.5 md:flex dark:border-white/20 dark:bg-[#222222]">
+        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center rounded-full border border-black/50 bg-[#fffafa] px-2 py-1.5 md:flex dark:border-white/20 dark:bg-[#222222]">
           {navItems.map((item) => {
             const isActive = activePage === item.page;
 
@@ -47,7 +115,7 @@ function Navbar({ activePage, onNavigate }) {
                 className={`rounded-full px-7 py-2 text-[15px] transition-colors ${
                   isActive
                     ? "bg-black text-white dark:bg-[#F5F5F5] dark:text-[#181818]"
-                    : "text-black dark:text-[#F5F5F5] hover:bg-black hover:text-white dark:hover:bg-[#292929] dark:hover:text-[#F5F5F5]"
+                    : "text-black hover:bg-black hover:text-white dark:text-[#F5F5F5] dark:hover:bg-[#292929]"
                 }`}
               >
                 {item.label}
@@ -63,7 +131,9 @@ function Navbar({ activePage, onNavigate }) {
           <button
             onClick={() => setDarkMode((prev) => !prev)}
             aria-label={
-              darkMode ? "Switch to light mode" : "Switch to dark mode"
+              darkMode
+                ? "Switch to light mode"
+                : "Switch to dark mode"
             }
             className="text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
           >
@@ -111,7 +181,7 @@ function Navbar({ activePage, onNavigate }) {
           </button>
 
         </div>
-      </nav>
+      </motion.nav>
     </header>
   );
 }
