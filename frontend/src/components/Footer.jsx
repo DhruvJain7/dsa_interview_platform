@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-function Footer({ onNavigate }) {
+function Footer({ onNavigate, variant = "full" }) {
   const methodItems = [
     "Think",
     "Articulate",
@@ -8,13 +8,89 @@ function Footer({ onNavigate }) {
     "Improve",
   ];
 
+  // =========================================================
+  // MINIMAL FOOTER
+  // =========================================================
+  if (variant === "minimal") {
+    return (
+      <footer className="border-t border-black/10 dark:border-white/10">
+        <div className="mx-auto max-w-[1350px] px-6 md:px-16">
+
+          <div className="flex flex-col gap-8 py-10 md:flex-row md:items-center md:justify-between">
+
+            {/* Brand */}
+            <button
+              onClick={() => onNavigate("home")}
+              className="w-fit text-[28px] tracking-tight text-black dark:text-[#F5F5F5]"
+            >
+              Articula
+            </button>
+
+            {/* Navigation */}
+            <div className="flex flex-wrap items-center gap-6 text-sm text-black/60 dark:text-white/60">
+              <button
+                onClick={() => onNavigate("problems")}
+                className="transition-opacity hover:opacity-50"
+              >
+                Practice
+              </button>
+
+              <button
+                onClick={() => onNavigate("dashboard")}
+                className="transition-opacity hover:opacity-50"
+              >
+                Dashboard
+              </button>
+
+              <button
+                onClick={() => onNavigate("interactive")}
+                className="transition-opacity hover:opacity-50"
+              >
+                Interactive
+              </button>
+            </div>
+
+            {/* GitHub */}
+            <button
+              aria-label="GitHub"
+              className="w-fit text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
+            >
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 22v-4c.1-1.1-.4-2.1-1.4-2.5 3.4-.4 7-1.7 7-7.5a5.8 5.8 0 0 0-1.6-4.1A5.4 5.4 0 0 0 18.9.3S17.6-.1 15 1.6a13.4 13.4 0 0 0-6 0C6.4-.1 5.1.3 5.1.3a5.4 5.4 0 0 0-.1 3.6c-1 1.1-1.6 2.5-1.6 4.1 0 5.8 3.6 7.1 7 7.5-1 .4-1.5 1.4-1.4 2.5v4" />
+                <path d="M9 18c-3.3 1.5-3.3-1.5-4.6-1.5" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Copyright */}
+          <div className="border-t border-black/10 py-5 dark:border-white/10">
+            <p className="text-xs text-black/40 dark:text-white/40">
+              © 2026 Articula
+            </p>
+          </div>
+
+        </div>
+      </footer>
+    );
+  }
+
+  // =========================================================
+  // FULL FOOTER
+  // =========================================================
   return (
     <footer className="border-t border-black/10 dark:border-white/10">
       <div className="mx-auto max-w-[1350px] px-6 md:px-16">
 
-        {/* =====================================================
-            FINAL CTA
-        ====================================================== */}
+        {/* Final CTA */}
         <section className="py-24 text-center md:py-32">
           <motion.p
             initial={{ opacity: 0, y: 15 }}
@@ -59,15 +135,14 @@ function Footer({ onNavigate }) {
             className="group mt-9 rounded-full bg-black px-7 py-3.5 text-sm font-medium text-white dark:bg-[#F5F5F5] dark:text-[#181818]"
           >
             Start Practicing
+
             <span className="ml-2 inline-block transition-transform duration-200 group-hover:translate-x-1">
               →
             </span>
           </motion.button>
         </section>
 
-        {/* =====================================================
-            ARTICULA METHOD
-        ====================================================== */}
+        {/* Articula Method */}
         <section className="border-y border-black/10 py-8 dark:border-white/10">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
 
@@ -106,12 +181,9 @@ function Footer({ onNavigate }) {
           </div>
         </section>
 
-        {/* =====================================================
-            FOOTER NAVIGATION
-        ====================================================== */}
+        {/* Footer Navigation */}
         <div className="flex flex-col gap-8 py-10 md:flex-row md:items-center md:justify-between">
 
-          {/* Brand */}
           <button
             onClick={() => onNavigate("home")}
             className="w-fit text-[28px] tracking-tight text-black dark:text-[#F5F5F5]"
@@ -119,7 +191,6 @@ function Footer({ onNavigate }) {
             Articula
           </button>
 
-          {/* Navigation */}
           <div className="flex flex-wrap items-center gap-6 text-sm text-black/60 dark:text-white/60">
             <button
               onClick={() => onNavigate("problems")}
@@ -143,7 +214,6 @@ function Footer({ onNavigate }) {
             </button>
           </div>
 
-          {/* GitHub */}
           <button
             aria-label="GitHub"
             className="w-fit text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
@@ -164,9 +234,7 @@ function Footer({ onNavigate }) {
           </button>
         </div>
 
-        {/* =====================================================
-            COPYRIGHT
-        ====================================================== */}
+        {/* Copyright */}
         <div className="border-t border-black/10 py-5 dark:border-white/10">
           <p className="text-xs text-black/40 dark:text-white/40">
             © 2026 Articula
