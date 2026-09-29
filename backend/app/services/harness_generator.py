@@ -14,6 +14,9 @@ from app.services.harnesses.javascript_function import (
 from app.services.harnesses.javascript_linked_list import (
     generate_javascript_linked_list_harness,
 )
+from app.services.harnesses.javascript_binary_tree import (
+    generate_javascript_binary_tree_harness,
+)
 
 def generate_harness(
     user_code: str,
@@ -65,6 +68,13 @@ def generate_harness(
                     execution=execution,
                     test_cases=test_cases,
                 )
+
+        if execution_type == "binary_tree":
+            return generate_javascript_binary_tree_harness(
+                        user_code=user_code,
+                        execution=execution,
+                        test_cases=test_cases,
+                    )
 
     raise ValueError(
         f"Unsupported language/execution combination: "
