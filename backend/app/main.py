@@ -8,10 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Query
+from app.services.execution_service import ExecutionService
 from app.services.jdoodle_provider import JDoodleProvider
-from app.services.harness_generator import generate_harness
 from app.services.test_runner import TestRunner
-from app.services.jdoodle_provider import JDoodleProvider
 
 load_dotenv()
 
@@ -100,49 +99,19 @@ def execute_code(request: ExecuteRequest):
             detail="Problem not found",
         )
 
-    if not problem.get("test_cases"):
+    execution_service = ExecutionService()
+
+    try:
+        return execution_service.execute(
+            language=request.language,
+            code=request.code,
+            problem=problem,
+        )
+    except ValueError as error:
         raise HTTPException(
             status_code=400,
-            detail="This problem does not have test cases yet",
+            detail=str(error),
         )
-
-
-
-    runner = TestRunner()
-    test_cases = runner.get_test_cases(problem)
-
-    execution = json.loads(problem["execution"])
-    print("DEBUG execution:", execution)
-    print("DEBUG execution type:", type(execution))
-
-    harness = generate_harness(
-        user_code=request.code,
-        execution=execution,
-        test_cases=test_cases,
-        language=request.language,
-    )
-
-    provider = JDoodleProvider()
-
-    execution_result = provider.execute(
-        language=request.language,
-        code=harness,
-    )
-
-    return runner.evaluate_execution(
-        execution_result,
-        test_cases,
-        execution,
-    )
-
-def escape_tag(value: str) -> str:
-    special_characters = r",.<>{}[]\"':;!@#$%^&*()-+=~"
-
-    for character in special_characters:
-        value = value.replace(character, f"\\{character}")
-
-    return value
-
 @app.get("/problems")
 def get_problems(
     topic: str | None = Query(default=None),
