@@ -3,6 +3,9 @@ import os
 import httpx
 from dotenv import load_dotenv
 
+from app.services.exceptions import ProviderExecutionError
+
+
 load_dotenv()
 
 
@@ -37,12 +40,35 @@ class JDoodleProvider:
             "stdin": stdin,
         }
 
-        response = httpx.post(
-            "https://api.jdoodle.com/v1/execute",
-            json=payload,
-            timeout=30,
-        )
+        try:
+            response = httpx.post(
+                "https://api.jdoodle.com/v1/execute",
+                json=payload,
+                timeout=30,
+            )
 
-        response.raise_for_status()
+            response.raise_for_status()
 
-        return response.json()
+        except httpx.TimeoutException as error:
+            raise ProviderExecutionError(
+                "Code execution provider timed out"
+            ) from error
+
+        except httpx.HTTPStatusError as error:
+            raise ProviderExecutionError(
+                f"Code execution provider returned HTTP "
+                f"{error.response.status_code}"
+            ) from error
+
+        except httpx.RequestError as error:
+            raise ProviderExecutionError(
+                "Unable to reach code execution provider"
+            ) from error
+
+        try:
+            return response.json()
+
+        except ValueError as error:
+            raise ProviderExecutionError(
+                "Code execution provider returned invalid JSON"
+            ) from error

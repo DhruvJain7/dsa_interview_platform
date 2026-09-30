@@ -1,5 +1,6 @@
 import json
 
+from app.services.exceptions import ProviderExecutionError
 from app.services.harness_generator import generate_harness
 from app.services.jdoodle_provider import JDoodleProvider
 from app.services.test_runner import TestRunner
@@ -33,10 +34,15 @@ class ExecutionService:
             language=language,
         )
 
-        execution_result = self.provider.execute(
-            language=language,
-            code=harness,
-        )
+        try:
+            execution_result = self.provider.execute(
+                language=language,
+                code=harness,
+            )
+        except ProviderExecutionError as error:
+            raise ProviderExecutionError(
+                f"Execution provider error: {error}"
+            ) from error
 
         return self.runner.evaluate_execution(
             execution_result,

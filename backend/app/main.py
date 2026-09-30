@@ -11,6 +11,7 @@ from fastapi import FastAPI, HTTPException, Query
 from app.services.execution_service import ExecutionService
 from app.services.jdoodle_provider import JDoodleProvider
 from app.services.test_runner import TestRunner
+from app.services.exceptions import ProviderExecutionError
 
 load_dotenv()
 
@@ -107,6 +108,13 @@ def execute_code(request: ExecuteRequest):
             code=request.code,
             problem=problem,
         )
+
+    except ProviderExecutionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        )
+
     except ValueError as error:
         raise HTTPException(
             status_code=400,
