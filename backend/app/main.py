@@ -3,18 +3,17 @@ import os
 
 import redis
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Query
-from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from app.services.exceptions import ProviderExecutionError
 from app.services.execution_service import ExecutionService
 from app.services.jdoodle_provider import JDoodleProvider
-from app.services.test_runner import TestRunner
-from app.services.exceptions import ProviderExecutionError
 
 load_dotenv()
-
+def escape_tag(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("}", "\\}")
 app = FastAPI(title="Articula")
 
 
