@@ -156,3 +156,20 @@ def get_problems(
         problems.append(problem)
 
     return problems
+
+@app.get("/problems/{problem_id}")
+def get_problem(problem_id: str):
+    problem = r.hgetall(f"problem:{problem_id}")
+
+    if not problem:
+        raise HTTPException(
+            status_code=404,
+            detail="Problem not found",
+        )
+
+    problem["examples"] = json.loads(problem["examples"])
+    problem["hints"] = json.loads(problem["hints"])
+    problem["constraints"] = json.loads(problem["constraints"])
+    problem["tags"] = json.loads(problem["tags"])
+
+    return problem
