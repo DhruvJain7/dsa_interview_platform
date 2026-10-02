@@ -399,3 +399,45 @@ def submit_session(
         "code": request.code,
         "execution_result": result,
     }
+
+
+@app.post("/sessions/{session_id}/complete")
+def complete_session(
+    session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    session = r.hgetall(f"session:{session_id}")
+
+    if not session:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    if session.get("user_id") != user_id:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    if session.get("status") != "submitted":
+        raise HTTPException(
+            status_code=400,
+            detail="Session must be submitted before completion",
+        )
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    r.hset(
+        f"session:{session_id}",
+        mapping={
+            "status": "completed",
+            "updated_at": now,
+        },
+    )
+
+    return {
+        "session_id": session_id,
+        "status": "completed",
+        "updated_at": now,
+    }
