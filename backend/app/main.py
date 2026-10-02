@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
+from datetime import datetime, timezone
 from app.services.exceptions import ProviderExecutionError
 from app.services.execution_service import ExecutionService
 from app.services.auth_service import AuthService
@@ -69,6 +69,9 @@ class LoginRequest(BaseModel):
 class SessionCreateRequest(BaseModel):
     problem_id: str
     language: str
+
+class SessionSubmitRequest(BaseModel):
+    code: str
 
 @app.post("/execute-tests")
 def execute_tests(request: TestRequest):
@@ -330,3 +333,69 @@ def get_session(
     )
 
     return session
+
+@app.post("/sessions/{session_id}/submit")
+def submit_session(
+    session_id: str,
+    request: SessionSubmitRequest,
+    user_id: str = Depends(get_current_user_id),
+):
+    session = r.hgetall(f"session:{session_id}")
+
+    if not session:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    if session.get("user_id") != user_id:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    problem = r.hgetall(f"problem:{session['problem_id']}")
+
+    if not problem:
+        raise HTTPException(
+            status_code=404,
+            detail="Problem not found",
+        )
+
+    execution_service = ExecutionService()
+
+    try:
+        result = execution_service.execute(
+            language=session["language"],
+            code=request.code,
+            problem=problem,
+        )
+    except ProviderExecutionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    r.hset(
+        f"session:{session_id}",
+        mapping={
+            "code": request.code,
+            "execution_result": json.dumps(result),
+            "status": "submitted",
+            "updated_at": now,
+        },
+    )
+
+    return {
+        "session_id": session_id,
+        "status": "submitted",
+        "code": request.code,
+        "execution_result": result,
+    }
