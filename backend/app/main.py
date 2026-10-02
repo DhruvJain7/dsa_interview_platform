@@ -4,12 +4,16 @@ import os
 import redis
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app.services.exceptions import ProviderExecutionError
 from app.services.execution_service import ExecutionService
-
+from app.services.auth_service import AuthService
+from app.services.user_service import UserService
+from app.services.auth_dependency import get_current_user_id
+from app.services.session_service import SessionService
 
 load_dotenv()
 def escape_tag(value: str) -> str:
@@ -52,6 +56,19 @@ class ExecuteRequest(BaseModel):
     language: str
     code: str
     problem_id: str
+
+class SignupRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class SessionCreateRequest(BaseModel):
+    problem_id: str
+    language: str
 
 @app.post("/execute-tests")
 def execute_tests(request: TestRequest):
@@ -173,3 +190,114 @@ def get_problem(problem_id: str):
     problem["tags"] = json.loads(problem["tags"])
 
     return problem
+
+
+@app.post("/auth/signup")
+def signup(request: SignupRequest):
+    if not request.name.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Name is required",
+        )
+
+    if not request.email.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Email is required",
+        )
+
+    if len(request.password) < 8:
+        raise HTTPException(
+            status_code=400,
+            detail="Password must be at least 8 characters",
+        )
+
+    user_service = UserService(r)
+    auth_service = AuthService()
+
+    try:
+        user = user_service.create_user(
+            name=request.name,
+            email=request.email,
+            password=request.password,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    token = auth_service.create_access_token(
+        user["user_id"]
+    )
+
+    return {
+        "user": user,
+        "access_token": token,
+        "token_type": "bearer",
+    }
+
+
+@app.post("/auth/login")
+def login(request: LoginRequest):
+    user_service = UserService(r)
+    auth_service = AuthService()
+
+    user = user_service.get_user_by_email(
+        request.email
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password",
+        )
+
+    if not user_service.verify_password(
+        request.password,
+        user["password_hash"],
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password",
+        )
+
+    token = auth_service.create_access_token(
+        user["user_id"]
+    )
+
+    return {
+        "user": {
+            "user_id": user["user_id"],
+            "name": user["name"],
+            "email": user["email"],
+            "created_at": user["created_at"],
+        },
+        "access_token": token,
+        "token_type": "bearer",
+    }
+
+@app.get("/auth/me")
+def get_me(user_id: str = Depends(get_current_user_id)):
+    return {
+        "user_id": user_id,
+    }
+
+@app.post("/sessions")
+def create_session(
+    request: SessionCreateRequest,
+    user_id: str = Depends(get_current_user_id),
+):
+    session_service = SessionService(r)
+
+    try:
+        return session_service.create_session(
+            user_id=user_id,
+            problem_id=request.problem_id,
+            language=request.language,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
