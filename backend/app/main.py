@@ -301,3 +301,32 @@ def create_session(
             status_code=400,
             detail=str(error),
         )
+
+
+@app.get("/sessions/{session_id}")
+def get_session(
+    session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    session = r.hgetall(f"session:{session_id}")
+
+    if not session:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    if session.get("user_id") != user_id:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    session["execution_result"] = json.loads(
+        session["execution_result"]
+    )
+    session["evaluation"] = json.loads(
+        session["evaluation"]
+    )
+
+    return session
