@@ -70,6 +70,7 @@ class TestRunner:
                 "error": (
                     execution_result.get("error")
                     or execution_result.get("compilationStatus")
+                    or execution_result.get("output")
                     or "Code execution failed"
                 ),
                 "results": [],
