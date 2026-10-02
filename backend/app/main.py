@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from app.services.exceptions import ProviderExecutionError
 from app.services.execution_service import ExecutionService
-from app.services.jdoodle_provider import JDoodleProvider
+
 
 load_dotenv()
 def escape_tag(value: str) -> str:
