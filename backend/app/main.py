@@ -16,6 +16,8 @@ from app.services.user_service import UserService
 from app.services.auth_dependency import get_current_user_id
 from app.services.session_service import SessionService
 from fastapi import File, UploadFile
+from app.services.evaluation_service import EvaluationService
+from app.services.exceptions import EvaluationError
 
 
 
@@ -432,11 +434,37 @@ def complete_session(
             detail="Session must be submitted before completion",
         )
 
+    problem = r.hgetall(
+        f"problem:{session.get('problem_id')}"
+    )
+
+    if not problem:
+        raise HTTPException(
+            status_code=404,
+            detail="Problem not found",
+        )
+
+    try:
+        evaluation = EvaluationService().evaluate(
+            problem=problem,
+            code=session.get("code", ""),
+            execution_result=json.loads(
+                session.get("execution_result", "{}")
+            ),
+            transcript=session.get("transcript", ""),
+        )
+    except EvaluationError as error:
+        raise HTTPException(
+            status_code=502,
+            detail=str(error),
+        )
+
     now = datetime.now(timezone.utc).isoformat()
 
     r.hset(
         f"session:{session_id}",
         mapping={
+            "evaluation": json.dumps(evaluation),
             "status": "completed",
             "updated_at": now,
         },
@@ -445,9 +473,8 @@ def complete_session(
     return {
         "session_id": session_id,
         "status": "completed",
-        "updated_at": now,
+        "evaluation": evaluation,
     }
-
 
 @app.post("/sessions/{session_id}/transcript")
 def transcribe_session(
