@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 
 import redis
 from dotenv import load_dotenv
@@ -14,6 +15,11 @@ from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.services.auth_dependency import get_current_user_id
 from app.services.session_service import SessionService
+from fastapi import File, UploadFile
+
+
+
+from app.services.transcription_service import TranscriptionService
 
 load_dotenv()
 def escape_tag(value: str) -> str:
@@ -441,3 +447,64 @@ def complete_session(
         "status": "completed",
         "updated_at": now,
     }
+
+
+@app.post("/sessions/{session_id}/transcript")
+def transcribe_session(
+    session_id: str,
+    audio: UploadFile = File(...),
+    user_id: str = Depends(get_current_user_id),
+):
+    session = r.hgetall(f"session:{session_id}")
+
+    if not session:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    if session.get("user_id") != user_id:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    suffix = os.path.splitext(audio.filename or "")[1] or ".tmp"
+    temp_path = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+                delete=False,
+                suffix=suffix,
+            ) as temp_file:
+                temp_path = temp_file.name
+                temp_file.write(audio.file.read())
+
+        result = TranscriptionService().transcribe(temp_path)
+
+    except RuntimeError as error:
+            raise HTTPException(
+                status_code=502,
+                detail=str(error),
+            )
+
+    finally:
+        if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
+
+        now = datetime.now(timezone.utc).isoformat()
+
+        r.hset(
+            f"session:{session_id}",
+            mapping={
+                "transcript": result["text"],
+                "updated_at": now,
+            },
+        )
+
+    return {
+            "session_id": session_id,
+            "transcript": result["text"],
+            "transcript_id": result["transcript_id"],
+            "status": result["status"],
+        }
