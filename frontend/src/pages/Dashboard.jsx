@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
@@ -279,6 +280,7 @@ function Dashboard() {
         </section>
 
       </main>
+      <Footer variant="minimal" />
     </div>
   );
 }

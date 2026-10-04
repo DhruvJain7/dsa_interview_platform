@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -120,15 +122,14 @@ function SessionDetail() {
     executionResult = {};
   }
 
-  const tests = executionResult?.tests || [];
+  // Execution results are stored under `results`
+  const tests = executionResult?.results || [];
 
-  const passedTests =
-    executionResult?.passed ??
-    tests.filter((test) => test.passed).length;
+  const passedTests = tests.filter(
+    (test) => test.passed
+  ).length;
 
-  const totalTests =
-    executionResult?.total ??
-    tests.length;
+  const totalTests = tests.length;
 
   const executionPassed =
     totalTests > 0 && passedTests === totalTests;
@@ -605,6 +606,7 @@ function SessionDetail() {
           </motion.section>
         )}
       </main>
+      <Footer variant="minimal" />
     </div>
   );
 }
