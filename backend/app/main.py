@@ -18,6 +18,7 @@ from app.services.session_service import SessionService
 from fastapi import File, UploadFile
 from app.services.evaluation_service import EvaluationService
 from app.services.exceptions import EvaluationError
+from app.services.adaptive_session_service import AdaptiveSessionService
 
 
 
@@ -313,6 +314,21 @@ def create_session(
             detail=str(error),
         )
 
+@app.post("/interactive/session")
+def create_adaptive_session(
+    user_id: str = Depends(get_current_user_id),
+):
+    adaptive_session_service = AdaptiveSessionService(r)
+
+    try:
+        return adaptive_session_service.create_adaptive_session(
+            user_id=user_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
 
 @app.get("/sessions/{session_id}")
 def get_session(
@@ -341,6 +357,24 @@ def get_session(
     )
 
     return session
+
+@app.delete("/sessions/{session_id}")
+def delete_session(
+    session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    session_service = SessionService(r)
+
+    try:
+        return session_service.delete_session(
+            session_id=session_id,
+            user_id=user_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error),
+        )
 
 @app.post("/sessions/{session_id}/submit")
 def submit_session(

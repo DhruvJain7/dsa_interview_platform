@@ -7,6 +7,7 @@ import ProblemDetail from "./pages/ProblemDetail";
 import Practice from "./pages/Practice";
 import Auth from "./pages/Auth";
 import SessionDetail from "./pages/SessionDetail";
+import Interactive from "./pages/Interactive";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         path="/problems/:problemId/practice"
         element={<Practice />}
       />
+      <Route path="/interactive" element={<Interactive />} />
 
       <Route
         path="/sessions/:sessionId"

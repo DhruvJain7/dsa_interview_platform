@@ -1,10 +1,70 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
+
+const getTestSummary = (session) => {
+  const results = session.execution_result?.results || [];
+
+  if (!results.length) {
+    return {
+      passed: 0,
+      total: 0,
+      label: "No execution data",
+    };
+  }
+
+  const passed = results.filter((test) => test.passed).length;
+  const total = results.length;
+
+  return {
+    passed,
+    total,
+    label: `${passed}/${total} tests passed`,
+  };
+};
+
+const getOverallScore = (session) => {
+  const evaluation = session.evaluation;
+
+  if (!evaluation) {
+    return null;
+  }
+
+  const dimensions = [
+    "problem_understanding",
+    "approach",
+    "complexity",
+    "clarity_and_articulation",
+    "optimization",
+  ];
+
+  const scores = dimensions
+    .map((dimension) => evaluation[dimension]?.score)
+    .filter((score) => score != null);
+
+  if (!scores.length) {
+    return null;
+  }
+
+  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) {
+    return "";
+  }
+
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -13,20 +73,18 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const token = localStorage.getItem("articula_access_token");
+  const [deleteSessionId, setDeleteSessionId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-  const getToken = () => {
-    return localStorage.getItem("articula_access_token");
-  };
+  const token = localStorage.getItem("articula_access_token");
 
   useEffect(() => {
     if (!token) {
+      setLoading(false);
       return;
     }
 
     const fetchSessions = async () => {
-      const token = getToken();
-
       try {
         const response = await fetch(`${API_BASE_URL}/sessions`, {
           headers: {
@@ -34,18 +92,17 @@ function Dashboard() {
           },
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-          throw new Error(
-            data.detail || "Failed to fetch session history"
-          );
+          throw new Error("Failed to load sessions.");
         }
 
-        setSessions(data);
-      } catch (error) {
-        console.error(error);
-        setError(error.message);
+        const data = await response.json();
+
+        setSessions(
+          Array.isArray(data) ? data : data.sessions || []
+        );
+      } catch (err) {
+        setError(err.message || "Something went wrong.");
       } finally {
         setLoading(false);
       }
@@ -54,233 +111,669 @@ function Dashboard() {
     fetchSessions();
   }, [token]);
 
-  // Protect dashboard
-  if (!token) {
+  const handleDeleteSession = async () => {
+    if (!deleteSessionId || deleting) {
+      return;
+    }
+
+    setDeleting(true);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/sessions/${deleteSessionId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+
+        throw new Error(
+          data?.detail || "Failed to delete session."
+        );
+      }
+
+      setSessions((currentSessions) =>
+        currentSessions.filter(
+          (session) =>
+            session.session_id !== deleteSessionId
+        )
+      );
+
+      setDeleteSessionId(null);
+    } catch (err) {
+      setError(err.message || "Failed to delete session.");
+      setDeleteSessionId(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (!token && !loading) {
     return <Navigate to="/auth" replace />;
   }
 
-  const getTestSummary = (session) => {
-    const results = session.execution_result?.results || [];
+  const getDashboardMetrics = () => {
+    const completedSessions = sessions.filter(
+      (session) =>
+        session.status === "completed" && session.evaluation
+    );
 
-    if (!results.length) {
-      return "No execution data";
-    }
+    const scores = completedSessions
+      .map((session) => getOverallScore(session))
+      .filter((score) => score !== null);
 
-    const passed = results.filter(
-      (result) => result.passed
-    ).length;
+    const averageScore =
+      scores.length > 0
+        ? scores.reduce((sum, score) => sum + score, 0) /
+          scores.length
+        : null;
 
-    return `${passed}/${results.length} tests passed`;
+    let passedTests = 0;
+    let totalTests = 0;
+
+    sessions.forEach((session) => {
+      const results = session.execution_result?.results || [];
+
+      results.forEach((test) => {
+        totalTests += 1;
+
+        if (test.passed) {
+          passedTests += 1;
+        }
+      });
+    });
+
+    const testPassRate =
+      totalTests > 0
+        ? Math.round((passedTests / totalTests) * 100)
+        : null;
+
+    const uniqueProblems = new Set(
+      sessions.map((session) => session.problem_id)
+    );
+
+    return {
+      sessions: sessions.length,
+      averageScore,
+      testPassRate,
+      problems: uniqueProblems.size,
+    };
   };
 
-  const getOverallScore = (session) => {
-    const evaluation = session.evaluation;
+  const metrics = getDashboardMetrics();
 
-    if (!evaluation) {
-      return null;
-    }
+  const completedScoredSessions = sessions
+    .filter(
+      (session) =>
+        session.status === "completed" &&
+        getOverallScore(session) !== null
+    )
+    .slice()
+    .reverse();
 
+  const getSkillBreakdown = () => {
     const dimensions = [
-      evaluation.problem_understanding,
-      evaluation.approach,
-      evaluation.complexity,
-      evaluation.clarity_and_articulation,
-      evaluation.optimization,
+      {
+        key: "problem_understanding",
+        label: "Problem Understanding",
+      },
+      {
+        key: "approach",
+        label: "Approach / Logic",
+      },
+      {
+        key: "complexity",
+        label: "Complexity",
+      },
+      {
+        key: "clarity_and_articulation",
+        label: "Clarity & Articulation",
+      },
+      {
+        key: "optimization",
+        label: "Optimization",
+      },
     ];
 
-    const scores = dimensions
-      .map((dimension) => dimension?.score)
-      .filter((score) => typeof score === "number");
+    return dimensions.map((dimension) => {
+      const scores = sessions
+        .filter(
+          (session) =>
+            session.status === "completed" &&
+            session.evaluation?.[dimension.key]?.score != null
+        )
+        .map(
+          (session) => session.evaluation[dimension.key].score
+        );
 
-    if (!scores.length) {
-      return null;
-    }
+      const average =
+        scores.length > 0
+          ? scores.reduce((sum, score) => sum + score, 0) /
+            scores.length
+          : null;
 
-    const average =
-      scores.reduce((sum, score) => sum + score, 0) /
-      scores.length;
-
-    return average.toFixed(1);
+      return {
+        ...dimension,
+        score: average,
+      };
+    });
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) {
-      return "";
-    }
+  const skillBreakdown = getSkillBreakdown();
 
-    return new Date(dateString).toLocaleDateString(
-      undefined,
-      {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }
-    );
-  };
+  const focusAreas = skillBreakdown
+    .filter((skill) => skill.score !== null)
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 2)
+    .map((skill) => {
+      const feedback = sessions
+        .filter(
+          (session) =>
+            session.status === "completed" &&
+            session.evaluation?.[skill.key]?.score != null &&
+            session.evaluation?.[skill.key]?.feedback
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.updated_at || b.created_at) -
+            new Date(a.updated_at || a.created_at)
+        )
+        .map(
+          (session) =>
+            session.evaluation[skill.key].feedback
+        )
+        .filter(Boolean);
+
+      return {
+        ...skill,
+        feedback: feedback[0] || "",
+      };
+    });
 
   return (
     <div className="min-h-screen bg-white text-black dark:bg-[#222222] dark:text-white">
       <Navbar />
 
       <main className="mx-auto max-w-[1000px] px-8 pb-20 pt-24">
-
         {/* Header */}
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
+        <section>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
             Dashboard
           </p>
 
-          <h1 className="mt-3 text-4xl font-medium tracking-tight">
-            Your sessions.
+          <h1 className="mt-2 font-serif text-4xl font-medium tracking-tight">
+            Your progress.
           </h1>
 
-          <p className="mt-3 max-w-xl text-sm leading-6 text-black/50 dark:text-white/50">
-            Review your previous solutions, execution results,
-            and articulation evaluations.
+          <p className="mt-3 max-w-xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+            See how your problem solving and articulation improve
+            over time.
           </p>
-        </div>
+        </section>
+
+        {/* Overview Metrics */}
+        <section className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-gray-200 bg-gray-200 dark:border-[#3a3a3a] dark:bg-[#3a3a3a] md:grid-cols-4">
+          <div className="bg-white p-6 dark:bg-[#222222]">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Sessions
+            </p>
+            <p className="mt-2 text-2xl font-medium tracking-tight">
+              {metrics.sessions}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 dark:bg-[#222222]">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Avg. Score
+            </p>
+            <p className="mt-2 text-2xl font-medium tracking-tight">
+              {metrics.averageScore !== null
+                ? `${metrics.averageScore.toFixed(1)}/5`
+                : "—"}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 dark:bg-[#222222]">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Test Pass
+            </p>
+            <p className="mt-2 text-2xl font-medium tracking-tight">
+              {metrics.testPassRate !== null
+                ? `${metrics.testPassRate}%`
+                : "—"}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 dark:bg-[#222222]">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Problems
+            </p>
+            <p className="mt-2 text-2xl font-medium tracking-tight">
+              {metrics.problems}
+            </p>
+          </div>
+        </section>
+
+        {/* Performance */}
+        <section className="mt-16">
+          <div className="mb-8">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
+              Performance
+            </p>
+
+            <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight">
+              Articulation over time
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              Your overall articulation score across completed
+              sessions.
+            </p>
+          </div>
+
+          {completedScoredSessions.length > 0 ? (
+            <div className="overflow-x-auto">
+              <div className="min-w-[760px]">
+                <svg
+                  viewBox="0 0 760 220"
+                  className="h-[220px] w-full"
+                  role="img"
+                  aria-label="Articulation score over time"
+                >
+                  {[1, 2, 3, 4, 5].map((score) => {
+                    const y =
+                      190 - ((score - 1) / 4) * 150;
+
+                    return (
+                      <g key={score}>
+                        <line
+                          x1="45"
+                          x2="735"
+                          y1={y}
+                          y2={y}
+                          stroke="currentColor"
+                          strokeOpacity="0.08"
+                        />
+
+                        <text
+                          x="0"
+                          y={y + 4}
+                          fontSize="11"
+                          fill="currentColor"
+                          opacity="0.45"
+                        >
+                          {score}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {(() => {
+                    const width = 690;
+                    const startX = 45;
+                    const count =
+                      completedScoredSessions.length;
+
+                    const getX = (index) => {
+                      if (count === 1) {
+                        return startX + width / 2;
+                      }
+
+                      return (
+                        startX +
+                        (index / (count - 1)) * width
+                      );
+                    };
+
+                    const getY = (score) =>
+                      190 - ((score - 1) / 4) * 150;
+
+                    const points =
+                      completedScoredSessions.map(
+                        (session, index) => {
+                          const score =
+                            getOverallScore(session);
+
+                          return {
+                            x: getX(index),
+                            y: getY(score),
+                            score,
+                            date: formatDate(
+                              session.updated_at ||
+                                session.created_at
+                            ),
+                          };
+                        }
+                      );
+
+                    const path = points
+                      .map(
+                        (point, index) =>
+                          `${index === 0 ? "M" : "L"} ${
+                            point.x
+                          } ${point.y}`
+                      )
+                      .join(" ");
+
+                    return (
+                      <g>
+                        <path
+                          d={path}
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+
+                        {points.map((point, index) => (
+                          <g key={index}>
+                            <circle
+                              cx={point.x}
+                              cy={point.y}
+                              r="4"
+                              fill="currentColor"
+                            />
+
+                            <text
+                              x={point.x}
+                              y={point.y - 12}
+                              textAnchor="middle"
+                              fontSize="11"
+                              fill="currentColor"
+                              opacity="0.65"
+                            >
+                              {point.score.toFixed(1)}
+                            </text>
+
+                            <text
+                              x={point.x}
+                              y="215"
+                              textAnchor="middle"
+                              fontSize="10"
+                              fill="currentColor"
+                              opacity="0.4"
+                            >
+                              {point.date}
+                            </text>
+                          </g>
+                        ))}
+                      </g>
+                    );
+                  })()}
+                </svg>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-gray-200 p-8 text-sm text-gray-500 dark:border-[#3a3a3a] dark:text-gray-400">
+              Complete an articulation to start tracking your
+              progress.
+            </div>
+          )}
+        </section>
+
+        {/* Skill Breakdown */}
+        <section className="mt-16">
+          <div className="mb-8">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
+              Skill breakdown
+            </p>
+
+            <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight">
+              Where you’re strongest.
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              Average scores across your completed articulations.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {skillBreakdown.map((skill) => {
+              const percentage = skill.score
+                ? (skill.score / 5) * 100
+                : 0;
+
+              return (
+                <div key={skill.key}>
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {skill.label}
+                    </span>
+
+                    <span className="text-sm tabular-nums text-gray-500 dark:text-gray-400">
+                      {skill.score !== null
+                        ? `${skill.score.toFixed(1)} / 5`
+                        : "—"}
+                    </span>
+                  </div>
+
+                  <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-[#333333]">
+                    <div
+                      className="h-full rounded-full bg-black transition-all dark:bg-white"
+                      style={{
+                        width: `${percentage}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Focus Areas */}
+        <section className="mt-16">
+          <div className="mb-8">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
+              Focus areas
+            </p>
+
+            <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight">
+              What to improve next.
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              Based on your lowest-scoring articulation skills.
+            </p>
+          </div>
+
+          {focusAreas.length > 0 ? (
+            <div className="grid gap-px overflow-hidden rounded-xl border border-gray-200 bg-gray-200 dark:border-[#3a3a3a] dark:bg-[#3a3a3a] md:grid-cols-2">
+              {focusAreas.map((area) => (
+                <div
+                  key={area.key}
+                  className="bg-white p-6 dark:bg-[#222222]"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="font-serif text-lg font-medium">
+                      {area.label}
+                    </h3>
+
+                    <span className="shrink-0 text-sm tabular-nums text-gray-500 dark:text-gray-400">
+                      {area.score.toFixed(1)}/5
+                    </span>
+                  </div>
+
+                  {area.feedback && (
+                    <p className="mt-4 text-sm leading-6 text-gray-500 dark:text-gray-400">
+                      {area.feedback}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-gray-200 p-8 text-sm text-gray-500 dark:border-[#3a3a3a] dark:text-gray-400">
+              Complete an articulation to identify areas for
+              improvement.
+            </div>
+          )}
+        </section>
 
         {/* History */}
-        <section className="mt-12">
-
-          <div className="flex items-center justify-between">
+        <section className="mt-16">
+          <div className="mb-8 flex items-end justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
                 History
               </p>
 
-              <h2 className="mt-2 text-xl font-medium">
+              <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight">
                 Recent sessions
               </h2>
             </div>
 
-            <span className="text-sm text-black/40 dark:text-white/40">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               {sessions.length}{" "}
               {sessions.length === 1 ? "session" : "sessions"}
             </span>
           </div>
 
-          {/* Loading */}
-          {loading && (
-            <div className="mt-6 border border-black/10 bg-black/[0.03] px-5 py-8 dark:border-white/10 dark:bg-[#181818]">
-              <p className="text-sm text-black/50 dark:text-white/50">
-                Loading your sessions...
-              </p>
+          {loading ? (
+            <div className="rounded-xl border border-gray-200 p-8 text-sm text-gray-500 dark:border-[#3a3a3a] dark:text-gray-400">
+              Loading sessions...
             </div>
-          )}
-
-          {/* Error */}
-          {!loading && error && (
-            <div className="mt-6 border border-black/10 bg-black/[0.03] px-5 py-8 dark:border-white/10 dark:bg-[#181818]">
-              <p className="text-sm text-black/60 dark:text-white/60">
-                {error}
-              </p>
+          ) : error ? (
+            <div className="rounded-xl border border-gray-200 p-8 text-sm text-gray-500 dark:border-[#3a3a3a] dark:text-gray-400">
+              {error}
             </div>
-          )}
-
-          {/* Empty state */}
-          {!loading && !error && sessions.length === 0 && (
-            <div className="mt-6 border border-black/10 bg-black/[0.03] px-5 py-10 dark:border-white/10 dark:bg-[#181818]">
-              <p className="text-sm text-black/50 dark:text-white/50">
-                You haven't completed any sessions yet.
+          ) : sessions.length === 0 ? (
+            <div className="rounded-xl border border-gray-200 p-8 dark:border-[#3a3a3a]">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                No sessions yet.
               </p>
 
               <button
                 onClick={() => navigate("/problems")}
-                className="mt-5 border border-black bg-black px-5 py-2 text-sm text-white transition-opacity hover:opacity-80 dark:border-white dark:bg-white dark:text-black"
+                className="mt-4 text-sm font-medium underline underline-offset-4"
               >
-                Start Practicing →
+                Start practicing
               </button>
             </div>
-          )}
-
-          {/* Sessions */}
-          {!loading && !error && sessions.length > 0 && (
-            <div className="mt-6 space-y-3">
-
+          ) : (
+            <div className="divide-y divide-gray-200 border-y border-gray-200 dark:divide-[#3a3a3a] dark:border-[#3a3a3a]">
               {sessions.map((session) => {
-                const score = getOverallScore(session);
+                const testSummary = getTestSummary(session);
+                const overallScore = getOverallScore(session);
 
                 return (
-                  <button
+                  <div
                     key={session.session_id}
-                    onClick={() =>
-                      navigate(
-                        `/sessions/${session.session_id}`
-                      )
-                    }
-                    className="group w-full border border-black/10 bg-black/[0.03] px-5 py-5 text-left transition-colors hover:border-black/20 hover:bg-black/[0.05] dark:border-white/10 dark:bg-[#181818] dark:hover:border-white/20 dark:hover:bg-[#1d1d1d]"
+                    className="group flex w-full items-center justify-between gap-6 py-5"
                   >
+                    <button
+                      onClick={() =>
+                        navigate(
+                          `/sessions/${session.session_id}`
+                        )
+                      }
+                      className="min-w-0 flex-1 text-left transition-opacity hover:opacity-70"
+                    >
+                      <div className="flex items-center gap-3">
+                        <h3 className="truncate font-serif text-lg font-medium">
+                          {session.problem_id
+                            ?.replace(/_/g, " ")
+                            .replace(/\b\w/g, (char) =>
+                              char.toUpperCase()
+                            )}
+                        </h3>
 
-                    <div className="flex items-start justify-between gap-6">
-
-                      <div className="min-w-0">
-
-                        <div className="flex items-center gap-3">
-                          <h3 className="truncate text-base font-medium">
-                            {session.problem_id
-                              ?.replaceAll("_", " ")
-                              .replace(/\b\w/g, (char) =>
-                                char.toUpperCase()
-                              )}
-                          </h3>
-
-                          <span className="shrink-0 text-xs uppercase tracking-[0.12em] text-black/40 dark:text-white/40">
-                            {session.language}
-                          </span>
-                        </div>
-
-                        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-black/40 dark:text-white/40">
-                          <span>
-                            {getTestSummary(session)}
-                          </span>
-
-                          <span>
-                            {formatDate(session.updated_at)}
-                          </span>
-                        </div>
-
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-5">
-
-                        {score && (
-                          <div className="text-right">
-                            <p className="text-xs uppercase tracking-[0.12em] text-black/30 dark:text-white/30">
-                              Score
-                            </p>
-
-                            <p className="mt-1 text-sm text-black/70 dark:text-white/70">
-                              {score}/5
-                            </p>
-                          </div>
-                        )}
-
-                        <span className="text-black/30 transition-transform group-hover:translate-x-1 dark:text-white/30">
-                          →
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          {session.language}
                         </span>
-
                       </div>
 
-                    </div>
+                      <div className="mt-2 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                        <span>{testSummary.label}</span>
 
-                    <div className="mt-4 border-t border-black/5 pt-3 dark:border-white/5">
-                      <span className="text-xs uppercase tracking-[0.12em] text-black/30 dark:text-white/30">
+                        <span>•</span>
+
+                        <span>
+                          {formatDate(
+                            session.updated_at ||
+                              session.created_at
+                          )}
+                        </span>
+                      </div>
+                    </button>
+
+                    <div className="flex shrink-0 items-center gap-4">
+                      {overallScore !== null && (
+                        <span className="text-sm tabular-nums text-gray-500 dark:text-gray-400">
+                          {overallScore.toFixed(1)}/5
+                        </span>
+                      )}
+
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
                         {session.status}
                       </span>
-                    </div>
 
-                  </button>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setDeleteSessionId(
+                            session.session_id
+                          );
+                        }}
+                        className="rounded-md px-2 py-1 text-xs text-gray-400 opacity-0 transition-opacity hover:text-black group-hover:opacity-100 dark:text-gray-500 dark:hover:text-white"
+                      >
+                        Delete
+                      </button>
+
+                      <span className="text-gray-400 dark:text-gray-500">
+                        →
+                      </span>
+                    </div>
+                  </div>
                 );
               })}
-
             </div>
           )}
-
         </section>
-
       </main>
+
       <Footer variant="minimal" />
+
+      {/* Delete Confirmation */}
+      {deleteSessionId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl dark:border-[#3a3a3a] dark:bg-[#222222]">
+            <h2 className="font-serif text-xl font-medium">
+              Delete this session?
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
+              This will permanently remove the code, transcript,
+              execution results, and articulation evaluation.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteSessionId(null)}
+                disabled={deleting}
+                className="rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-[#333333]"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDeleteSession}
+                disabled={deleting}
+                className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black"
+              >
+                {deleting ? "Deleting..." : "Delete session"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

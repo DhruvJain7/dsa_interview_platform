@@ -13,11 +13,12 @@ class SessionService:
     def __init__(self, redis_client):
         self.redis = redis_client
 
-    def create_session(self,  user_id: str,problem_id: str, language: str):
+    def create_session(self, user_id: str, problem_id: str, language: str):
         if language not in self.SUPPORTED_LANGUAGES:
             raise ValueError(
                 f"Unsupported language: {language}"
             )
+
         user_key = f"user:{user_id}"
 
         if not self.redis.exists(user_key):
@@ -77,3 +78,21 @@ class SessionService:
         )
 
         return sessions
+
+    def delete_session(self, session_id: str, user_id: str):
+        session_key = f"session:{session_id}"
+
+        session = self.redis.hgetall(session_key)
+
+        if not session:
+            raise ValueError("Session not found")
+
+        if session.get("user_id") != user_id:
+            raise ValueError("Session not found")
+
+        self.redis.delete(session_key)
+
+        return {
+            "session_id": session_id,
+            "status": "deleted",
+        }

@@ -53,7 +53,7 @@ function Navbar() {
   const navItems = [
     { label: "Dashboard", path: "/dashboard" },
     { label: "Practice", path: "/problems" },
-    { label: "Interactive", path: null },
+    { label: "Interactive", path:"/interactive" },
   ];
 
   const navbarClasses = isScrolled
