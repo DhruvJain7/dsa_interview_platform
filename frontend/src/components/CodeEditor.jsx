@@ -1,5 +1,5 @@
 import Editor from "@monaco-editor/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function CodeEditor({
   problemId,
@@ -10,6 +10,28 @@ function CodeEditor({
 }) {
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+
+  const [isDark, setIsDark] = useState(() => {
+    return document.documentElement.classList.contains("dark");
+  });
+
+  // Keep the editor in sync with the Navbar theme toggle.
+  useEffect(() => {
+    const root = document.documentElement;
+
+    const updateTheme = () => {
+      setIsDark(root.classList.contains("dark"));
+    };
+
+    const observer = new MutationObserver(updateTheme);
+
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const runCode = async () => {
     setIsRunning(true);
@@ -49,18 +71,37 @@ function CodeEditor({
   };
 
   return (
-    <div className="overflow-hidden border border-white/10 bg-[#181818]">
-
+    <div
+      className={`overflow-hidden border ${
+        isDark
+          ? "border-white/10 bg-[#181818]"
+          : "border-black/10 bg-white"
+      }`}
+    >
       {/* Editor Header */}
-      <div className="flex items-center justify-between border-b border-white/10 bg-[#181818] px-4 py-3">
-        <span className="text-xs uppercase tracking-[0.15em] text-white/50">
+      <div
+        className={`flex items-center justify-between border-b px-4 py-3 ${
+          isDark
+            ? "border-white/10 bg-[#181818]"
+            : "border-black/10 bg-white"
+        }`}
+      >
+        <span
+          className={`text-xs uppercase tracking-[0.15em] ${
+            isDark ? "text-white/50" : "text-black/50"
+          }`}
+        >
           Your Solution
         </span>
 
         <select
           value={language}
           onChange={(e) => onLanguageChange(e.target.value)}
-          className="border border-white/10 bg-[#222222] px-3 py-2 text-xs text-white outline-none transition-colors hover:border-white/20"
+          className={`border px-3 py-2 text-xs outline-none transition-colors ${
+            isDark
+              ? "border-white/10 bg-[#222222] text-white hover:border-white/20"
+              : "border-black/10 bg-white text-black hover:border-black/20"
+          }`}
         >
           <option value="python">Python</option>
           <option value="javascript">JavaScript</option>
@@ -75,7 +116,7 @@ function CodeEditor({
         language={language}
         value={value}
         onChange={(value) => onChange(value ?? "")}
-        theme="vs-dark"
+        theme={isDark ? "vs-dark" : "vs"}
         options={{
           minimap: {
             enabled: false,
@@ -96,19 +137,14 @@ function CodeEditor({
             bottom: 16,
           },
 
-          // Keep the editor clean and focused.
           renderLineHighlight: "line",
 
-          // Better cursor visibility.
           cursorBlinking: "smooth",
 
-          // Don't show unnecessary whitespace.
           renderWhitespace: "none",
 
-          // Comfortable tab behavior.
           tabSize: 4,
 
-          // Keep suggestions available.
           suggest: {
             showMethods: true,
             showFunctions: true,
@@ -118,11 +154,21 @@ function CodeEditor({
       />
 
       {/* Run Code */}
-      <div className="border-t border-white/10 bg-[#181818] px-4 py-4">
+      <div
+        className={`border-t px-4 py-4 ${
+          isDark
+            ? "border-white/10 bg-[#181818]"
+            : "border-black/10 bg-white"
+        }`}
+      >
         <button
           onClick={runCode}
           disabled={isRunning}
-          className="border border-white bg-white px-5 py-2 text-sm text-black transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+          className={`border px-5 py-2 text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 ${
+            isDark
+              ? "border-white bg-white text-black"
+              : "border-black bg-black text-white"
+          }`}
         >
           {isRunning ? "Running..." : "Run Code →"}
         </button>
@@ -130,86 +176,146 @@ function CodeEditor({
 
       {/* Test Results */}
       {output && (
-        <div className="border-t border-white/10 bg-[#181818] px-4 py-5">
-
+        <div
+          className={`border-t px-4 py-5 ${
+            isDark
+              ? "border-white/10 bg-[#181818]"
+              : "border-black/10 bg-white"
+          }`}
+        >
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.15em] text-white/50">
+            <p
+              className={`text-xs uppercase tracking-[0.15em] ${
+                isDark ? "text-white/50" : "text-black/50"
+              }`}
+            >
               Test Results
             </p>
 
             {output.success && (
-              <span className="text-sm text-white/60">
-                {output.results.filter((result) => result.passed).length} /{" "}
-                {output.results.length} passed
+              <span
+                className={`text-sm ${
+                  isDark ? "text-white/60" : "text-black/60"
+                }`}
+              >
+                {
+                  output.results.filter(
+                    (result) => result.passed
+                  ).length
+                }{" "}
+                / {output.results.length} passed
               </span>
             )}
           </div>
 
           {output.success ? (
             <div className="mt-4 space-y-3">
-
               {output.results.map((result) => (
                 <div
                   key={result.test_case}
-                  className="border border-white/10 bg-[#1d1d1d] px-4 py-4"
+                  className={`border px-4 py-4 ${
+                    isDark
+                      ? "border-white/10 bg-[#1d1d1d]"
+                      : "border-black/10 bg-black/[0.03]"
+                  }`}
                 >
-
                   <div className="flex items-center justify-between">
-
-                    <span className="text-sm font-medium text-white/80">
+                    <span
+                      className={`text-sm font-medium ${
+                        isDark
+                          ? "text-white/80"
+                          : "text-black/80"
+                      }`}
+                    >
                       Test Case {result.test_case}
                     </span>
 
                     <span
                       className={`text-xs uppercase tracking-[0.12em] ${
                         result.passed
-                          ? "text-white/70"
-                          : "text-white/40"
+                          ? isDark
+                            ? "text-white/70"
+                            : "text-black/70"
+                          : isDark
+                            ? "text-white/40"
+                            : "text-black/40"
                       }`}
                     >
-                      {result.passed ? "✓ Passed" : "✕ Failed"}
+                      {result.passed
+                        ? "✓ Passed"
+                        : "✕ Failed"}
                     </span>
-
                   </div>
 
                   <div className="mt-3 grid gap-3 text-sm md:grid-cols-2">
-
                     <div>
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/30">
+                      <p
+                        className={`text-xs uppercase tracking-[0.12em] ${
+                          isDark
+                            ? "text-white/30"
+                            : "text-black/30"
+                        }`}
+                      >
                         Expected
                       </p>
 
-                      <pre className="mt-1 font-mono text-white/70">
+                      <pre
+                        className={`mt-1 font-mono ${
+                          isDark
+                            ? "text-white/70"
+                            : "text-black/70"
+                        }`}
+                      >
                         {JSON.stringify(result.expected)}
                       </pre>
                     </div>
 
                     <div>
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/30">
+                      <p
+                        className={`text-xs uppercase tracking-[0.12em] ${
+                          isDark
+                            ? "text-white/30"
+                            : "text-black/30"
+                        }`}
+                      >
                         Your Output
                       </p>
 
-                      <pre className="mt-1 font-mono text-white/70">
+                      <pre
+                        className={`mt-1 font-mono ${
+                          isDark
+                            ? "text-white/70"
+                            : "text-black/70"
+                        }`}
+                      >
                         {JSON.stringify(result.actual)}
                       </pre>
                     </div>
-
                   </div>
                 </div>
               ))}
-
             </div>
           ) : (
-            <div className="mt-4 border border-white/10 bg-[#1d1d1d] px-4 py-4">
-              <p className="text-sm text-white/70">
+            <div
+              className={`mt-4 border px-4 py-4 ${
+                isDark
+                  ? "border-white/10 bg-[#1d1d1d]"
+                  : "border-black/10 bg-black/[0.03]"
+              }`}
+            >
+              <p
+                className={`text-sm ${
+                  isDark
+                    ? "text-white/70"
+                    : "text-black/70"
+                }`}
+              >
                 {output.error || "Execution failed."}
               </p>
             </div>
           )}
-
         </div>
       )}
-
     </div>
   );
 }

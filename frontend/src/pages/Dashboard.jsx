@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
 
@@ -12,19 +12,19 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const token = localStorage.getItem("articula_access_token");
+
   const getToken = () => {
     return localStorage.getItem("articula_access_token");
   };
 
   useEffect(() => {
+    if (!token) {
+      return;
+    }
+
     const fetchSessions = async () => {
       const token = getToken();
-
-      if (!token) {
-        setError("Please log in to view your session history.");
-        setLoading(false);
-        return;
-      }
 
       try {
         const response = await fetch(`${API_BASE_URL}/sessions`, {
@@ -51,7 +51,12 @@ function Dashboard() {
     };
 
     fetchSessions();
-  }, []);
+  }, [token]);
+
+  // Protect dashboard
+  if (!token) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const getTestSummary = (session) => {
     const results = session.execution_result?.results || [];

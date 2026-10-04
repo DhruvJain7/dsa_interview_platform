@@ -84,9 +84,13 @@ function Navbar() {
         {navItems.map((item) => {
           const isActive =
             item.path &&
-            (location.pathname === item.path ||
+            (
+              location.pathname === item.path ||
               (item.path === "/problems" &&
-                location.pathname.startsWith("/problems/")));
+                location.pathname.startsWith("/problems/")) ||
+              (item.path === "/dashboard" &&
+                location.pathname.startsWith("/sessions/"))
+            );
 
           return (
             <button

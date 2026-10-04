@@ -210,7 +210,10 @@ function ProblemDetail() {
         )}
 
         {/* Constraints */}
-        {problem.constraints?.length > 0 && (
+        {problem.constraints?.filter(
+          (constraint) =>
+            !/^Constraint \d+$/i.test(constraint.trim())
+        ).length > 0 && (
           <motion.section
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -226,15 +229,22 @@ function ProblemDetail() {
             </p>
 
             <ul className="mt-6 max-w-3xl space-y-3">
-              {problem.constraints.map((constraint, index) => (
-                <li
-                  key={index}
-                  className="flex gap-3 text-sm leading-7 text-black/60 dark:text-white/55"
-                >
-                  <span className="mt-3 h-1 w-1 shrink-0 rounded-full bg-black/30 dark:bg-white/30" />
-                  <span>{constraint}</span>
-                </li>
-              ))}
+              {problem.constraints
+                .filter(
+                  (constraint) =>
+                    !/^Constraint \d+$/i.test(
+                      constraint.trim()
+                    )
+                )
+                .map((constraint, index) => (
+                  <li
+                    key={index}
+                    className="flex gap-3 text-sm leading-7 text-black/60 dark:text-white/55"
+                  >
+                    <span className="mt-3 h-1 w-1 shrink-0 rounded-full bg-black/30 dark:bg-white/30" />
+                    <span>{constraint}</span>
+                  </li>
+                ))}
             </ul>
           </motion.section>
         )}
