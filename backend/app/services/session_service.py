@@ -53,3 +53,27 @@ class SessionService:
         )
 
         return session
+
+    def get_user_sessions(self, user_id: str):
+        session_ids = self.redis.smembers(
+            f"user:{user_id}:sessions"
+        )
+
+        sessions = []
+
+        for session_id in session_ids:
+            session = self.redis.hgetall(
+                f"session:{session_id}"
+            )
+
+            if not session:
+                continue
+
+            sessions.append(session)
+
+        sessions.sort(
+            key=lambda session: session.get("updated_at", ""),
+            reverse=True,
+        )
+
+        return sessions

@@ -8,7 +8,6 @@ function CodeEditor({
   value,
   onChange,
 }) {
-
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
 
@@ -38,6 +37,7 @@ function CodeEditor({
       setOutput(result);
     } catch (error) {
       console.error(error);
+
       setOutput({
         success: false,
         error: error.message,
@@ -49,17 +49,18 @@ function CodeEditor({
   };
 
   return (
-    <div className="overflow-hidden border border-black/15 bg-[#fafaf8]">
+    <div className="overflow-hidden border border-white/10 bg-[#181818]">
 
-      <div className="flex items-center justify-between border-b border-black/10 px-4 py-3">
-        <span className="text-xs uppercase tracking-[0.15em] text-gray-500">
+      {/* Editor Header */}
+      <div className="flex items-center justify-between border-b border-white/10 bg-[#181818] px-4 py-3">
+        <span className="text-xs uppercase tracking-[0.15em] text-white/50">
           Your Solution
         </span>
 
         <select
           value={language}
           onChange={(e) => onLanguageChange(e.target.value)}
-          className="border border-black/10 bg-white px-3 py-2 text-xs outline-none"
+          className="border border-white/10 bg-[#222222] px-3 py-2 text-xs text-white outline-none transition-colors hover:border-white/20"
         >
           <option value="python">Python</option>
           <option value="javascript">JavaScript</option>
@@ -68,46 +69,76 @@ function CodeEditor({
         </select>
       </div>
 
+      {/* Monaco Editor */}
       <Editor
         height="500px"
         language={language}
         value={value}
         onChange={(value) => onChange(value ?? "")}
-        theme="vs"
+        theme="vs-dark"
         options={{
-          minimap: { enabled: false },
+          minimap: {
+            enabled: false,
+          },
+
           fontSize: 14,
+
           lineNumbers: "on",
+
           wordWrap: "on",
+
           automaticLayout: true,
+
+          scrollBeyondLastLine: false,
+
           padding: {
             top: 16,
             bottom: 16,
           },
-          scrollBeyondLastLine: false,
+
+          // Keep the editor clean and focused.
+          renderLineHighlight: "line",
+
+          // Better cursor visibility.
+          cursorBlinking: "smooth",
+
+          // Don't show unnecessary whitespace.
+          renderWhitespace: "none",
+
+          // Comfortable tab behavior.
+          tabSize: 4,
+
+          // Keep suggestions available.
+          suggest: {
+            showMethods: true,
+            showFunctions: true,
+            showVariables: true,
+          },
         }}
       />
 
-
-      <div className="border-t border-black/10 px-4 py-4">
+      {/* Run Code */}
+      <div className="border-t border-white/10 bg-[#181818] px-4 py-4">
         <button
           onClick={runCode}
           disabled={isRunning}
-          className="border border-black bg-black px-5 py-2 text-sm text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+          className="border border-white bg-white px-5 py-2 text-sm text-black transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isRunning ? "Running..." : "Run Code →"}
         </button>
       </div>
 
+      {/* Test Results */}
       {output && (
-        <div className="border-t border-black/10 bg-white px-4 py-5">
+        <div className="border-t border-white/10 bg-[#181818] px-4 py-5">
+
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.15em] text-gray-500">
+            <p className="text-xs uppercase tracking-[0.15em] text-white/50">
               Test Results
             </p>
 
             {output.success && (
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-white/60">
                 {output.results.filter((result) => result.passed).length} /{" "}
                 {output.results.length} passed
               </span>
@@ -116,58 +147,66 @@ function CodeEditor({
 
           {output.success ? (
             <div className="mt-4 space-y-3">
+
               {output.results.map((result) => (
                 <div
                   key={result.test_case}
-                  className="border border-black/10 px-4 py-4"
+                  className="border border-white/10 bg-[#1d1d1d] px-4 py-4"
                 >
+
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
+
+                    <span className="text-sm font-medium text-white/80">
                       Test Case {result.test_case}
                     </span>
 
                     <span
                       className={`text-xs uppercase tracking-[0.12em] ${
                         result.passed
-                          ? "text-gray-700"
-                          : "text-gray-500"
+                          ? "text-white/70"
+                          : "text-white/40"
                       }`}
                     >
                       {result.passed ? "✓ Passed" : "✕ Failed"}
                     </span>
+
                   </div>
 
                   <div className="mt-3 grid gap-3 text-sm md:grid-cols-2">
+
                     <div>
-                      <p className="text-xs uppercase tracking-[0.12em] text-gray-400">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/30">
                         Expected
                       </p>
 
-                      <pre className="mt-1 font-mono text-gray-700">
+                      <pre className="mt-1 font-mono text-white/70">
                         {JSON.stringify(result.expected)}
                       </pre>
                     </div>
 
                     <div>
-                      <p className="text-xs uppercase tracking-[0.12em] text-gray-400">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/30">
                         Your Output
                       </p>
 
-                      <pre className="mt-1 font-mono text-gray-700">
+                      <pre className="mt-1 font-mono text-white/70">
                         {JSON.stringify(result.actual)}
                       </pre>
                     </div>
+
                   </div>
                 </div>
               ))}
+
             </div>
           ) : (
-            <div className="mt-4 border border-black/10 px-4 py-4">
-              <p className="text-sm text-gray-700">
+            <div className="mt-4 border border-white/10 bg-[#1d1d1d] px-4 py-4">
+              <p className="text-sm text-white/70">
                 {output.error || "Execution failed."}
               </p>
             </div>
           )}
+
         </div>
       )}
 

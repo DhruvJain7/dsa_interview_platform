@@ -501,23 +501,13 @@ def transcribe_session(
 
     try:
         with tempfile.NamedTemporaryFile(
-                delete=False,
-                suffix=suffix,
-            ) as temp_file:
-                temp_path = temp_file.name
-                temp_file.write(audio.file.read())
+            delete=False,
+            suffix=suffix,
+        ) as temp_file:
+            temp_path = temp_file.name
+            temp_file.write(audio.file.read())
 
         result = TranscriptionService().transcribe(temp_path)
-
-    except RuntimeError as error:
-            raise HTTPException(
-                status_code=502,
-                detail=str(error),
-            )
-
-    finally:
-        if temp_path and os.path.exists(temp_path):
-                os.remove(temp_path)
 
         now = datetime.now(timezone.utc).isoformat()
 
@@ -529,9 +519,54 @@ def transcribe_session(
             },
         )
 
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=502,
+            detail=str(error),
+        )
+
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
+
     return {
-            "session_id": session_id,
-            "transcript": result["text"],
-            "transcript_id": result["transcript_id"],
-            "status": result["status"],
-        }
+        "session_id": session_id,
+        "transcript": result["text"],
+        "transcript_id": result["transcript_id"],
+        "status": result["status"],
+    }
+
+
+@app.get("/sessions")
+def get_user_sessions(
+    user_id: str = Depends(get_current_user_id),
+):
+    session_keys = r.scan_iter(match="session:*")
+
+    sessions = []
+
+    for key in session_keys:
+        session = r.hgetall(key)
+
+        if not session:
+            continue
+
+        if session.get("user_id") != user_id:
+            continue
+
+        session["execution_result"] = json.loads(
+            session.get("execution_result", "{}")
+        )
+
+        session["evaluation"] = json.loads(
+            session.get("evaluation", "{}")
+        )
+
+        sessions.append(session)
+
+    sessions.sort(
+        key=lambda session: session.get("updated_at", ""),
+        reverse=True,
+    )
+
+    return sessions

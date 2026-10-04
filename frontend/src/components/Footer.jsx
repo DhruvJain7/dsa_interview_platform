@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
-function Footer({ onNavigate, variant = "full" }) {
+function Footer({ variant = "full" }) {
+  const navigate = useNavigate();
+
   const methodItems = [
     "Think",
     "Articulate",
@@ -15,12 +18,11 @@ function Footer({ onNavigate, variant = "full" }) {
     return (
       <footer className="border-t border-black/10 dark:border-white/10">
         <div className="mx-auto max-w-[1350px] px-6 md:px-16">
-
           <div className="flex flex-col gap-8 py-10 md:flex-row md:items-center md:justify-between">
 
             {/* Brand */}
             <button
-              onClick={() => onNavigate("home")}
+              onClick={() => navigate("/")}
               className="w-fit text-[28px] tracking-tight text-black dark:text-[#F5F5F5]"
             >
               Articula
@@ -29,22 +31,23 @@ function Footer({ onNavigate, variant = "full" }) {
             {/* Navigation */}
             <div className="flex flex-wrap items-center gap-6 text-sm text-black/60 dark:text-white/60">
               <button
-                onClick={() => onNavigate("problems")}
+                onClick={() => navigate("/problems")}
                 className="transition-opacity hover:opacity-50"
               >
                 Practice
               </button>
 
               <button
-                onClick={() => onNavigate("dashboard")}
+                onClick={() => navigate("/")}
                 className="transition-opacity hover:opacity-50"
               >
                 Dashboard
               </button>
 
               <button
-                onClick={() => onNavigate("interactive")}
-                className="transition-opacity hover:opacity-50"
+                type="button"
+                disabled
+                className="cursor-default text-black/30 dark:text-white/30"
               >
                 Interactive
               </button>
@@ -77,7 +80,6 @@ function Footer({ onNavigate, variant = "full" }) {
               © 2026 Articula
             </p>
           </div>
-
         </div>
       </footer>
     );
@@ -131,7 +133,7 @@ function Footer({ onNavigate, variant = "full" }) {
             transition={{ duration: 0.5, delay: 0.24 }}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => onNavigate("problems")}
+            onClick={() => navigate("/problems")}
             className="group mt-9 rounded-full bg-black px-7 py-3.5 text-sm font-medium text-white dark:bg-[#F5F5F5] dark:text-[#181818]"
           >
             Start Practicing
@@ -184,36 +186,40 @@ function Footer({ onNavigate, variant = "full" }) {
         {/* Footer Navigation */}
         <div className="flex flex-col gap-8 py-10 md:flex-row md:items-center md:justify-between">
 
+          {/* Brand */}
           <button
-            onClick={() => onNavigate("home")}
+            onClick={() => navigate("/")}
             className="w-fit text-[28px] tracking-tight text-black dark:text-[#F5F5F5]"
           >
             Articula
           </button>
 
+          {/* Navigation */}
           <div className="flex flex-wrap items-center gap-6 text-sm text-black/60 dark:text-white/60">
             <button
-              onClick={() => onNavigate("problems")}
+              onClick={() => navigate("/problems")}
               className="transition-opacity hover:opacity-50"
             >
               Practice
             </button>
 
             <button
-              onClick={() => onNavigate("dashboard")}
+              onClick={() => navigate("/")}
               className="transition-opacity hover:opacity-50"
             >
               Dashboard
             </button>
 
             <button
-              onClick={() => onNavigate("interactive")}
-              className="transition-opacity hover:opacity-50"
+              type="button"
+              disabled
+              className="cursor-default text-black/30 dark:text-white/30"
             >
               Interactive
             </button>
           </div>
 
+          {/* GitHub */}
           <button
             aria-label="GitHub"
             className="w-fit text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
@@ -240,7 +246,6 @@ function Footer({ onNavigate, variant = "full" }) {
             © 2026 Articula
           </p>
         </div>
-
       </div>
     </footer>
   );

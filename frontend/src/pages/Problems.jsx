@@ -1,10 +1,13 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-function Problems({ onNavigate, onSelectProblem }) {
+function Problems() {
+  const navigate = useNavigate();
+
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [topic, setTopic] = useState("");
@@ -66,10 +69,7 @@ function Problems({ onNavigate, onSelectProblem }) {
       <div className="relative min-h-screen bg-white dark:bg-[#222222]">
 
         {/* Navbar */}
-        <Navbar
-          activePage="problems"
-          onNavigate={onNavigate}
-        />
+        <Navbar />
 
         {/* Main Content */}
         <main className="mx-auto max-w-[1350px] px-6 pb-24 pt-32 md:px-16">
@@ -108,6 +108,7 @@ function Problems({ onNavigate, onSelectProblem }) {
             }}
             className="mb-10 flex flex-col gap-4 border-y border-black/10 py-5 dark:border-white/10 sm:flex-row"
           >
+
             {/* Topic */}
             <div className="relative">
               <select
@@ -206,7 +207,7 @@ function Problems({ onNavigate, onSelectProblem }) {
                 <motion.button
                   key={problem.id}
                   variants={rowVariants}
-                  onClick={() => onSelectProblem(problem)}
+                  onClick={() => navigate(`/problems/${problem.id}`)}
                   whileHover={{
                     x: 6,
                     transition: {
@@ -219,6 +220,7 @@ function Problems({ onNavigate, onSelectProblem }) {
                   }}
                   className="group relative flex w-full items-center gap-5 border-b border-black/10 py-7 text-left transition-colors duration-200 hover:bg-black/[0.025] dark:border-white/10 dark:hover:bg-white/[0.025] md:gap-8"
                 >
+
                   {/* Number */}
                   <span className="w-8 shrink-0 text-xs font-medium tracking-[0.15em] text-black/30 dark:text-white/30 md:w-10">
                     {String(index + 1).padStart(2, "0")}
@@ -251,8 +253,8 @@ function Problems({ onNavigate, onSelectProblem }) {
                       problem.difficulty === "easy"
                         ? "text-black/45 dark:text-white/45"
                         : problem.difficulty === "medium"
-                        ? "text-black/65 dark:text-white/65"
-                        : "text-black dark:text-white"
+                          ? "text-black/65 dark:text-white/65"
+                          : "text-black dark:text-white"
                     }`}
                   >
                     {problem.difficulty}
@@ -272,13 +274,15 @@ function Problems({ onNavigate, onSelectProblem }) {
               ))}
             </motion.div>
           )}
+
         </main>
 
         {/* Minimal footer for working page */}
         <Footer
-          onNavigate={onNavigate}
+          onNavigate={undefined}
           variant="minimal"
         />
+
       </div>
     </div>
   );

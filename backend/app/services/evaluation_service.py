@@ -26,7 +26,7 @@ class EvaluationResult(BaseModel):
     problem_understanding: EvaluationDimension
     approach: EvaluationDimension
     complexity: EvaluationDimension
-    communication: EvaluationDimension
+    clarity_and_articulation: EvaluationDimension
     optimization: EvaluationDimension
 
     strengths: list[str] = []
@@ -56,8 +56,9 @@ class EvaluationService:
         transcript: str,
     ) -> str:
         return f"""
-You are an AI technical interviewer evaluating a candidate's
-DSA interview performance.
+You are an AI reasoning and articulation evaluator for Articula,
+a platform designed to help people improve how clearly they
+think through and explain DSA solutions.
 
 Evaluate the candidate based only on the information provided.
 
@@ -70,7 +71,7 @@ CANDIDATE CODE:
 EXECUTION RESULT:
 {execution_result}
 
-CANDIDATE'S SPOKEN EXPLANATION:
+CANDIDATE'S ARTICULATION:
 {transcript}
 
 Evaluate these five dimensions:
@@ -78,8 +79,8 @@ Evaluate these five dimensions:
 1. Problem Understanding
 2. Approach / Logic
 3. Complexity
-4. Communication
-5. Optimization / Interview Readiness
+4. Clarity & Articulation
+5. Optimization
 
 Use a 1–5 scale:
 
@@ -97,13 +98,21 @@ IMPORTANT RULES:
 - Evaluate the candidate's reasoning separately from code correctness.
 - Compare the stated complexity with the actual submitted implementation.
 - Do not invent information that is not present in the problem,
-  code, execution result, or transcript.
+  code, execution result, or articulation transcript.
 - Give specific and actionable feedback.
-- Evaluate the transcript as an interview explanation.
+- Evaluate how clearly the candidate explains their reasoning.
+- Consider whether the candidate explains their approach,
+  edge cases, complexity, and relevant trade-offs.
 - Do not judge accent, pronunciation, or transcription imperfections.
-- If the transcript is empty, set communication.score to null
-  and explain that no spoken explanation was provided.
-- Keep feedback concise and useful for technical interview preparation.
+- If the articulation transcript is empty, set
+  clarity_and_articulation.score to null and explain that no
+  spoken explanation was provided.
+- Keep feedback concise and useful for improving DSA reasoning
+  and articulation.
+- Do not evaluate the candidate as if they are participating
+  in a simulated job interview.
+- Focus on the quality of their reasoning and their ability
+  to articulate the solution clearly.
 
 Return the evaluation using the required structured format.
 """

@@ -7,3 +7,20 @@
   --font-display: "DM Serif Display", serif;
   --font-sans: "Inter", sans-serif;
 }
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: #ffffff;
+}
+
+html.dark,
+html.dark body,
+html.dark #root {
+  background: #222222;
+}
+
+body {
+  margin: 0;
+}

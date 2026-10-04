@@ -1,13 +1,70 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-function ProblemDetail({ problem, onNavigate }) {
-  if (!problem) {
+function ProblemDetail() {
+  const { problemId } = useParams();
+  const navigate = useNavigate();
+
+  const [problem, setProblem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    const fetchProblem = async () => {
+      setLoading(true);
+      setNotFound(false);
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/problems/${problemId}`
+        );
+
+        if (response.status === 404) {
+          setNotFound(true);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch problem");
+        }
+
+        const data = await response.json();
+        setProblem(data);
+      } catch (error) {
+        console.error(error);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProblem();
+  }, [problemId]);
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#222222]">
-        <Navbar activePage="problems" onNavigate={onNavigate} />
+        <Navbar />
+
+        <main className="mx-auto max-w-[1350px] px-6 pb-24 pt-32 md:px-16">
+          <p className="text-sm text-black/50 dark:text-white/50">
+            Loading problem...
+          </p>
+        </main>
+
+        <Footer variant="minimal" />
+      </div>
+    );
+  }
+
+  if (notFound || !problem) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#222222]">
+        <Navbar />
 
         <main className="mx-auto max-w-[1350px] px-6 pb-24 pt-32 md:px-16">
           <p className="text-sm text-black/50 dark:text-white/50">
@@ -15,21 +72,21 @@ function ProblemDetail({ problem, onNavigate }) {
           </p>
 
           <button
-            onClick={() => onNavigate("problems")}
+            onClick={() => navigate("/problems")}
             className="mt-6 text-sm font-medium text-black transition-opacity hover:opacity-50 dark:text-white"
           >
             ← Back to Problems
           </button>
         </main>
 
-        <Footer onNavigate={onNavigate} variant="minimal" />
+        <Footer variant="minimal" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#222222]">
-      <Navbar activePage="problems" onNavigate={onNavigate} />
+      <Navbar />
 
       <main className="mx-auto max-w-[1200px] px-6 pb-24 pt-32 md:px-16">
         {/* Back */}
@@ -37,7 +94,7 @@ function ProblemDetail({ problem, onNavigate }) {
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
-          onClick={() => onNavigate("problems")}
+          onClick={() => navigate("/problems")}
           className="group mb-12 text-sm text-black/50 transition-colors hover:text-black dark:text-white/50 dark:hover:text-white"
         >
           <span className="mr-2 inline-block transition-transform duration-200 group-hover:-translate-x-1">
@@ -210,7 +267,6 @@ function ProblemDetail({ problem, onNavigate }) {
           transition={{
             duration: 0.5,
             delay: 0.28,
-            ease: [0.22, 1, 0.36, 1],
           }}
           className="py-16"
         >
@@ -230,7 +286,9 @@ function ProblemDetail({ problem, onNavigate }) {
           <motion.button
             whileHover={{ x: 4 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => onNavigate("practice")}
+            onClick={() =>
+              navigate(`/problems/${problem.id}/practice`)
+            }
             className="mt-8 inline-flex items-center gap-3 bg-black px-6 py-3.5 text-sm font-medium text-white transition-opacity hover:opacity-80 dark:bg-white dark:text-black"
           >
             Start Practice
@@ -239,7 +297,7 @@ function ProblemDetail({ problem, onNavigate }) {
         </motion.section>
       </main>
 
-      <Footer onNavigate={onNavigate} variant="minimal" />
+      <Footer variant="minimal" />
     </div>
   );
 }

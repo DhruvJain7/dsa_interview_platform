@@ -1,29 +1,30 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-function Home({ onNavigate }) {
+function Home() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#222222]">
       <div className="relative min-h-screen bg-white dark:bg-[#222222]">
-          {/* =================================================
-              NAVBAR
-          ================================================== */}
-          <Navbar
-            activePage="home"
-            onNavigate={onNavigate}
-          />
+
+        {/* =================================================
+            NAVBAR
+        ================================================== */}
+        <Navbar />
+
         {/* =====================================================
             HERO
         ====================================================== */}
         <main className="relative z-10 flex h-[760px] shrink-0 flex-col overflow-hidden">
 
-         
-
           {/* =================================================
               HERO CONTENT
           ================================================== */}
-      <section className="relative z-20 flex flex-col items-center px-6 pt-30 text-center">
+          <section className="relative z-20 flex flex-col items-center px-6 pt-30 text-center">
 
             {/* Product Descriptor */}
             <motion.p
@@ -64,7 +65,7 @@ function Home({ onNavigate }) {
             >
               {/* Start Practicing */}
               <motion.button
-                onClick={() => onNavigate("problems")}
+                onClick={() => navigate("/problems")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="group rounded-full bg-black px-7 py-3.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-[#292929] dark:bg-[#F5F5F5] dark:text-[#181818] dark:hover:bg-white"
@@ -78,7 +79,7 @@ function Home({ onNavigate }) {
 
               {/* Explore Problems */}
               <motion.button
-                onClick={() => onNavigate("problems")}
+                onClick={() => navigate("/problems")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="rounded-full border border-black/20 px-7 py-3.5 text-sm font-medium text-black transition-colors duration-200 hover:bg-black/5 dark:border-white/20 dark:text-[#F5F5F5] dark:hover:bg-white/10"
@@ -267,7 +268,7 @@ function Home({ onNavigate }) {
         </section>
 
         {/* Footer */}
-        <Footer onNavigate={onNavigate} />
+        <Footer />
       </div>
     </div>
   );
