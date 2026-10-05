@@ -1,32 +1,43 @@
 import json
 import os
 import tempfile
+from datetime import datetime, timezone
 
 import redis
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Query
-from fastapi import Depends
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    HTTPException,
+    Query,
+    UploadFile,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from datetime import datetime, timezone
-from app.services.exceptions import ProviderExecutionError
-from app.services.execution_service import ExecutionService
-from app.services.auth_service import AuthService
-from app.services.user_service import UserService
-from app.services.auth_dependency import get_current_user_id
-from app.services.session_service import SessionService
-from fastapi import File, UploadFile
-from app.services.evaluation_service import EvaluationService
-from app.services.exceptions import EvaluationError
+
+from app.services.adaptive_agent import build_adaptive_graph
 from app.services.adaptive_session_service import AdaptiveSessionService
-
-
-
+from app.services.auth_dependency import get_current_user_id
+from app.services.auth_service import AuthService
+from app.services.evaluation_service import EvaluationService
+from app.services.exceptions import (
+    EvaluationError,
+    ProviderExecutionError,
+)
+from app.services.execution_service import ExecutionService
+from app.services.session_service import SessionService
 from app.services.transcription_service import TranscriptionService
+from app.services.user_service import UserService
+
 
 load_dotenv()
+
+
 def escape_tag(value: str) -> str:
     return value.replace("\\", "\\\\").replace("}", "\\}")
+
+
 app = FastAPI(title="Articula")
 
 
@@ -56,38 +67,58 @@ app.add_middleware(
 def health_check():
     return {"status": "ok"}
 
+
+# -------------------------------------------------------------------
+# Request models
+# -------------------------------------------------------------------
+
 class TestRequest(BaseModel):
     language: str
     code: str
     problem_id: str
+
 
 class ExecuteRequest(BaseModel):
     language: str
     code: str
     problem_id: str
 
+
 class SignupRequest(BaseModel):
     name: str
     email: str
     password: str
 
+
 class LoginRequest(BaseModel):
     email: str
     password: str
+
 
 class SessionCreateRequest(BaseModel):
     problem_id: str
     language: str
 
+
 class SessionSubmitRequest(BaseModel):
     code: str
 
+
+# -------------------------------------------------------------------
+# Execution
+# -------------------------------------------------------------------
+
 @app.post("/execute-tests")
 def execute_tests(request: TestRequest):
-    problem = r.hgetall(f"problem:{request.problem_id}")
+    problem = r.hgetall(
+        f"problem:{request.problem_id}"
+    )
 
     if not problem:
-        raise HTTPException(status_code=404, detail="Problem not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Problem not found",
+        )
 
     examples = json.loads(problem["examples"])
 
@@ -102,25 +133,33 @@ def execute_tests(request: TestRequest):
             stdin=example["input"],
         )
 
-        actual_output = (result.get("output") or "").strip()
+        actual_output = (
+            result.get("output") or ""
+        ).strip()
+
         expected_output = example["output"].strip()
 
-        results.append({
-            "test_case": index + 1,
-            "input": example["input"],
-            "expected_output": expected_output,
-            "actual_output": actual_output,
-            "passed": actual_output == expected_output,
-        })
+        results.append(
+            {
+                "test_case": index + 1,
+                "input": example["input"],
+                "expected_output": expected_output,
+                "actual_output": actual_output,
+                "passed": actual_output == expected_output,
+            }
+        )
 
     return {
         "problem_id": request.problem_id,
         "results": results,
     }
 
+
 @app.post("/execute")
 def execute_code(request: ExecuteRequest):
-    problem = r.hgetall(f"problem:{request.problem_id}")
+    problem = r.hgetall(
+        f"problem:{request.problem_id}"
+    )
 
     if not problem:
         raise HTTPException(
@@ -148,6 +187,12 @@ def execute_code(request: ExecuteRequest):
             status_code=400,
             detail=str(error),
         )
+
+
+# -------------------------------------------------------------------
+# Problems
+# -------------------------------------------------------------------
+
 @app.get("/problems")
 def get_problems(
     topic: str | None = Query(default=None),
@@ -156,12 +201,20 @@ def get_problems(
     query_parts = []
 
     if topic:
-        query_parts.append(f"@topic:{{{escape_tag(topic)}}}")
+        query_parts.append(
+            f"@topic:{{{escape_tag(topic)}}}"
+        )
 
     if difficulty:
-        query_parts.append(f"@difficulty:{{{escape_tag(difficulty)}}}")
+        query_parts.append(
+            f"@difficulty:{{{escape_tag(difficulty)}}}"
+        )
 
-    query = " ".join(query_parts) if query_parts else "*"
+    query = (
+        " ".join(query_parts)
+        if query_parts
+        else "*"
+    )
 
     result = r.execute_command(
         "FT.SEARCH",
@@ -177,18 +230,32 @@ def get_problems(
     for item in result["results"]:
         problem = item["extra_attributes"]
 
-        problem["examples"] = json.loads(problem["examples"])
-        problem["hints"] = json.loads(problem["hints"])
-        problem["constraints"] = json.loads(problem["constraints"])
-        problem["tags"] = json.loads(problem["tags"])
+        problem["examples"] = json.loads(
+            problem["examples"]
+        )
+
+        problem["hints"] = json.loads(
+            problem["hints"]
+        )
+
+        problem["constraints"] = json.loads(
+            problem["constraints"]
+        )
+
+        problem["tags"] = json.loads(
+            problem["tags"]
+        )
 
         problems.append(problem)
 
     return problems
 
+
 @app.get("/problems/{problem_id}")
 def get_problem(problem_id: str):
-    problem = r.hgetall(f"problem:{problem_id}")
+    problem = r.hgetall(
+        f"problem:{problem_id}"
+    )
 
     if not problem:
         raise HTTPException(
@@ -196,13 +263,28 @@ def get_problem(problem_id: str):
             detail="Problem not found",
         )
 
-    problem["examples"] = json.loads(problem["examples"])
-    problem["hints"] = json.loads(problem["hints"])
-    problem["constraints"] = json.loads(problem["constraints"])
-    problem["tags"] = json.loads(problem["tags"])
+    problem["examples"] = json.loads(
+        problem["examples"]
+    )
+
+    problem["hints"] = json.loads(
+        problem["hints"]
+    )
+
+    problem["constraints"] = json.loads(
+        problem["constraints"]
+    )
+
+    problem["tags"] = json.loads(
+        problem["tags"]
+    )
 
     return problem
 
+
+# -------------------------------------------------------------------
+# Authentication
+# -------------------------------------------------------------------
 
 @app.post("/auth/signup")
 def signup(request: SignupRequest):
@@ -233,6 +315,7 @@ def signup(request: SignupRequest):
             email=request.email,
             password=request.password,
         )
+
     except ValueError as error:
         raise HTTPException(
             status_code=400,
@@ -289,11 +372,19 @@ def login(request: LoginRequest):
         "token_type": "bearer",
     }
 
+
 @app.get("/auth/me")
-def get_me(user_id: str = Depends(get_current_user_id)):
+def get_me(
+    user_id: str = Depends(get_current_user_id),
+):
     return {
         "user_id": user_id,
     }
+
+
+# -------------------------------------------------------------------
+# Normal practice sessions
+# -------------------------------------------------------------------
 
 @app.post("/sessions")
 def create_session(
@@ -308,11 +399,38 @@ def create_session(
             problem_id=request.problem_id,
             language=request.language,
         )
+
     except ValueError as error:
         raise HTTPException(
             status_code=400,
             detail=str(error),
         )
+
+
+# -------------------------------------------------------------------
+# Temporary debug endpoint
+# -------------------------------------------------------------------
+
+@app.get("/debug/my-session-history")
+def debug_my_session_history(
+    user_id: str = Depends(get_current_user_id),
+):
+    session_service = SessionService(r)
+
+    sessions = session_service.get_user_sessions(
+        user_id=user_id
+    )
+
+    return {
+        "user_id": user_id,
+        "count": len(sessions),
+        "sessions": sessions,
+    }
+
+
+# -------------------------------------------------------------------
+# Adaptive practice
+# -------------------------------------------------------------------
 
 @app.post("/interactive/session")
 def create_adaptive_session(
@@ -324,18 +442,159 @@ def create_adaptive_session(
         return adaptive_session_service.create_adaptive_session(
             user_id=user_id,
         )
+
     except ValueError as error:
         raise HTTPException(
             status_code=400,
             detail=str(error),
         )
 
+
+@app.get(
+    "/interactive/session/{adaptive_session_id}"
+)
+def get_adaptive_session(
+    adaptive_session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    session = r.hgetall(
+        f"adaptive_session:{adaptive_session_id}"
+    )
+
+    if not session:
+        raise HTTPException(
+            status_code=404,
+            detail="Adaptive session not found",
+        )
+
+    if session.get("user_id") != user_id:
+        raise HTTPException(
+            status_code=404,
+            detail="Adaptive session not found",
+        )
+
+    return {
+        "adaptive_session_id": session[
+            "adaptive_session_id"
+        ],
+        "current_problem_id": session[
+            "current_problem_id"
+        ],
+        "current_difficulty": session[
+            "current_difficulty"
+        ],
+        "current_goal": session[
+            "current_goal"
+        ],
+        "next_action": session[
+            "next_action"
+        ],
+    }
+
+
+@app.post(
+    "/interactive/session/{adaptive_session_id}/attach"
+)
+def attach_practice_session(
+    adaptive_session_id: str,
+    session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    adaptive_session_service = AdaptiveSessionService(r)
+
+    try:
+        return adaptive_session_service.attach_practice_session(
+            adaptive_session_id=adaptive_session_id,
+            user_id=user_id,
+            session_id=session_id,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error),
+        )
+
+
+@app.post(
+    "/interactive/session/{adaptive_session_id}/process"
+)
+def process_adaptive_session(
+    adaptive_session_id: str,
+    session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    adaptive_session_service = AdaptiveSessionService(r)
+
+    try:
+        result = (
+            adaptive_session_service.process_completed_session(
+                adaptive_session_id=adaptive_session_id,
+                user_id=user_id,
+                session_id=session_id,
+            )
+        )
+
+        graph = build_adaptive_graph(r)
+
+        graph_result = graph.invoke(
+            {
+                "user_id": user_id,
+                "adaptive_session_id": adaptive_session_id,
+                "current_problem_id": "",
+                "current_difficulty": "",
+                "performance_history": [],
+                "strengths": [],
+                "weaknesses": [],
+                "current_goal": "",
+                "problem_candidates": [],
+                "last_evaluation": result[
+                    "last_evaluation"
+                ],
+                "last_action": "session_completed",
+                "next_action": "adapt",
+            }
+        )
+
+        return {
+            "adaptive_session_id": adaptive_session_id,
+            "completed_session_id": session_id,
+            "last_evaluation": result[
+                "last_evaluation"
+            ],
+            "current_problem_id": graph_result[
+                "current_problem_id"
+            ],
+            "current_difficulty": graph_result[
+                "current_difficulty"
+            ],
+            "current_goal": graph_result[
+                "current_goal"
+            ],
+            "next_action": graph_result[
+                "next_action"
+            ],
+        }
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+
+# -------------------------------------------------------------------
+# Get individual session
+# -------------------------------------------------------------------
+
 @app.get("/sessions/{session_id}")
 def get_session(
     session_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
-    session = r.hgetall(f"session:{session_id}")
+    session = r.hgetall(
+        f"session:{session_id}"
+    )
 
     if not session:
         raise HTTPException(
@@ -350,13 +609,25 @@ def get_session(
         )
 
     session["execution_result"] = json.loads(
-        session["execution_result"]
+        session.get(
+            "execution_result",
+            "{}",
+        )
     )
+
     session["evaluation"] = json.loads(
-        session["evaluation"]
+        session.get(
+            "evaluation",
+            "{}",
+        )
     )
 
     return session
+
+
+# -------------------------------------------------------------------
+# Delete session
+# -------------------------------------------------------------------
 
 @app.delete("/sessions/{session_id}")
 def delete_session(
@@ -370,11 +641,17 @@ def delete_session(
             session_id=session_id,
             user_id=user_id,
         )
+
     except ValueError as error:
         raise HTTPException(
             status_code=404,
             detail=str(error),
         )
+
+
+# -------------------------------------------------------------------
+# Submit solution
+# -------------------------------------------------------------------
 
 @app.post("/sessions/{session_id}/submit")
 def submit_session(
@@ -382,7 +659,9 @@ def submit_session(
     request: SessionSubmitRequest,
     user_id: str = Depends(get_current_user_id),
 ):
-    session = r.hgetall(f"session:{session_id}")
+    session = r.hgetall(
+        f"session:{session_id}"
+    )
 
     if not session:
         raise HTTPException(
@@ -396,7 +675,9 @@ def submit_session(
             detail="Session not found",
         )
 
-    problem = r.hgetall(f"problem:{session['problem_id']}")
+    problem = r.hgetall(
+        f"problem:{session['problem_id']}"
+    )
 
     if not problem:
         raise HTTPException(
@@ -412,24 +693,30 @@ def submit_session(
             code=request.code,
             problem=problem,
         )
+
     except ProviderExecutionError as error:
         raise HTTPException(
             status_code=503,
             detail=str(error),
         )
+
     except ValueError as error:
         raise HTTPException(
             status_code=400,
             detail=str(error),
         )
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(
+        timezone.utc
+    ).isoformat()
 
     r.hset(
         f"session:{session_id}",
         mapping={
             "code": request.code,
-            "execution_result": json.dumps(result),
+            "execution_result": json.dumps(
+                result
+            ),
             "status": "submitted",
             "updated_at": now,
         },
@@ -443,12 +730,18 @@ def submit_session(
     }
 
 
+# -------------------------------------------------------------------
+# Complete / evaluate session
+# -------------------------------------------------------------------
+
 @app.post("/sessions/{session_id}/complete")
 def complete_session(
     session_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
-    session = r.hgetall(f"session:{session_id}")
+    session = r.hgetall(
+        f"session:{session_id}"
+    )
 
     if not session:
         raise HTTPException(
@@ -465,7 +758,10 @@ def complete_session(
     if session.get("status") != "submitted":
         raise HTTPException(
             status_code=400,
-            detail="Session must be submitted before completion",
+            detail=(
+                "Session must be submitted "
+                "before completion"
+            ),
         )
 
     problem = r.hgetall(
@@ -483,22 +779,33 @@ def complete_session(
             problem=problem,
             code=session.get("code", ""),
             execution_result=json.loads(
-                session.get("execution_result", "{}")
+                session.get(
+                    "execution_result",
+                    "{}",
+                )
             ),
-            transcript=session.get("transcript", ""),
+            transcript=session.get(
+                "transcript",
+                "",
+            ),
         )
+
     except EvaluationError as error:
         raise HTTPException(
             status_code=502,
             detail=str(error),
         )
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(
+        timezone.utc
+    ).isoformat()
 
     r.hset(
         f"session:{session_id}",
         mapping={
-            "evaluation": json.dumps(evaluation),
+            "evaluation": json.dumps(
+                evaluation
+            ),
             "status": "completed",
             "updated_at": now,
         },
@@ -510,13 +817,22 @@ def complete_session(
         "evaluation": evaluation,
     }
 
-@app.post("/sessions/{session_id}/transcript")
+
+# -------------------------------------------------------------------
+# Transcription
+# -------------------------------------------------------------------
+
+@app.post(
+    "/sessions/{session_id}/transcript"
+)
 def transcribe_session(
     session_id: str,
     audio: UploadFile = File(...),
     user_id: str = Depends(get_current_user_id),
 ):
-    session = r.hgetall(f"session:{session_id}")
+    session = r.hgetall(
+        f"session:{session_id}"
+    )
 
     if not session:
         raise HTTPException(
@@ -530,7 +846,13 @@ def transcribe_session(
             detail="Session not found",
         )
 
-    suffix = os.path.splitext(audio.filename or "")[1] or ".tmp"
+    suffix = (
+        os.path.splitext(
+            audio.filename or ""
+        )[1]
+        or ".tmp"
+    )
+
     temp_path = None
 
     try:
@@ -539,11 +861,18 @@ def transcribe_session(
             suffix=suffix,
         ) as temp_file:
             temp_path = temp_file.name
-            temp_file.write(audio.file.read())
 
-        result = TranscriptionService().transcribe(temp_path)
+            temp_file.write(
+                audio.file.read()
+            )
 
-        now = datetime.now(timezone.utc).isoformat()
+        result = TranscriptionService().transcribe(
+            temp_path
+        )
+
+        now = datetime.now(
+            timezone.utc
+        ).isoformat()
 
         r.hset(
             f"session:{session_id}",
@@ -560,22 +889,33 @@ def transcribe_session(
         )
 
     finally:
-        if temp_path and os.path.exists(temp_path):
+        if (
+            temp_path
+            and os.path.exists(temp_path)
+        ):
             os.remove(temp_path)
 
     return {
         "session_id": session_id,
         "transcript": result["text"],
-        "transcript_id": result["transcript_id"],
+        "transcript_id": result[
+            "transcript_id"
+        ],
         "status": result["status"],
     }
 
+
+# -------------------------------------------------------------------
+# Session history
+# -------------------------------------------------------------------
 
 @app.get("/sessions")
 def get_user_sessions(
     user_id: str = Depends(get_current_user_id),
 ):
-    session_keys = r.scan_iter(match="session:*")
+    session_keys = r.scan_iter(
+        match="session:*"
+    )
 
     sessions = []
 
@@ -589,17 +929,26 @@ def get_user_sessions(
             continue
 
         session["execution_result"] = json.loads(
-            session.get("execution_result", "{}")
+            session.get(
+                "execution_result",
+                "{}",
+            )
         )
 
         session["evaluation"] = json.loads(
-            session.get("evaluation", "{}")
+            session.get(
+                "evaluation",
+                "{}",
+            )
         )
 
         sessions.append(session)
 
     sessions.sort(
-        key=lambda session: session.get("updated_at", ""),
+        key=lambda session: session.get(
+            "updated_at",
+            "",
+        ),
         reverse=True,
     )
 

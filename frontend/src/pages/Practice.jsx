@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 
 import Navbar from "../components/Navbar";
 import CodeEditor from "../components/CodeEditor";
@@ -9,6 +10,9 @@ const API_BASE_URL = "http://127.0.0.1:8000";
 function Practice() {
   const { problemId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const adaptiveSessionId = searchParams.get("adaptive_session");
 
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -107,6 +111,29 @@ function Practice() {
       }
 
       setSessionId(data.session_id);
+
+      // Attach this normal Practice session to the Adaptive Session
+      // only when Practice was launched from Interactive.
+      if (adaptiveSessionId) {
+        const attachResponse = await fetch(
+          `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/attach?session_id=${data.session_id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const attachData = await attachResponse.json();
+
+        if (!attachResponse.ok) {
+          throw new Error(
+            attachData.detail ||
+              "Failed to attach practice session"
+          );
+        }
+      }
 
       return data.session_id;
     } catch (error) {
@@ -519,7 +546,12 @@ function Practice() {
 
         {/* Submission result */}
         {submissionResult && (
-          <div className="mt-8 border border-black/10 p-6 dark:border-white/10">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="mt-8 border border-black/10 p-6 dark:border-white/10"
+          >
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
                 Submission
@@ -547,128 +579,282 @@ function Practice() {
                 {submissionResult.execution_result.error}
               </pre>
             )}
-          </div>
+          </motion.div>
         )}
 
         {/* Articulation Evaluation */}
         {evaluation && (
-          <section className="mt-12 border-t border-black/10 pt-10 dark:border-white/10">
-            <p className="text-sm uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
-              Articulation Evaluation
-            </p>
+          <motion.section
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.45,
+              ease: "easeOut",
+            }}
+            className="mt-16"
+          >
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/35 dark:text-white/35">
+                Evaluation
+              </p>
 
-            <h2 className="mt-4 font-display text-4xl text-black dark:text-[#F5F5F5]">
-              How you reasoned through the solution.
-            </h2>
+              <h2 className="mt-2 text-2xl font-medium tracking-tight">
+                Your Articulation Review
+              </h2>
+            </div>
 
-            {/* Evaluation dimensions */}
-            <div className="mt-8 grid gap-px border border-black/10 bg-black/10 dark:border-white/10 dark:bg-white/10 md:grid-cols-2">
-              {[
-                {
-                  label: "Problem Understanding",
-                  data: evaluation.problem_understanding,
-                },
-                {
-                  label: "Approach / Logic",
-                  data: evaluation.approach,
-                },
-                {
-                  label: "Complexity",
-                  data: evaluation.complexity,
-                },
-                {
-                  label: "Clarity & Articulation",
-                  data: evaluation.clarity_and_articulation,
-                },
-                {
-                  label: "Optimization",
-                  data: evaluation.optimization,
-                },
-              ].map((dimension) => (
-                <div
-                  key={dimension.label}
-                  className="bg-white p-6 dark:bg-[#222222]"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <p className="text-sm font-medium text-black dark:text-white">
-                      {dimension.label}
-                    </p>
+            {(() => {
+              const dimensions = [
+                [
+                  "Problem Understanding",
+                  "problem_understanding",
+                ],
+                ["Approach / Logic", "approach"],
+                ["Complexity", "complexity"],
+                [
+                  "Clarity & Articulation",
+                  "clarity_and_articulation",
+                ],
+                ["Optimization", "optimization"],
+              ];
 
-                    {dimension.data?.score != null ? (
-                      <span className="text-sm font-medium text-black dark:text-white">
-                        {dimension.data.score}/5
-                      </span>
-                    ) : (
-                      <span className="text-xs text-black/40 dark:text-white/40">
-                        Not evaluated
-                      </span>
+              const scoredDimensions = dimensions
+                .map(([label, key]) => ({
+                  label,
+                  key,
+                  dimension: evaluation[key],
+                }))
+                .filter(
+                  ({ dimension }) =>
+                    dimension && dimension.score != null
+                );
+
+              const overallScore =
+                scoredDimensions.length > 0
+                  ? scoredDimensions.reduce(
+                      (sum, { dimension }) =>
+                        sum + Number(dimension.score),
+                      0
+                    ) / scoredDimensions.length
+                  : null;
+
+              return (
+                <>
+                  {/* Overall Score */}
+                  {overallScore != null && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.45,
+                        delay: 0.08,
+                      }}
+                      className="mt-7 rounded-2xl border border-black/10 p-6 dark:border-white/10"
+                    >
+                      <div className="flex items-end justify-between gap-6">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.14em] text-black/35 dark:text-white/35">
+                            Overall Score
+                          </p>
+
+                          <div className="mt-3 flex items-end gap-2">
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{
+                                duration: 0.4,
+                                delay: 0.2,
+                              }}
+                              className="text-4xl font-medium tracking-tight"
+                            >
+                              {overallScore.toFixed(1)}
+                            </motion.span>
+
+                            <span className="mb-1 text-sm text-black/40 dark:text-white/40">
+                              / 5
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Overall Feedback */}
+                  {evaluation.overall_feedback && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.45,
+                        delay: 0.14,
+                      }}
+                      className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10"
+                    >
+                      <p className="text-sm leading-7 text-black/70 dark:text-white/70">
+                        {evaluation.overall_feedback}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {/* Evaluation Dimensions */}
+                  <div className="mt-6 grid gap-4 md:grid-cols-2">
+                    {scoredDimensions.map(
+                      ({ label, key, dimension }, index) => (
+                        <motion.div
+                          key={key}
+                          initial={{
+                            opacity: 0,
+                            y: 10,
+                          }}
+                          animate={{
+                            opacity: 1,
+                            y: 0,
+                          }}
+                          transition={{
+                            duration: 0.45,
+                            delay: 0.08 + index * 0.06,
+                            ease: "easeOut",
+                          }}
+                          className="rounded-xl border border-black/10 p-5 transition-transform duration-200 hover:-translate-y-0.5 dark:border-white/10"
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <h3 className="text-sm font-medium">
+                              {label}
+                            </h3>
+
+                            <span className="text-sm text-black/50 dark:text-white/50">
+                              {dimension.score}/5
+                            </span>
+                          </div>
+
+                          {/* Score bar */}
+                          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{
+                                width: `${(
+                                  Number(dimension.score) / 5
+                                ) * 100}%`,
+                              }}
+                              transition={{
+                                duration: 0.65,
+                                delay:
+                                  0.18 + index * 0.06,
+                                ease: "easeOut",
+                              }}
+                              className="h-full rounded-full bg-black dark:bg-white"
+                            />
+                          </div>
+
+                          {dimension.feedback && (
+                            <p className="mt-4 text-sm leading-7 text-black/60 dark:text-white/60">
+                              {dimension.feedback}
+                            </p>
+                          )}
+                        </motion.div>
+                      )
                     )}
                   </div>
 
-                  {dimension.data?.feedback && (
-                    <p className="mt-4 text-sm leading-7 text-black/60 dark:text-white/60">
-                      {dimension.data.feedback}
-                    </p>
+                  {/* Strengths */}
+                  {evaluation.strengths?.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.45,
+                        delay:
+                          0.18 +
+                          scoredDimensions.length * 0.06,
+                      }}
+                      className="mt-8"
+                    >
+                      <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/35 dark:text-white/35">
+                        Strengths
+                      </p>
+
+                      <ul className="mt-4 space-y-3">
+                        {evaluation.strengths.map(
+                          (strength, index) => (
+                            <motion.li
+                              key={index}
+                              initial={{
+                                opacity: 0,
+                                x: -6,
+                              }}
+                              animate={{
+                                opacity: 1,
+                                x: 0,
+                              }}
+                              transition={{
+                                duration: 0.35,
+                                delay:
+                                  0.22 +
+                                  index * 0.05,
+                              }}
+                              className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
+                            >
+                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
+
+                              <span>{strength}</span>
+                            </motion.li>
+                          )
+                        )}
+                      </ul>
+                    </motion.div>
                   )}
-                </div>
-              ))}
-            </div>
 
-            {/* Overall feedback */}
-            {evaluation.overall_feedback && (
-              <div className="mt-8 border border-black/10 p-6 dark:border-white/10">
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
-                  Overall
-                </p>
-
-                <p className="mt-4 text-sm leading-7 text-black/70 dark:text-white/70">
-                  {evaluation.overall_feedback}
-                </p>
-              </div>
-            )}
-
-            {/* Strengths */}
-            {evaluation.strengths?.length > 0 && (
-              <div className="mt-8">
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
-                  Strengths
-                </p>
-
-                <ul className="mt-4 space-y-3">
-                  {evaluation.strengths.map((strength, index) => (
-                    <li
-                      key={index}
-                      className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
+                  {/* Improvements */}
+                  {evaluation.improvements?.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.45,
+                        delay:
+                          0.24 +
+                          scoredDimensions.length * 0.06,
+                      }}
+                      className="mt-8"
                     >
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
-                      <span>{strength}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                      <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/35 dark:text-white/35">
+                        Areas to Improve
+                      </p>
 
-            {/* Improvements */}
-            {evaluation.improvements?.length > 0 && (
-              <div className="mt-8">
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
-                  Areas to Improve
-                </p>
+                      <ul className="mt-4 space-y-3">
+                        {evaluation.improvements.map(
+                          (improvement, index) => (
+                            <motion.li
+                              key={index}
+                              initial={{
+                                opacity: 0,
+                                x: -6,
+                              }}
+                              animate={{
+                                opacity: 1,
+                                x: 0,
+                              }}
+                              transition={{
+                                duration: 0.35,
+                                delay:
+                                  0.28 +
+                                  index * 0.05,
+                              }}
+                              className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
+                            >
+                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
 
-                <ul className="mt-4 space-y-3">
-                  {evaluation.improvements.map((improvement, index) => (
-                    <li
-                      key={index}
-                      className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
-                    >
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
-                      <span>{improvement}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
+                              <span>{improvement}</span>
+                            </motion.li>
+                          )
+                        )}
+                      </ul>
+                    </motion.div>
+                  )}
+                </>
+              );
+            })()}
+          </motion.section>
         )}
 
         {/* Submit / Evaluate */}

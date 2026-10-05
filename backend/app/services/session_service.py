@@ -52,6 +52,10 @@ class SessionService:
             f"session:{session_id}",
             mapping=session,
         )
+        self.redis.sadd(
+            f"user:{user_id}:sessions",
+            session_id,
+        )
 
         return session
 
@@ -91,6 +95,11 @@ class SessionService:
             raise ValueError("Session not found")
 
         self.redis.delete(session_key)
+
+        self.redis.srem(
+            f"user:{user_id}:sessions",
+            session_id,
+        )
 
         return {
             "session_id": session_id,
