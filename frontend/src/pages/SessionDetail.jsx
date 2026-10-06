@@ -98,7 +98,7 @@ function SessionDetail() {
           </button>
 
           <div className="rounded-2xl border border-black/10 p-8 dark:border-white/10">
-            <h1 className="text-xl font-medium">
+            <h1 className="text-xl font-medium text-black dark:!text-white">
               Unable to load session
             </h1>
 
@@ -131,8 +131,15 @@ function SessionDetail() {
 
   const totalTests = tests.length;
 
+  // A submission can fail before individual test cases are produced.
+  const executionFailed = executionResult?.success === false;
+
+  // Only consider a submission fully passed when execution succeeded
+  // and every returned test case passed.
   const executionPassed =
-    totalTests > 0 && passedTests === totalTests;
+    !executionFailed &&
+    totalTests > 0 &&
+    passedTests === totalTests;
 
   const statusLabel =
     session.status === "completed"
@@ -165,7 +172,7 @@ function SessionDetail() {
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="text-3xl font-medium tracking-tight md:text-4xl">
+              <h1 className="text-3xl font-medium tracking-tight text-black dark:!text-white md:text-4xl">
                 {problem?.title || session.problem_id}
               </h1>
 
@@ -274,15 +281,19 @@ function SessionDetail() {
                 Execution
               </p>
 
-              <h2 className="mt-2 text-xl font-medium tracking-tight">
-                {executionPassed
+              <h2 className="mt-2 text-xl font-medium tracking-tight text-black dark:!text-white">
+                {executionFailed
+                  ? "Execution failed"
+                  : executionPassed
                   ? "All tests passed"
                   : "Tests need attention"}
               </h2>
             </div>
 
             <div className="text-sm text-black/50 dark:text-white/50">
-              {passedTests} / {totalTests} passed
+              {executionFailed
+                ? "Code could not be executed"
+                : `${passedTests} / ${totalTests} passed`}
             </div>
           </div>
 
@@ -311,7 +322,7 @@ function SessionDetail() {
                       {test.passed ? "✓" : "×"}
                     </span>
 
-                    <span className="text-sm">
+                    <span className="text-sm text-black dark:!text-white">
                       Test {index + 1}
                     </span>
                   </div>
@@ -324,14 +335,16 @@ function SessionDetail() {
             </div>
           ) : (
             <div className="rounded-xl border border-black/10 px-5 py-4 text-sm text-black/50 dark:border-white/10 dark:text-white/50">
-              No test details available.
+              {executionFailed
+                ? "The code failed during execution before the test cases could run."
+                : "No test details available."}
             </div>
           )}
 
           {executionResult?.error && (
-            <div className="mt-4 rounded-xl border border-black/10 px-5 py-4 text-sm text-black/60 dark:border-white/10 dark:text-white/60">
+            <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-black/10 px-5 py-4 text-sm leading-6 text-black/60 dark:border-white/10 dark:text-white/60">
               {executionResult.error}
-            </div>
+            </pre>
           )}
         </motion.section>
 
@@ -347,7 +360,7 @@ function SessionDetail() {
               Articulation
             </p>
 
-            <h2 className="mt-2 text-xl font-medium tracking-tight">
+            <h2 className="mt-2 text-xl font-medium tracking-tight text-black dark:!text-white">
               Your Explanation
             </h2>
           </div>
@@ -378,7 +391,7 @@ function SessionDetail() {
                 Evaluation
               </p>
 
-              <h2 className="mt-2 text-2xl font-medium tracking-tight">
+              <h2 className="mt-2 text-2xl font-medium tracking-tight text-black dark:!text-white">
                 Your Articulation Review
               </h2>
             </div>
@@ -429,7 +442,7 @@ function SessionDetail() {
                           </p>
 
                           <div className="mt-2 flex items-end gap-2">
-                            <span className="text-5xl font-medium tracking-tight">
+                            <span className="text-5xl font-medium tracking-tight text-black dark:!text-white">
                               {overallScore.toFixed(1)}
                             </span>
 
@@ -452,6 +465,20 @@ function SessionDetail() {
                     </motion.div>
                   )}
 
+                  {/* Overall Feedback */}
+                  {session.evaluation.overall_feedback && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10"
+                    >
+                      <p className="text-sm leading-7 text-black/70 dark:text-white/70">
+                        {session.evaluation.overall_feedback}
+                      </p>
+                    </motion.div>
+                  )}
+
                   {/* Dimension Scores */}
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
@@ -460,7 +487,7 @@ function SessionDetail() {
                     className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10"
                   >
                     <div>
-                      <p className="text-sm font-medium">
+                      <p className="text-sm font-medium text-black dark:!text-white">
                         Performance Breakdown
                       </p>
 
@@ -494,7 +521,7 @@ function SessionDetail() {
                               }}
                             >
                               <div className="flex items-center justify-between gap-4">
-                                <span className="text-sm">
+                                <span className="text-sm text-black dark:!text-white">
                                   {label}
                                 </span>
 
@@ -544,9 +571,11 @@ function SessionDetail() {
                         className="rounded-2xl border border-black/10 p-6 dark:border-white/10"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-sm">✓</span>
+                          <span className="text-sm text-black dark:!text-white">
+                            ✓
+                          </span>
 
-                          <h3 className="text-sm font-medium">
+                          <h3 className="text-sm font-medium text-black dark:!text-white">
                             Strengths
                           </h3>
                         </div>
@@ -578,9 +607,11 @@ function SessionDetail() {
                         className="rounded-2xl border border-black/10 p-6 dark:border-white/10"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-sm">→</span>
+                          <span className="text-sm text-black dark:!text-white">
+                            →
+                          </span>
 
-                          <h3 className="text-sm font-medium">
+                          <h3 className="text-sm font-medium text-black dark:!text-white">
                             Focus Next
                           </h3>
                         </div>
@@ -606,6 +637,7 @@ function SessionDetail() {
           </motion.section>
         )}
       </main>
+
       <Footer variant="minimal" />
     </div>
   );

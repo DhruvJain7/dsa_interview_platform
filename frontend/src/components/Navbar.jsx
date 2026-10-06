@@ -53,7 +53,7 @@ function Navbar() {
   const navItems = [
     { label: "Dashboard", path: "/dashboard" },
     { label: "Practice", path: "/problems" },
-    { label: "Interactive", path:"/interactive" },
+    { label: "Interactive", path: "/interactive" },
   ];
 
   const navbarClasses = isScrolled
@@ -72,12 +72,49 @@ function Navbar() {
       className={navbarClasses}
     >
       {/* Logo */}
-      <button
+      <motion.button
         onClick={() => navigate("/")}
-        className="shrink-0 font-display text-xl tracking-[-0.02em] text-black dark:text-[#F5F5F5]"
+        initial="rest"
+        whileHover="hover"
+        whileTap={{ scale: 0.97 }}
+        animate="rest"
+        variants={{
+          rest: {
+            y: 0,
+          },
+          hover: {
+            y: -1,
+          },
+        }}
+        transition={{
+          duration: 0.25,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+        className="group relative shrink-0 font-display text-xl tracking-[-0.02em] text-black dark:text-[#F5F5F5]"
       >
-        Articula
-      </button>
+        <span className="relative">
+          Articula
+
+          {/* Accent underline */}
+          <motion.span
+            variants={{
+              rest: {
+                scaleX: 0,
+                opacity: 0,
+              },
+              hover: {
+                scaleX: 1,
+                opacity: 1,
+              },
+            }}
+            transition={{
+              duration: 0.3,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="absolute -bottom-1 left-0 h-px w-full origin-left bg-black dark:bg-white"
+          />
+        </span>
+      </motion.button>
 
       {/* Navigation */}
       <div className="hidden items-center gap-8 md:flex">

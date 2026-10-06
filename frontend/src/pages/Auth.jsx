@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,6 +12,94 @@ import {
 } from "../utils/auth";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
+
+function AuthOrbits() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {/* =====================================================
+          LEFT OUTER ORBIT
+      ====================================================== */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{
+          duration: 34,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="absolute left-[-360px] top-[150px] h-[430px] w-[800px]"
+      >
+        {/* Orbit */}
+        <div className="absolute inset-0 rounded-[50%] border border-black/[0.075] dark:border-white/[0.075]" />
+
+        {/* Black node — exactly on left edge */}
+        <div className="absolute left-0 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/30 dark:bg-white/30" />
+
+        {/* Blue node — exactly on right edge */}
+        <div className="absolute right-0 top-1/2 h-1.5 w-1.5 translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5B7CFA]/65 dark:bg-[#6D8BFF]/65" />
+      </motion.div>
+
+      {/* =====================================================
+          LEFT INNER ORBIT
+      ====================================================== */}
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="absolute left-[-280px] top-[215px] h-[300px] w-[620px]"
+      >
+        {/* Orbit */}
+        <div className="absolute inset-0 rounded-[50%] border border-black/[0.05] dark:border-white/[0.05]" />
+
+        {/* Node — exactly on right edge */}
+        <div className="absolute right-0 top-1/2 h-1.5 w-1.5 translate-x-1/2 -translate-y-1/2 rounded-full bg-black/25 dark:bg-white/25" />
+      </motion.div>
+
+      {/* =====================================================
+          RIGHT OUTER ORBIT
+      ====================================================== */}
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{
+          duration: 40,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="absolute right-[-360px] top-[150px] h-[430px] w-[800px]"
+      >
+        {/* Orbit */}
+        <div className="absolute inset-0 rounded-[50%] border border-black/[0.075] dark:border-white/[0.075]" />
+
+        {/* Black node — exactly on right edge */}
+        <div className="absolute right-0 top-1/2 h-2 w-2 translate-x-1/2 -translate-y-1/2 rounded-full bg-black/30 dark:bg-white/30" />
+
+        {/* Blue node — exactly on left edge */}
+        <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5B7CFA]/65 dark:bg-[#6D8BFF]/65" />
+      </motion.div>
+
+      {/* =====================================================
+          RIGHT INNER ORBIT
+      ====================================================== */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{
+          duration: 28,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="absolute right-[-280px] top-[215px] h-[300px] w-[620px]"
+      >
+        {/* Orbit */}
+        <div className="absolute inset-0 rounded-[50%] border border-black/[0.05] dark:border-white/[0.05]" />
+
+        {/* Node — exactly on left edge */}
+        <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/25 dark:bg-white/25" />
+      </motion.div>
+    </div>
+  );
+}
 
 function Auth() {
   const navigate = useNavigate();
@@ -141,8 +230,10 @@ function Auth() {
       <div className="min-h-screen bg-white dark:bg-[#222222]">
         <Navbar />
 
-        <main className="flex min-h-[calc(100vh-80px)] items-center justify-center px-6 pb-24 pt-28">
-          <div className="w-full max-w-md">
+        <main className="relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden px-6 pb-24 pt-28">
+          <AuthOrbits />
+
+          <div className="relative z-10 w-full max-w-md">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/35">
               Account
             </p>
@@ -163,7 +254,7 @@ function Auth() {
 
             <button
               onClick={handleLogout}
-              className="mt-8 w-full border border-black bg-black px-6 py-3.5 text-sm font-medium text-white transition-opacity hover:opacity-80 dark:border-white dark:bg-white dark:text-black"
+              className="mt-8 w-full bg-black px-6 py-3.5 text-sm font-medium text-white transition-opacity hover:opacity-80 dark:bg-white dark:text-black"
             >
               Log out
             </button>
@@ -186,8 +277,10 @@ function Auth() {
     <div className="min-h-screen bg-white dark:bg-[#222222]">
       <Navbar />
 
-      <main className="flex min-h-[calc(100vh-80px)] items-center justify-center px-6 pb-24 pt-28">
-        <div className="w-full max-w-md">
+      <main className="relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden px-6 pb-24 pt-28">
+        <AuthOrbits />
+
+        <div className="relative z-10 w-full max-w-md">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/35">
             Account
           </p>

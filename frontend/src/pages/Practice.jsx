@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 
 import { motion } from "framer-motion";
 
@@ -14,7 +18,8 @@ function Practice() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const adaptiveSessionId = searchParams.get("adaptive_session");
+  const adaptiveSessionId =
+    searchParams.get("adaptive_session");
 
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,20 +35,60 @@ function Practice() {
   const [completing, setCompleting] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
 
-  const [submissionResult, setSubmissionResult] = useState(null);
+  const [submissionResult, setSubmissionResult] =
+    useState(null);
+
   const [evaluation, setEvaluation] = useState(null);
+
   const [submitError, setSubmitError] = useState("");
 
-  // Adaptive session result
-  const [adaptiveResult, setAdaptiveResult] = useState(null);
+  // -----------------------------------------------------------
+  // Adaptive session state
+  // -----------------------------------------------------------
 
+  const [adaptiveResult, setAdaptiveResult] =
+    useState(null);
+
+  const [endingAdaptiveSession, setEndingAdaptiveSession] =
+    useState(false);
+
+  const [
+    showEndSessionModal,
+    setShowEndSessionModal,
+  ] = useState(false);
+
+  const [
+    adaptiveSessionCompleted,
+    setAdaptiveSessionCompleted,
+  ] = useState(false);
+
+  const [
+    adaptiveSessionSummary,
+    setAdaptiveSessionSummary,
+  ] = useState(null);
+
+  // -----------------------------------------------------------
   // Audio recording state
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState(null);
-  const [transcript, setTranscript] = useState("");
+  // -----------------------------------------------------------
 
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
+  const [isRecording, setIsRecording] =
+    useState(false);
+
+  const [audioBlob, setAudioBlob] =
+    useState(null);
+
+  const [transcript, setTranscript] =
+    useState("");
+
+  const mediaRecorderRef =
+    useRef(null);
+
+  const audioChunksRef =
+    useRef([]);
+
+  // -----------------------------------------------------------
+  // Fetch problem
+  // -----------------------------------------------------------
 
   useEffect(() => {
     const fetchProblem = async () => {
@@ -61,10 +106,13 @@ function Practice() {
         }
 
         if (!response.ok) {
-          throw new Error("Failed to fetch problem");
+          throw new Error(
+            "Failed to fetch problem"
+          );
         }
 
         const data = await response.json();
+
         setProblem(data);
       } catch (error) {
         console.error(error);
@@ -77,9 +125,66 @@ function Practice() {
     fetchProblem();
   }, [problemId]);
 
+  // -----------------------------------------------------------
+  // Reset problem-specific state whenever problemId changes.
+  //
+  // This is important for:
+  //
+  // Problem A
+  //    ↓
+  // Continue to Next Problem
+  //    ↓
+  // Problem B
+  //
+  // without a browser refresh.
+  // -----------------------------------------------------------
+
+  useEffect(() => {
+    setProblem(null);
+
+    setCode("");
+    setSessionId(null);
+
+    setSubmissionResult(null);
+    setEvaluation(null);
+    setAdaptiveResult(null);
+
+    setSubmitError("");
+
+    setIsRecording(false);
+    setAudioBlob(null);
+    setTranscript("");
+
+    setAdaptiveSessionCompleted(false);
+    setAdaptiveSessionSummary(null);
+
+    const recorder =
+      mediaRecorderRef.current;
+
+    if (
+      recorder &&
+      recorder.state !== "inactive"
+    ) {
+      recorder.stop();
+    }
+
+    mediaRecorderRef.current = null;
+    audioChunksRef.current = [];
+  }, [problemId]);
+
+  // -----------------------------------------------------------
+  // Token
+  // -----------------------------------------------------------
+
   const getToken = () => {
-    return localStorage.getItem("articula_access_token");
+    return localStorage.getItem(
+      "articula_access_token"
+    );
   };
+
+  // -----------------------------------------------------------
+  // Create Practice Session
+  // -----------------------------------------------------------
 
   const createSession = async () => {
     const token = getToken();
@@ -88,6 +193,7 @@ function Practice() {
       setSubmitError(
         "Please log in before starting a practice session."
       );
+
       return null;
     }
 
@@ -95,43 +201,54 @@ function Practice() {
     setSubmitError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/sessions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          problem_id: problemId,
-          language,
-        }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/sessions`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            problem_id: problemId,
+            language,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.detail || "Failed to create session"
+          data.detail ||
+            "Failed to create session"
         );
       }
 
       setSessionId(data.session_id);
 
-      // Attach this normal Practice session to the
-      // Adaptive Session when Practice was launched
-      // from the Interactive page.
-      if (adaptiveSessionId) {
-        const attachResponse = await fetch(
-          `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/attach?session_id=${data.session_id}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      // -------------------------------------------------------
+      // Attach normal Practice session to Adaptive Session
+      // only when Practice was launched from Interactive.
+      // -------------------------------------------------------
 
-        const attachData = await attachResponse.json();
+      if (adaptiveSessionId) {
+        const attachResponse =
+          await fetch(
+            `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/attach?session_id=${data.session_id}`,
+            {
+              method: "POST",
+
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+        const attachData =
+          await attachResponse.json();
 
         if (!attachResponse.ok) {
           throw new Error(
@@ -144,16 +261,25 @@ function Practice() {
       return data.session_id;
     } catch (error) {
       console.error(error);
+
       setSubmitError(error.message);
+
       return null;
     } finally {
       setSessionLoading(false);
     }
   };
 
+  // -----------------------------------------------------------
+  // Submit Practice
+  // -----------------------------------------------------------
+
   const handleSubmit = async () => {
     if (!code.trim()) {
-      setSubmitError("Please write some code before submitting.");
+      setSubmitError(
+        "Please write some code before submitting."
+      );
+
       return;
     }
 
@@ -163,11 +289,13 @@ function Practice() {
       setSubmitError(
         "Please log in before submitting your solution."
       );
+
       return;
     }
 
     setSubmitting(true);
     setSubmitError("");
+
     setSubmissionResult(null);
     setEvaluation(null);
     setAdaptiveResult(null);
@@ -176,7 +304,8 @@ function Practice() {
       let activeSessionId = sessionId;
 
       if (!activeSessionId) {
-        activeSessionId = await createSession();
+        activeSessionId =
+          await createSession();
       }
 
       if (!activeSessionId) {
@@ -187,32 +316,41 @@ function Practice() {
         `${API_BASE_URL}/sessions/${activeSessionId}/submit`,
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+
           body: JSON.stringify({
             code,
           }),
         }
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.detail || "Failed to submit solution"
+          data.detail ||
+            "Failed to submit solution"
         );
       }
 
       setSubmissionResult(data);
     } catch (error) {
       console.error(error);
+
       setSubmitError(error.message);
     } finally {
       setSubmitting(false);
     }
   };
+
+  // -----------------------------------------------------------
+  // Complete / Evaluate Practice Session
+  // -----------------------------------------------------------
 
   const handleComplete = async () => {
     const token = getToken();
@@ -221,11 +359,15 @@ function Practice() {
       setSubmitError(
         "Please log in before evaluating your articulation."
       );
+
       return;
     }
 
     if (!sessionId) {
-      setSubmitError("No active session found.");
+      setSubmitError(
+        "No active session found."
+      );
+
       return;
     }
 
@@ -233,53 +375,69 @@ function Practice() {
     setSubmitError("");
 
     try {
-      // ---------------------------------------------------------
-      // STEP 1: Complete the normal interview session
-      // ---------------------------------------------------------
+      // -------------------------------------------------------
+      // STEP 1
+      // Complete normal Practice session
+      // -------------------------------------------------------
+
       const response = await fetch(
         `${API_BASE_URL}/sessions/${sessionId}/complete`,
         {
           method: "POST",
+
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.detail || "Failed to evaluate articulation"
+          data.detail ||
+            "Failed to evaluate articulation"
         );
       }
 
-      setSubmissionResult((current) => ({
-        ...current,
-        ...data,
-        execution_result:
-          data.execution_result || current?.execution_result,
-      }));
+      setSubmissionResult(
+        (current) => ({
+          ...current,
+          ...data,
 
-      setEvaluation(data.evaluation || null);
+          execution_result:
+            data.execution_result ||
+            current?.execution_result,
+        })
+      );
 
-      // ---------------------------------------------------------
-      // STEP 2: Process completed session through
-      // the Adaptive Interviewer
-      // ---------------------------------------------------------
+      setEvaluation(
+        data.evaluation || null
+      );
+
+      // -------------------------------------------------------
+      // STEP 2
+      // Send completed session to Adaptive Interviewer
+      // -------------------------------------------------------
+
       if (adaptiveSessionId) {
         try {
-          const adaptiveResponse = await fetch(
-            `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/process?session_id=${sessionId}`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const adaptiveResponse =
+            await fetch(
+              `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/process?session_id=${sessionId}`,
+              {
+                method: "POST",
 
-          const adaptiveData = await adaptiveResponse.json();
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`,
+                },
+              }
+            );
+
+          const adaptiveData =
+            await adaptiveResponse.json();
 
           if (!adaptiveResponse.ok) {
             throw new Error(
@@ -293,7 +451,9 @@ function Practice() {
             adaptiveData
           );
 
-          setAdaptiveResult(adaptiveData);
+          setAdaptiveResult(
+            adaptiveData
+          );
         } catch (adaptiveError) {
           console.error(
             "Adaptive processing failed:",
@@ -308,81 +468,118 @@ function Practice() {
       }
     } catch (error) {
       console.error(error);
+
       setSubmitError(error.message);
     } finally {
       setCompleting(false);
     }
   };
 
-  const handleStartRecording = async () => {
-    setSubmitError("");
+  // -----------------------------------------------------------
+  // Start Recording
+  // -----------------------------------------------------------
 
-    try {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error(
-          "Audio recording is not supported by this browser."
+  const handleStartRecording =
+    async () => {
+      setSubmitError("");
+
+      try {
+        if (
+          !navigator.mediaDevices?.getUserMedia
+        ) {
+          throw new Error(
+            "Audio recording is not supported by this browser."
+          );
+        }
+
+        const stream =
+          await navigator.mediaDevices.getUserMedia(
+            {
+              audio: true,
+            }
+          );
+
+        const recorder =
+          new MediaRecorder(stream);
+
+        audioChunksRef.current = [];
+
+        recorder.ondataavailable =
+          (event) => {
+            if (event.data.size > 0) {
+              audioChunksRef.current.push(
+                event.data
+              );
+            }
+          };
+
+        recorder.onstop = () => {
+          const blob = new Blob(
+            audioChunksRef.current,
+            {
+              type:
+                recorder.mimeType ||
+                "audio/webm",
+            }
+          );
+
+          setAudioBlob(blob);
+
+          stream
+            .getTracks()
+            .forEach((track) =>
+              track.stop()
+            );
+        };
+
+        mediaRecorderRef.current =
+          recorder;
+
+        recorder.start();
+
+        setIsRecording(true);
+        setAudioBlob(null);
+        setTranscript("");
+      } catch (error) {
+        console.error(error);
+
+        setSubmitError(
+          error.message ||
+            "Unable to access the microphone."
         );
       }
+    };
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
-
-      const recorder = new MediaRecorder(stream);
-
-      audioChunksRef.current = [];
-
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      recorder.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, {
-          type: recorder.mimeType || "audio/webm",
-        });
-
-        setAudioBlob(blob);
-
-        stream
-          .getTracks()
-          .forEach((track) => track.stop());
-      };
-
-      mediaRecorderRef.current = recorder;
-
-      recorder.start();
-
-      setIsRecording(true);
-      setAudioBlob(null);
-      setTranscript("");
-    } catch (error) {
-      console.error(error);
-
-      setSubmitError(
-        error.message ||
-          "Unable to access the microphone."
-      );
-    }
-  };
+  // -----------------------------------------------------------
+  // Stop Recording
+  // -----------------------------------------------------------
 
   const handleStopRecording = () => {
-    const recorder = mediaRecorderRef.current;
+    const recorder =
+      mediaRecorderRef.current;
 
-    if (!recorder || recorder.state === "inactive") {
+    if (
+      !recorder ||
+      recorder.state === "inactive"
+    ) {
       return;
     }
 
     recorder.stop();
+
     setIsRecording(false);
   };
+
+  // -----------------------------------------------------------
+  // Transcribe
+  // -----------------------------------------------------------
 
   const handleTranscribe = async () => {
     if (!audioBlob) {
       setSubmitError(
         "Please record your articulation first."
       );
+
       return;
     }
 
@@ -392,6 +589,7 @@ function Practice() {
       setSubmitError(
         "Please log in before transcribing your articulation."
       );
+
       return;
     }
 
@@ -402,14 +600,16 @@ function Practice() {
       let activeSessionId = sessionId;
 
       if (!activeSessionId) {
-        activeSessionId = await createSession();
+        activeSessionId =
+          await createSession();
       }
 
       if (!activeSessionId) {
         return;
       }
 
-      const formData = new FormData();
+      const formData =
+        new FormData();
 
       formData.append(
         "audio",
@@ -421,24 +621,32 @@ function Practice() {
         `${API_BASE_URL}/sessions/${activeSessionId}/transcript`,
         {
           method: "POST",
+
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization:
+              `Bearer ${token}`,
           },
+
           body: formData,
         }
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.detail || "Failed to transcribe audio"
+          data.detail ||
+            "Failed to transcribe audio"
         );
       }
 
-      setTranscript(data.transcript || "");
+      setTranscript(
+        data.transcript || ""
+      );
     } catch (error) {
       console.error(error);
+
       setSubmitError(error.message);
     } finally {
       setTranscribing(false);
@@ -446,20 +654,89 @@ function Practice() {
   };
 
   // -----------------------------------------------------------
-  // Adaptive navigation
+  // Adaptive Navigation
   // -----------------------------------------------------------
-  const handleNextAdaptiveProblem = () => {
-    if (
-      !adaptiveResult?.current_problem_id ||
-      !adaptiveSessionId
-    ) {
+
+  const handleNextAdaptiveProblem =
+    () => {
+      if (
+        !adaptiveResult?.current_problem_id ||
+        !adaptiveSessionId
+      ) {
+        return;
+      }
+
+      navigate(
+        `/problems/${adaptiveResult.current_problem_id}/practice?adaptive_session=${adaptiveSessionId}`
+      );
+    };
+
+  // -----------------------------------------------------------
+  // End Adaptive Session
+  // -----------------------------------------------------------
+
+  const requestEndAdaptiveSession = () => {
+    if (!adaptiveSessionId) return;
+
+    const token = getToken();
+    if (!token) {
+      setSubmitError(
+        "Please log in before ending the interactive session."
+      );
       return;
     }
 
-    navigate(
-      `/problems/${adaptiveResult.current_problem_id}/practice?adaptive_session=${adaptiveSessionId}`
-    );
+    setShowEndSessionModal(true);
   };
+
+  const handleEndAdaptiveSession = async () => {
+    if (!adaptiveSessionId) return;
+
+    const token = getToken();
+    if (!token) {
+      setSubmitError(
+        "Please log in before ending the interactive session."
+      );
+      return;
+    }
+
+    setShowEndSessionModal(false);
+    setEndingAdaptiveSession(true);
+    setSubmitError("");
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/end`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+            "Failed to end interactive session"
+        );
+      }
+
+      setAdaptiveSessionSummary(data);
+      setAdaptiveSessionCompleted(true);
+    } catch (error) {
+      console.error(error);
+      setSubmitError(error.message);
+    } finally {
+      setEndingAdaptiveSession(false);
+    }
+  };
+
+  // -----------------------------------------------------------
+  // Loading
+  // -----------------------------------------------------------
 
   if (loading) {
     return (
@@ -475,6 +752,10 @@ function Practice() {
     );
   }
 
+  // -----------------------------------------------------------
+  // Not Found
+  // -----------------------------------------------------------
+
   if (notFound || !problem) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#222222]">
@@ -486,7 +767,9 @@ function Practice() {
           </p>
 
           <button
-            onClick={() => navigate("/problems")}
+            onClick={() =>
+              navigate("/problems")
+            }
             className="mt-6 text-sm font-medium text-black transition-opacity hover:opacity-50 dark:text-white"
           >
             ← Back to Problems
@@ -495,6 +778,155 @@ function Practice() {
       </div>
     );
   }
+
+  // -----------------------------------------------------------
+  // Adaptive Session Completed Screen
+  // -----------------------------------------------------------
+
+  if (
+    adaptiveSessionId &&
+    adaptiveSessionCompleted &&
+    adaptiveSessionSummary
+  ) {
+    const journey =
+      adaptiveSessionSummary.journey ||
+      [];
+
+    const strengths =
+      adaptiveSessionSummary.strengths ||
+      [];
+
+    const weaknesses =
+      adaptiveSessionSummary.weaknesses ||
+      [];
+
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#222222]">
+        <Navbar />
+
+        <main className="mx-auto max-w-[1000px] px-8 pb-20 pt-24">
+          <div className="max-w-3xl">
+            <p className="text-sm uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
+              Interactive Session
+            </p>
+
+            <h1 className="mt-4 font-display text-5xl tracking-tight text-black dark:text-[#F5F5F5] md:text-6xl">
+              Session Completed
+            </h1>
+
+            <p className="mt-6 text-lg leading-8 text-black/60 dark:text-white/60">
+              You've completed your adaptive
+              practice session. Your learning
+              journey has been saved.
+            </p>
+          </div>
+
+          {/* Session summary */}
+          <section className="mt-14 grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-black/10 p-6 dark:border-white/10">
+              <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
+                Problems Completed
+              </p>
+
+              <p className="mt-4 text-4xl font-medium text-black dark:text-white">
+                {journey.length}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-black/10 p-6 dark:border-white/10">
+              <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
+                Current Focus
+              </p>
+
+              <p className="mt-4 text-sm leading-7 text-black/70 dark:text-white/70">
+                {adaptiveSessionSummary.current_goal ||
+                  "Adaptive practice"}
+              </p>
+            </div>
+          </section>
+
+          {/* Strengths */}
+          {strengths.length > 0 && (
+            <section className="mt-12">
+              <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
+                Strengths
+              </p>
+
+              <ul className="mt-5 space-y-3">
+                {strengths.map(
+                  (strength, index) => (
+                    <li
+                      key={index}
+                      className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
+                    >
+                      <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
+
+                      <span>
+                        {strength}
+                      </span>
+                    </li>
+                  )
+                )}
+              </ul>
+            </section>
+          )}
+
+          {/* Areas to improve */}
+          {weaknesses.length > 0 && (
+            <section className="mt-12">
+              <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
+                Areas to Improve
+              </p>
+
+              <ul className="mt-5 space-y-3">
+                {weaknesses.map(
+                  (weakness, index) => (
+                    <li
+                      key={index}
+                      className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
+                    >
+                      <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
+
+                      <span>
+                        {weakness}
+                      </span>
+                    </li>
+                  )
+                )}
+              </ul>
+            </section>
+          )}
+
+          {/* Actions */}
+          <div className="mt-14 flex flex-wrap gap-4 border-t border-black/10 pt-8 dark:border-white/10">
+            <button
+              onClick={() =>
+                navigate(
+                  `/interactive/session/${adaptiveSessionId}`
+                )
+              }
+              className="border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80 dark:border-white dark:bg-white dark:text-black"
+            >
+              View Learning Journey →
+            </button>
+
+            <button
+              onClick={() =>
+                navigate("/interactive")
+              }
+              className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 dark:border-white dark:text-white"
+            >
+              Start New Session
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // -----------------------------------------------------------
+  // Normal Practice UI
+  // -----------------------------------------------------------
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#222222]">
@@ -505,7 +937,9 @@ function Practice() {
         {/* Back to problem */}
         <button
           onClick={() =>
-            navigate(`/problems/${problemId}`)
+            navigate(
+              `/problems/${problemId}`
+            )
           }
           className="mb-10 text-sm text-black/50 transition-colors hover:text-black dark:text-white/50 dark:hover:text-white"
         >
@@ -536,6 +970,7 @@ function Practice() {
         {/* Code editor */}
         <section className="mt-16">
           <CodeEditor
+            key={problem.id}
             problemId={problem.id}
             language={language}
             onLanguageChange={setLanguage}
@@ -555,23 +990,29 @@ function Practice() {
           </h2>
 
           <p className="mt-4 max-w-2xl text-black/55 dark:text-white/50">
-            Explain your approach, edge cases, and complexity out loud.
-            Articula will transcribe your explanation and evaluate how
-            clearly you reason through the problem.
+            Explain your approach, edge cases,
+            and complexity out loud. Articula
+            will transcribe your explanation and
+            evaluate how clearly you reason
+            through the problem.
           </p>
 
           {/* Recording controls */}
           <div className="mt-6 flex flex-wrap items-center gap-4">
             {!isRecording ? (
               <button
-                onClick={handleStartRecording}
+                onClick={
+                  handleStartRecording
+                }
                 className="border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80 dark:border-white dark:bg-white dark:text-black"
               >
                 Start Recording
               </button>
             ) : (
               <button
-                onClick={handleStopRecording}
+                onClick={
+                  handleStopRecording
+                }
                 className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 dark:border-white dark:text-white"
               >
                 Stop Recording
@@ -581,27 +1022,33 @@ function Practice() {
             {isRecording && (
               <div className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60">
                 <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+
                 Recording...
               </div>
             )}
 
-            {!isRecording && audioBlob && (
-              <>
-                <p className="text-sm text-black/50 dark:text-white/50">
-                  Recording captured.
-                </p>
+            {!isRecording &&
+              audioBlob && (
+                <>
+                  <p className="text-sm text-black/50 dark:text-white/50">
+                    Recording captured.
+                  </p>
 
-                <button
-                  onClick={handleTranscribe}
-                  disabled={transcribing}
-                  className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:text-white"
-                >
-                  {transcribing
-                    ? "Transcribing..."
-                    : "Upload & Transcribe →"}
-                </button>
-              </>
-            )}
+                  <button
+                    onClick={
+                      handleTranscribe
+                    }
+                    disabled={
+                      transcribing
+                    }
+                    className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:text-white"
+                  >
+                    {transcribing
+                      ? "Transcribing..."
+                      : "Upload & Transcribe →"}
+                  </button>
+                </>
+              )}
           </div>
 
           {/* Transcript */}
@@ -628,8 +1075,14 @@ function Practice() {
         {/* Submission result */}
         {submissionResult && (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{
+              opacity: 0,
+              y: 12,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
             transition={{
               duration: 0.4,
               ease: "easeOut",
@@ -647,26 +1100,38 @@ function Practice() {
             </div>
 
             <div className="mt-6">
-              {submissionResult.execution_result?.success ? (
+              {submissionResult
+                .execution_result
+                ?.success ? (
                 <p className="text-sm text-black dark:text-white">
                   All test cases passed.
                 </p>
               ) : (
                 <p className="text-sm text-black dark:text-white">
-                  The solution did not pass all test cases.
+                  The solution did not pass
+                  all test cases.
                 </p>
               )}
             </div>
 
-            {submissionResult.execution_result?.error && (
+            {submissionResult
+              .execution_result
+              ?.error && (
               <pre className="mt-4 overflow-x-auto whitespace-pre-wrap bg-black/[0.03] p-4 text-xs leading-6 text-black/70 dark:bg-white/[0.04] dark:text-white/70">
-                {submissionResult.execution_result.error}
+                {
+                  submissionResult
+                    .execution_result
+                    .error
+                }
               </pre>
             )}
           </motion.div>
         )}
 
-        {/* Articulation Evaluation */}
+        {/* ----------------------------------------------------- */}
+        {/* Articulation Evaluation                              */}
+        {/* ----------------------------------------------------- */}
+
         {evaluation && (
           <motion.section
             initial={{
@@ -699,34 +1164,54 @@ function Practice() {
                   "Problem Understanding",
                   "problem_understanding",
                 ],
-                ["Approach / Logic", "approach"],
-                ["Complexity", "complexity"],
+                [
+                  "Approach / Logic",
+                  "approach",
+                ],
+                [
+                  "Complexity",
+                  "complexity",
+                ],
                 [
                   "Clarity & Articulation",
                   "clarity_and_articulation",
                 ],
-                ["Optimization", "optimization"],
+                [
+                  "Optimization",
+                  "optimization",
+                ],
               ];
 
-              const scoredDimensions = dimensions
-                .map(([label, key]) => ({
-                  label,
-                  key,
-                  dimension: evaluation[key],
-                }))
-                .filter(
-                  ({ dimension }) =>
-                    dimension &&
-                    dimension.score != null
-                );
+              const scoredDimensions =
+                dimensions
+                  .map(
+                    ([label, key]) => ({
+                      label,
+                      key,
+                      dimension:
+                        evaluation[key],
+                    })
+                  )
+                  .filter(
+                    ({ dimension }) =>
+                      dimension &&
+                      dimension.score != null
+                  );
 
               const overallScore =
                 scoredDimensions.length > 0
                   ? scoredDimensions.reduce(
-                      (sum, { dimension }) =>
-                        sum + Number(dimension.score),
+                      (
+                        sum,
+                        { dimension }
+                      ) =>
+                        sum +
+                        Number(
+                          dimension.score
+                        ),
                       0
-                    ) / scoredDimensions.length
+                    ) /
+                    scoredDimensions.length
                   : null;
 
               return (
@@ -768,7 +1253,9 @@ function Practice() {
                               }}
                               className="text-4xl font-medium tracking-tight"
                             >
-                              {overallScore.toFixed(1)}
+                              {overallScore.toFixed(
+                                1
+                              )}
                             </motion.span>
 
                             <span className="mb-1 text-sm text-black/40 dark:text-white/40">
@@ -798,7 +1285,9 @@ function Practice() {
                       className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10"
                     >
                       <p className="text-sm leading-7 text-black/70 dark:text-white/70">
-                        {evaluation.overall_feedback}
+                        {
+                          evaluation.overall_feedback
+                        }
                       </p>
                     </motion.div>
                   )}
@@ -828,7 +1317,8 @@ function Practice() {
                             duration: 0.45,
                             delay:
                               0.08 +
-                              index * 0.06,
+                              index *
+                                0.06,
                             ease: "easeOut",
                           }}
                           className="rounded-xl border border-black/10 p-5 transition-transform duration-200 hover:-translate-y-0.5 dark:border-white/10"
@@ -839,11 +1329,13 @@ function Practice() {
                             </h3>
 
                             <span className="text-sm text-black/50 dark:text-white/50">
-                              {dimension.score}/5
+                              {
+                                dimension.score
+                              }
+                              /5
                             </span>
                           </div>
 
-                          {/* Score bar */}
                           <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
                             <motion.div
                               initial={{
@@ -862,7 +1354,8 @@ function Practice() {
                                 duration: 0.65,
                                 delay:
                                   0.18 +
-                                  index * 0.06,
+                                  index *
+                                    0.06,
                                 ease: "easeOut",
                               }}
                               className="h-full rounded-full bg-black dark:bg-white"
@@ -871,7 +1364,9 @@ function Practice() {
 
                           {dimension.feedback && (
                             <p className="mt-4 text-sm leading-7 text-black/60 dark:text-white/60">
-                              {dimension.feedback}
+                              {
+                                dimension.feedback
+                              }
                             </p>
                           )}
                         </motion.div>
@@ -880,7 +1375,8 @@ function Practice() {
                   </div>
 
                   {/* Strengths */}
-                  {evaluation.strengths?.length > 0 && (
+                  {evaluation.strengths
+                    ?.length > 0 && (
                     <motion.div
                       initial={{
                         opacity: 0,
@@ -905,7 +1401,10 @@ function Practice() {
 
                       <ul className="mt-4 space-y-3">
                         {evaluation.strengths.map(
-                          (strength, index) => (
+                          (
+                            strength,
+                            index
+                          ) => (
                             <motion.li
                               key={index}
                               initial={{
@@ -920,7 +1419,8 @@ function Practice() {
                                 duration: 0.35,
                                 delay:
                                   0.22 +
-                                  index * 0.05,
+                                  index *
+                                    0.05,
                               }}
                               className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
                             >
@@ -937,7 +1437,8 @@ function Practice() {
                   )}
 
                   {/* Improvements */}
-                  {evaluation.improvements?.length > 0 && (
+                  {evaluation.improvements
+                    ?.length > 0 && (
                     <motion.div
                       initial={{
                         opacity: 0,
@@ -980,14 +1481,17 @@ function Practice() {
                                 duration: 0.35,
                                 delay:
                                   0.28 +
-                                  index * 0.05,
+                                  index *
+                                    0.05,
                               }}
                               className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
                             >
                               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
 
                               <span>
-                                {improvement}
+                                {
+                                  improvement
+                                }
                               </span>
                             </motion.li>
                           )
@@ -1001,9 +1505,9 @@ function Practice() {
           </motion.section>
         )}
 
-        {/* ===================================================== */}
-        {/* Adaptive Next Challenge                               */}
-        {/* ===================================================== */}
+        {/* ----------------------------------------------------- */}
+        {/* Adaptive Next Challenge                              */}
+        {/* ----------------------------------------------------- */}
 
         {adaptiveResult?.current_problem_id && (
           <motion.section
@@ -1030,8 +1534,9 @@ function Practice() {
             </h2>
 
             <p className="mt-3 max-w-2xl text-sm leading-7 text-black/55 dark:text-white/55">
-              Based on your performance, the Adaptive
-              Interviewer has selected your next problem.
+              Based on your performance,
+              the Adaptive Interviewer has
+              selected your next problem.
             </p>
 
             <div className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10">
@@ -1042,13 +1547,17 @@ function Practice() {
                   </p>
 
                   <p className="mt-3 text-xl font-medium text-black dark:text-white">
-                    {adaptiveResult.current_problem_id}
+                    {
+                      adaptiveResult.current_problem_id
+                    }
                   </p>
                 </div>
 
                 {adaptiveResult.current_difficulty && (
                   <span className="text-xs uppercase tracking-[0.15em] text-black/45 dark:text-white/45">
-                    {adaptiveResult.current_difficulty}
+                    {
+                      adaptiveResult.current_difficulty
+                    }
                   </span>
                 )}
               </div>
@@ -1060,7 +1569,9 @@ function Practice() {
                   </p>
 
                   <p className="mt-3 text-sm leading-7 text-black/65 dark:text-white/65">
-                    {adaptiveResult.current_goal}
+                    {
+                      adaptiveResult.current_goal
+                    }
                   </p>
                 </div>
               )}
@@ -1079,8 +1590,11 @@ function Practice() {
           </motion.section>
         )}
 
-        {/* Submit / Evaluate */}
-        <div className="mt-12 flex justify-end gap-4 border-t border-black/10 pt-8 dark:border-white/10">
+        {/* ----------------------------------------------------- */}
+        {/* Submit / Evaluate / End Session                      */}
+        {/* ----------------------------------------------------- */}
+
+        <div className="mt-12 flex flex-wrap justify-end gap-4 border-t border-black/10 pt-8 dark:border-white/10">
           <button
             onClick={handleSubmit}
             disabled={
@@ -1088,20 +1602,26 @@ function Practice() {
               sessionLoading ||
               completing ||
               transcribing ||
-              submissionResult?.status === "completed"
+              submissionResult?.status ===
+                "completed"
             }
             className="border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:bg-white dark:text-black"
           >
-            {submitting || sessionLoading
+            {submitting ||
+            sessionLoading
               ? "Running..."
               : "Submit Practice →"}
           </button>
 
-          {submissionResult?.status === "submitted" && (
+          {submissionResult?.status ===
+            "submitted" && (
             <button
-              onClick={handleComplete}
+              onClick={
+                handleComplete
+              }
               disabled={
-                completing || transcribing
+                completing ||
+                transcribing
               }
               className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:text-white"
             >
@@ -1110,7 +1630,77 @@ function Practice() {
                 : "Evaluate Articulation →"}
             </button>
           )}
+
+          {/* Only visible during Adaptive Practice */}
+          {adaptiveSessionId && (
+            <button
+              onClick={
+                requestEndAdaptiveSession
+              }
+              disabled={
+                endingAdaptiveSession ||
+                completing ||
+                transcribing
+              }
+              className="border border-red-500/40 px-6 py-3 text-sm text-red-600 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-400/40 dark:text-red-400"
+            >
+              {endingAdaptiveSession
+                ? "Ending Session..."
+                : "End Interactive Session"}
+            </button>
+          )}
         </div>
+
+        {showEndSessionModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="end-session-title"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-7 shadow-xl dark:border-white/10 dark:bg-[#222222]"
+            >
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
+                Interactive Session
+              </p>
+
+              <h2
+                id="end-session-title"
+                className="mt-3 text-2xl font-medium tracking-tight text-black dark:text-white"
+              >
+                End this session?
+              </h2>
+
+              <p className="mt-3 text-sm leading-7 text-black/60 dark:text-white/60">
+                Your current adaptive journey will be marked as completed. You can still view your learning journey afterward.
+              </p>
+
+              <div className="mt-7 flex flex-wrap justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowEndSessionModal(false)}
+                  disabled={endingAdaptiveSession}
+                  className="border border-black/15 px-5 py-3 text-sm text-black transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:text-white"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleEndAdaptiveSession}
+                  disabled={endingAdaptiveSession}
+                  className="border border-black bg-black px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:bg-white dark:text-black"
+                >
+                  {endingAdaptiveSession ? "Ending Session..." : "End Session"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </main>
     </div>
   );

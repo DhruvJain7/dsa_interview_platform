@@ -7,6 +7,13 @@ import Footer from "../components/Footer";
 function Home() {
   const navigate = useNavigate();
 
+  const scrollToMethod = () => {
+    document.getElementById("articula-method")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   const methodSteps = [
     {
       number: "01",
@@ -64,10 +71,6 @@ function Home() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#F7F7F5] text-[#111111] dark:bg-[#222222] dark:text-white">
       <style>{`
-        /* =====================================================
-           HERO BASE
-        ====================================================== */
-
         .articula-hero {
           padding-top: 7rem;
           padding-bottom: 5rem;
@@ -93,13 +96,6 @@ function Home() {
           margin-top: 4rem;
         }
 
-        /* =====================================================
-           SMALLER LAPTOP WIDTHS
-
-           Bring the large side orbits inward so they don't
-           disappear almost completely off-screen.
-        ====================================================== */
-
         @media (min-width: 768px) and (max-width: 1400px) {
           .articula-left-outer {
             left: -270px !important;
@@ -121,10 +117,6 @@ function Home() {
             width: 455px !important;
           }
         }
-
-        /* =====================================================
-           SHORT LAPTOP VIEWPORT
-        ====================================================== */
 
         @media (min-width: 768px) and (max-height: 760px) {
           .articula-hero {
@@ -164,10 +156,6 @@ function Home() {
           }
         }
 
-        /* =====================================================
-           VERY SHORT LAPTOP
-        ====================================================== */
-
         @media (min-width: 768px) and (max-height: 650px) {
           .articula-hero {
             padding-top: 4.75rem;
@@ -202,10 +190,6 @@ function Home() {
             transform: scale(0.82);
           }
         }
-
-        /* =====================================================
-           LARGE / TALL SCREENS
-        ====================================================== */
 
         @media (min-width: 1280px) and (min-height: 800px) {
           .articula-hero {
@@ -244,9 +228,7 @@ function Home() {
               SIDE REASONING ORBITS
           ==================================================== */}
           <div className="articula-side-orbits pointer-events-none absolute inset-0 overflow-hidden">
-            {/* =================================================
-                LEFT OUTER ORBIT
-            ================================================== */}
+            {/* LEFT OUTER ORBIT */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{
@@ -267,19 +249,14 @@ function Home() {
             >
               <div className="absolute inset-0 rounded-[50%] border border-black/[0.13] dark:border-white/[0.14]" />
 
-              {/* Node attached to top of orbit */}
-              <div className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/60 shadow-[0_0_12px_rgba(0,0,0,0.12)] dark:bg-white/65 dark:shadow-[0_0_12px_rgba(255,255,255,0.12)]" />
+              <div className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5B7CFA] shadow-[0_0_14px_rgba(91,124,250,0.28)] dark:bg-[#6D8BFF] dark:shadow-[0_0_14px_rgba(109,139,255,0.30)]" />
 
-              {/* Node attached to right of orbit */}
               <div className="absolute right-0 top-1/2 h-2 w-2 translate-x-1/2 -translate-y-1/2 rounded-full bg-black/45 dark:bg-white/50" />
 
-              {/* Node attached to bottom of orbit */}
               <div className="absolute bottom-0 left-1/2 h-1.5 w-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-black/30 dark:bg-white/35" />
             </motion.div>
 
-            {/* =================================================
-                LEFT INNER ORBIT
-            ================================================== */}
+            {/* LEFT INNER ORBIT */}
             <motion.div
               animate={{ rotate: -360 }}
               transition={{
@@ -305,9 +282,7 @@ function Home() {
               <div className="absolute bottom-0 left-1/2 h-1.5 w-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-black/30 dark:bg-white/35" />
             </motion.div>
 
-            {/* =================================================
-                RIGHT OUTER ORBIT
-            ================================================== */}
+            {/* RIGHT OUTER ORBIT */}
             <motion.div
               animate={{ rotate: -360 }}
               transition={{
@@ -328,23 +303,18 @@ function Home() {
             >
               <div className="absolute inset-0 rounded-[50%] border border-black/[0.13] dark:border-white/[0.14]" />
 
-              {/* Node attached to top of orbit */}
-              <div className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/60 shadow-[0_0_12px_rgba(0,0,0,0.12)] dark:bg-white/65 dark:shadow-[0_0_12px_rgba(255,255,255,0.12)]" />
+              <div className="absolute right-1/2 top-0 h-2.5 w-2.5 translate-x-1/2 -translate-y-1/2 rounded-full bg-[#5B7CFA] shadow-[0_0_14px_rgba(91,124,250,0.28)] dark:bg-[#6D8BFF] dark:shadow-[0_0_14px_rgba(109,139,255,0.30)]" />
 
-              {/* Node attached to left of orbit */}
               <div className="absolute left-0 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/45 dark:bg-white/50" />
 
-              {/* Node attached to bottom of orbit */}
-              <div className="absolute bottom-0 left-1/2 h-1.5 w-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-black/30 dark:bg-white/35" />
+              <div className="absolute bottom-0 right-1/2 h-1.5 w-1.5 translate-x-1/2 translate-y-1/2 rounded-full bg-black/30 dark:bg-white/35" />
             </motion.div>
 
-            {/* =================================================
-                RIGHT INNER ORBIT
-            ================================================== */}
+            {/* RIGHT INNER ORBIT */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{
-                duration: 26,
+                duration: 27,
                 repeat: Infinity,
                 ease: "linear",
               }}
@@ -363,476 +333,377 @@ function Home() {
 
               <div className="absolute right-0 top-1/2 h-2.5 w-2.5 translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:bg-white/55 dark:shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
 
-              <div className="absolute left-1/2 top-0 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/30 dark:bg-white/35" />
+              <div className="absolute bottom-0 right-1/2 h-1.5 w-1.5 translate-x-1/2 translate-y-1/2 rounded-full bg-black/30 dark:bg-white/35" />
             </motion.div>
-
-            {/* =================================================
-                CENTER MASK
-            ================================================== */}
-            <div className="absolute left-1/2 top-[70px] h-[clamp(470px,55vw,620px)] w-[clamp(330px,52vw,620px)] -translate-x-1/2 rounded-full bg-[#F7F7F5]/90 blur-3xl dark:bg-[#222222]/90" />
           </div>
 
-          {/* ===================================================
-              HERO CONTENT
-          ==================================================== */}
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65 }}
-            className="relative z-20 mx-auto w-full max-w-[1000px]"
-          >
-            <p className="mb-4 font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-black/50 sm:mb-5 sm:text-xs dark:text-white/45">
-              AI-powered DSA practice
-            </p>
+          {/* HERO CONTENT */}
+          <div className="relative z-10 mx-auto max-w-[1100px]">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-black/45 dark:text-white/45"
+            >
+              DSA practice for better problem solving
+            </motion.p>
 
-            <h1 className="articula-hero-headline font-display leading-[0.88] tracking-[-0.055em]">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.05 }}
+              className="articula-hero-headline mx-auto mt-5 max-w-[1000px] font-display font-medium leading-[0.9] tracking-[-0.055em]"
+            >
               Articulate
               <br />
               Everything.
-            </h1>
+            </motion.h1>
 
-            <p className="articula-hero-description mx-auto max-w-[600px] font-sans text-sm font-medium leading-6 tracking-tight text-black/60 sm:text-base sm:leading-7 md:text-lg dark:text-white/60">
-              Don't just solve problems. Articulate your solutions.
-            </p>
+            <motion.p
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="articula-hero-description mx-auto max-w-[620px] text-sm leading-6 text-black/55 sm:text-base sm:leading-7 dark:text-white/55"
+            >
+              Don&apos;t just solve problems. Articulate your solutions.
+            </motion.p>
 
-            <div className="articula-hero-actions flex flex-wrap items-center justify-center gap-3">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.25 }}
+              className="articula-hero-actions flex flex-wrap items-center justify-center gap-3"
+            >
               <motion.button
                 onClick={() => navigate("/problems")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="group rounded-full bg-black px-6 py-3 text-xs font-medium text-white transition-colors hover:bg-[#292929] sm:px-7 sm:py-3.5 sm:text-sm dark:bg-white dark:text-black dark:hover:bg-[#eeeeee]"
+                className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-80 dark:bg-white dark:text-black"
               >
-                Start Practicing
-
-                <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">
-                  →
-                </span>
+                Start practicing
               </motion.button>
 
               <motion.button
-                onClick={() => navigate("/problems")}
+                onClick={scrollToMethod}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="rounded-full border border-black/15 px-6 py-3 text-xs font-medium text-black transition-colors hover:bg-black/5 sm:px-7 sm:py-3.5 sm:text-sm dark:border-white/15 dark:text-white dark:hover:bg-white/10"
+                className="rounded-full border border-black/15 bg-white/60 px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/[0.08]"
               >
-                Explore Problems
+                See how it works ↓
               </motion.button>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* ===================================================
-              PRODUCT PREVIEW
-          ==================================================== */}
-          <motion.div
-            initial={{ opacity: 0, y: 35 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.35 }}
-            className="articula-product relative z-20 mx-auto w-full max-w-[760px] text-left"
-          >
-            <div className="overflow-hidden rounded-xl border border-black/[0.09] bg-white shadow-[0_25px_80px_rgba(0,0,0,0.07)] sm:rounded-2xl dark:border-white/[0.1] dark:bg-[#1b1b1b] dark:shadow-[0_25px_80px_rgba(0,0,0,0.25)]">
-              <div className="flex items-center justify-between border-b border-black/[0.08] px-4 py-3 sm:px-5 sm:py-4 dark:border-white/[0.08]">
-                <div>
-                  <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-black/40 sm:text-[10px] dark:text-white/40">
-                    Practice
-                  </p>
-
-                  <h3 className="mt-1 font-display text-base tracking-tight sm:text-lg">
-                    Two Sum
-                  </h3>
-                </div>
-
-                <span className="rounded-full border border-black/10 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.12em] text-black/50 sm:px-3 sm:text-[10px] dark:border-white/10 dark:text-white/50">
-                  Easy
-                </span>
-              </div>
-
-              <div className="grid md:grid-cols-[1.3fr_0.7fr]">
-                <div className="border-b border-black/[0.08] p-5 sm:p-6 md:border-b-0 md:border-r dark:border-white/[0.08]">
-                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 sm:text-[10px] dark:text-white/40">
-                    Your articulation
-                  </p>
-
-                  <p className="mt-3 max-w-[470px] font-sans text-xs leading-5 text-black/70 sm:mt-4 sm:text-sm sm:leading-6 dark:text-white/65">
-                    "I'll use a hash map to store the values I've already
-                    seen. For each number, I'll check whether its complement
-                    already exists."
-                  </p>
-
-                  <div className="mt-5 flex items-center gap-2 sm:mt-6">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black dark:bg-white" />
-
-                    <span className="text-[10px] font-medium text-black/50 sm:text-[11px] dark:text-white/50">
-                      Reasoning captured
-                    </span>
+            {/* PRODUCT PREVIEW */}
+            <motion.div
+              initial={{ opacity: 0, y: 35 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.35 }}
+              className="articula-product relative mx-auto max-w-[920px]"
+            >
+              <div className="overflow-hidden rounded-2xl border border-black/10 bg-white text-left shadow-[0_30px_80px_rgba(0,0,0,0.08)] dark:border-white/10 dark:bg-[#1b1b1b] dark:shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
+                <div className="flex items-center justify-between border-b border-black/10 px-5 py-4 dark:border-white/10">
+                  <div>
+                    <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
+                      Articula
+                    </p>
+                    <p className="mt-1 font-display text-lg">
+                      Longest Substring Without Repeating Characters
+                    </p>
                   </div>
+
+                  <span className="rounded-full border border-black/10 px-3 py-1 text-[9px] uppercase tracking-[0.15em] text-black/45 dark:border-white/10 dark:text-white/45">
+                    Medium
+                  </span>
                 </div>
 
-                <div className="p-5 sm:p-6">
-                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 sm:text-[10px] dark:text-white/40">
-                    Evaluation
-                  </p>
+                <div className="grid md:grid-cols-[1.05fr_0.95fr]">
+                  <div className="border-b border-black/10 p-5 dark:border-white/10 md:border-b-0 md:border-r">
+                    <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 dark:text-white/40">
+                      Explain your approach
+                    </p>
 
-                  <div className="mt-4 space-y-4 sm:mt-5">
-                    {[
-                      ["Approach", "4.5", "90%"],
-                      ["Complexity", "5.0", "100%"],
-                      ["Clarity", "4.0", "80%"],
-                    ].map(([label, score, width]) => (
-                      <div key={label}>
-                        <div className="flex items-center justify-between text-[10px] sm:text-[11px]">
-                          <span className="text-black/55 dark:text-white/55">
-                            {label}
-                          </span>
+                    <p className="mt-4 max-w-[470px] text-sm leading-6 text-black/60 dark:text-white/60">
+                      I&apos;ll use a sliding window with a hash map to keep
+                      track of the most recent index of each character...
+                    </p>
 
-                          <span className="font-medium">{score}</span>
-                        </div>
+                    <div className="mt-6 rounded-xl bg-[#F7F7F5] p-4 dark:bg-[#222222]">
+                      <p className="text-[9px] uppercase tracking-[0.14em] text-black/40 dark:text-white/40">
+                        Your reasoning
+                      </p>
 
-                        <div className="mt-2 h-1 rounded-full bg-black/[0.08] dark:bg-white/[0.1]">
-                          <div
-                            className="h-full rounded-full bg-black dark:bg-white"
-                            style={{ width }}
-                          />
-                        </div>
+                      <div className="mt-3 space-y-2">
+                        <div className="h-2 w-[88%] rounded-full bg-black/[0.08] dark:bg-white/[0.08]" />
+                        <div className="h-2 w-[72%] rounded-full bg-black/[0.08] dark:bg-white/[0.08]" />
+                        <div className="h-2 w-[81%] rounded-full bg-black/[0.08] dark:bg-white/[0.08]" />
                       </div>
-                    ))}
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 dark:text-white/40">
+                      Evaluation
+                    </p>
+
+                    <div className="mt-5 space-y-4">
+                      {[
+                        ["Problem understanding", "92%"],
+                        ["Approach", "88%"],
+                        ["Complexity", "96%"],
+                        ["Articulation", "78%"],
+                      ].map(([label, width]) => (
+                        <div key={label}>
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="text-black/55 dark:text-white/55">
+                              {label}
+                            </span>
+                            <span className="font-medium">{width}</span>
+                          </div>
+
+                          <div className="mt-2 h-1 rounded-full bg-black/[0.07] dark:bg-white/[0.09]">
+                            <div
+                              className="h-full rounded-full bg-[#5B7CFA] dark:bg-[#6D8BFF]"
+                              style={{ width }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-7 border-t border-black/10 pt-5 dark:border-white/10">
+                      <div className="flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#5B7CFA] shadow-[0_0_8px_rgba(91,124,250,0.28)] dark:bg-[#6D8BFF]" />
+
+                        <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-black/40 dark:text-white/40">
+                          Example recommendation
+                        </p>
+                      </div>
+
+                      <p className="mt-2 text-sm leading-6 text-black/60 dark:text-white/60">
+                        Your approach is strong. Focus next on explaining why
+                        the sliding window guarantees linear time.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
+            </motion.div>
 
-              <div className="flex items-center justify-between border-t border-black/[0.08] px-4 py-3 sm:px-5 sm:py-3.5 dark:border-white/[0.08]">
-                <span className="text-[8px] uppercase tracking-[0.15em] text-black/35 sm:text-[10px] dark:text-white/35">
-                  Solve → Articulate → Evaluate
-                </span>
+            {/* FLOW */}
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.7 }}
+              className="articula-flow mx-auto max-w-[900px]"
+            >
+              <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4 md:gap-6">
+                {methodSteps.map((step) => (
+                  <div key={step.number} className="text-center">
+                    <p className="font-display text-2xl text-black/20 dark:text-white/20">
+                      {step.number}
+                    </p>
 
-                <span className="text-[10px] font-medium text-black/50 sm:text-[11px] dark:text-white/50">
-                  Articula
-                </span>
+                    <h3 className="mt-2 font-display text-base">
+                      {step.title}
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-5 text-black/50 dark:text-white/50">
+                      {step.text}
+                    </p>
+                  </div>
+                ))}
               </div>
-            </div>
-          </motion.div>
-
-          {/* ===================================================
-              ARTICULA FLOW
-          ==================================================== */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="articula-flow relative z-10 mx-auto w-full max-w-[620px]"
-          >
-            <div className="relative h-[155px] sm:h-[180px] md:h-[210px]">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 40,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                className="absolute left-1/2 top-1/2 h-[110px] w-[310px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-black/[0.12] sm:h-[145px] sm:w-[430px] dark:border-white/[0.11]"
-              />
-
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{
-                  duration: 28,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                className="absolute left-1/2 top-1/2 h-[78px] w-[210px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-black/[0.08] sm:h-[100px] sm:w-[290px] dark:border-white/[0.075]"
-              />
-
-              <motion.div
-                animate={{ scale: [1, 1.08, 1] }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute left-1/2 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-[#F7F7F5] sm:h-12 sm:w-12 dark:border-white/10 dark:bg-[#222222]"
-              >
-                <motion.div
-                  animate={{
-                    scale: [1, 1.5, 1],
-                    opacity: [0.6, 1, 0.6],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="h-2 w-2 rounded-full bg-black dark:bg-white"
-                />
-              </motion.div>
-
-              <span className="absolute left-[2%] top-[42%] rounded-full border border-black/10 bg-white px-2.5 py-1 text-[8px] font-medium uppercase tracking-[0.18em] text-black/50 sm:px-3 sm:py-1.5 sm:text-[9px] dark:border-white/10 dark:bg-[#222222] dark:text-white/45">
-                Think
-              </span>
-
-              <span className="absolute right-0 top-[42%] rounded-full border border-black/10 bg-white px-2.5 py-1 text-[8px] font-medium uppercase tracking-[0.18em] text-black/50 sm:px-3 sm:py-1.5 sm:text-[9px] dark:border-white/10 dark:bg-[#222222] dark:text-white/45">
-                Articulate
-              </span>
-
-              <span className="absolute bottom-[1%] left-[20%] rounded-full border border-black/10 bg-white px-2.5 py-1 text-[8px] font-medium uppercase tracking-[0.18em] text-black/50 sm:px-3 sm:py-1.5 sm:text-[9px] dark:border-white/10 dark:bg-[#222222] dark:text-white/45">
-                Code
-              </span>
-
-              <span className="absolute bottom-[1%] right-[20%] rounded-full border border-black/10 bg-white px-2.5 py-1 text-[8px] font-medium uppercase tracking-[0.18em] text-black/50 sm:px-3 sm:py-1.5 sm:text-[9px] dark:border-white/10 dark:bg-[#222222] dark:text-white/45">
-                Improve
-              </span>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </section>
 
         {/* =====================================================
             ARTICULA METHOD
         ====================================================== */}
-        <section className="border-t border-black/[0.08] px-5 py-20 dark:border-white/[0.08] sm:px-6 sm:py-24 md:px-16">
-          <div className="mx-auto max-w-[1350px]">
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-[650px]"
-            >
-              <p className="mb-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-black/50 sm:text-sm dark:text-white/50">
-                The Articula Method
-              </p>
+        <section
+          id="articula-method"
+          className="border-t border-black/[0.08] px-5 py-20 dark:border-white/[0.08] sm:px-6 sm:py-24 md:px-16"
+        >
+          <div className="mx-auto max-w-[1200px]">
+            <div className="grid gap-12 md:grid-cols-[0.8fr_1.2fr] md:gap-20">
+              <motion.div
+                initial={{ opacity: 0, x: -25 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 0.6 }}
+              >
+                <p className="mb-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-black/50 sm:text-sm dark:text-white/50">
+                  The Articula method
+                </p>
 
-              <h2 className="font-display text-3xl leading-tight tracking-[-0.03em] sm:text-4xl md:text-5xl">
-                Don't just write the answer.
-                <br />
-
-                <span className="text-black/35 dark:text-white/35">
-                  Explain how you got there.
-                </span>
-              </h2>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              variants={{
-                hidden: {},
-                visible: {
-                  transition: {
-                    staggerChildren: 0.12,
-                  },
-                },
-              }}
-              className="mt-12 grid grid-cols-1 border-y border-black/15 dark:border-white/15 md:mt-16 md:grid-cols-4"
-            >
-              {methodSteps.map((step, index) => (
-                <motion.div
-                  key={step.number}
-                  variants={{
-                    hidden: {
-                      opacity: 0,
-                      y: 20,
-                    },
-                    visible: {
-                      opacity: 1,
-                      y: 0,
-                      transition: {
-                        duration: 0.5,
-                      },
-                    },
-                  }}
-                  className={`py-7 sm:py-8 ${
-                    index < 3
-                      ? "border-b border-black/15 md:border-b-0 md:border-r md:px-8 dark:border-white/15"
-                      : "md:pl-8"
-                  }`}
-                >
-                  <span className="font-sans text-xs font-medium text-black/40 dark:text-white/40">
-                    {step.number}
+                <h2 className="font-display text-4xl leading-[1.05] tracking-[-0.04em] sm:text-5xl md:text-6xl">
+                  Thinking is
+                  <br />
+                  <span className="text-black/30 dark:text-white/30">
+                    part of the solution.
                   </span>
+                </h2>
 
-                  <h3 className="mt-6 font-display text-2xl sm:mt-7 sm:text-3xl">
-                    {step.title}
-                  </h3>
+                <p className="mt-6 max-w-[430px] text-sm leading-6 text-black/55 sm:text-base dark:text-white/55">
+                  Getting the right answer is only one part of solving a DSA
+                  problem. Articula trains the reasoning and communication that
+                  happen before, during, and after the code.
+                </p>
 
-                  <p className="mt-3 font-sans text-sm leading-6 text-black/60 sm:mt-4 dark:text-[#A3A3A3]">
-                    {step.text}
-                  </p>
-                </motion.div>
-              ))}
-            </motion.div>
+                <button
+                  onClick={() => navigate("/problems")}
+                  className="mt-6 text-sm font-medium underline decoration-black/20 underline-offset-4 transition-colors hover:decoration-black dark:decoration-white/20 dark:hover:decoration-white"
+                >
+                  Start practicing →
+                </button>
+              </motion.div>
+
+              <div className="space-y-8">
+                {methodSteps.map((step, index) => (
+                  <motion.div
+                    key={step.number}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.25 }}
+                    transition={{ duration: 0.5, delay: index * 0.06 }}
+                    className="grid grid-cols-[50px_1fr] gap-5 border-b border-black/[0.08] pb-8 last:border-b-0 dark:border-white/[0.08]"
+                  >
+                    <span className="font-display text-lg text-black/25 dark:text-white/25">
+                      {step.number}
+                    </span>
+
+                    <div>
+                      <h3 className="font-display text-xl">
+                        {step.title}
+                      </h3>
+
+                      <p className="mt-2 max-w-[560px] text-sm leading-6 text-black/55 dark:text-white/55">
+                        {step.text}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
         {/* =====================================================
             ADAPTIVE PRACTICE
         ====================================================== */}
-        <section className="border-t border-black/[0.08] bg-black/[0.025] px-5 py-20 dark:border-white/[0.08] dark:bg-white/[0.025] sm:px-6 sm:py-24 md:px-16">
-          <div className="mx-auto max-w-[1350px]">
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-[680px]"
-            >
-              <p className="mb-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-black/50 sm:text-sm dark:text-white/50">
-                Adaptive Practice
-              </p>
-
-              <h2 className="font-display text-3xl leading-tight tracking-[-0.03em] sm:text-4xl md:text-5xl">
-                Practice that
-                <br />
-                <span className="text-black/35 dark:text-white/35">
-                  adapts to you.
-                </span>
-              </h2>
-
-              <p className="mt-5 max-w-[580px] font-sans text-sm leading-6 text-black/60 sm:mt-6 dark:text-[#A3A3A3]">
-                Articula looks at how you've been solving, explaining, and
-                improving. Its adaptive practice system uses that history to
-                decide what you should work on next.
-              </p>
-            </motion.div>
-
-            <div className="mt-12 grid gap-4 sm:mt-16 sm:gap-5 md:grid-cols-4">
-              {adaptiveSteps.map((item, index) => (
-                <motion.div
-                  key={item.number}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: index * 0.08,
-                  }}
-                  className="relative rounded-xl border border-black/10 bg-white p-5 sm:p-6 dark:border-white/10 dark:bg-[#1b1b1b]"
-                >
-                  <span className="text-xs font-medium text-black/35 dark:text-white/35">
-                    {item.number}
-                  </span>
-
-                  <h3 className="mt-5 font-display text-xl sm:mt-6 sm:text-2xl">
-                    {item.title}
-                  </h3>
-
-                  <p className="mt-3 text-sm leading-6 text-black/55 dark:text-white/55">
-                    {item.text}
-                  </p>
-
-                  {index < 3 && (
-                    <span className="absolute -right-3 top-1/2 hidden -translate-y-1/2 text-black/25 md:block dark:text-white/25">
-                      →
-                    </span>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={{ duration: 0.6 }}
-              className="mt-6 grid overflow-hidden rounded-2xl border border-black/10 bg-white sm:mt-8 dark:border-white/10 dark:bg-[#1b1b1b] md:grid-cols-[1fr_auto]"
-            >
-              <div className="p-6 sm:p-7 md:p-8">
-                <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-black/40 sm:text-[10px] dark:text-white/40">
-                  Example recommendation
-                </p>
-
-                <h3 className="mt-3 font-display text-xl sm:text-2xl">
-                  Focus on complexity articulation.
-                </h3>
-
-                <p className="mt-3 max-w-[650px] text-sm leading-6 text-black/55 dark:text-white/55">
-                  You've been consistently solving problems correctly. Your
-                  next practice can focus on making the reasoning behind your
-                  complexity analysis more precise.
-                </p>
-              </div>
-
-              <div className="flex items-center border-t border-black/10 p-6 sm:p-7 md:border-l md:border-t-0 md:p-8 dark:border-white/10">
-                <motion.button
-                  onClick={() => navigate("/interactive")}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full rounded-full bg-black px-6 py-3 text-sm font-medium text-white md:w-auto dark:bg-white dark:text-black"
-                >
-                  Try Adaptive Practice →
-                </motion.button>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            TWO WAYS TO PRACTICE
-        ====================================================== */}
-        <section className="px-5 py-20 sm:px-6 sm:py-24 md:px-16">
-          <div className="mx-auto max-w-[1100px]">
-            <div className="text-center">
-              <p className="mb-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-black/50 sm:text-sm dark:text-white/50">
-                Two ways to practice
-              </p>
-
-              <h2 className="font-display text-3xl tracking-[-0.03em] sm:text-4xl md:text-5xl">
-                You choose.
-                <span className="text-black/35 dark:text-white/35">
-                  {" "}
-                  Or Articula does.
-                </span>
-              </h2>
-            </div>
-
-            <div className="mt-10 grid overflow-hidden rounded-2xl border border-black/10 sm:mt-14 md:grid-cols-2 dark:border-white/10">
+        <section className="border-t border-black/[0.08] px-5 py-20 dark:border-white/[0.08] sm:px-6 sm:py-24 md:px-16">
+          <div className="mx-auto max-w-[1200px]">
+            <div className="grid gap-12 md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-20">
               <motion.div
-                whileHover={{ backgroundColor: "rgba(0,0,0,0.02)" }}
-                className="border-b border-black/10 p-7 sm:p-8 md:border-b-0 md:border-r md:p-10 dark:border-white/10 dark:hover:bg-white/[0.02]"
+                initial={{ opacity: 0, x: -25 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 0.6 }}
+                className="order-2 md:order-1"
               >
-                <span className="text-xs font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
-                  Practice
-                </span>
+                <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_25px_70px_rgba(0,0,0,0.06)] dark:border-white/10 dark:bg-[#1b1b1b] dark:shadow-[0_25px_70px_rgba(0,0,0,0.2)]">
+                  <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[9px] uppercase tracking-[0.17em] text-black/40 dark:text-white/40">
+                          Adaptive practice
+                        </p>
 
-                <h3 className="mt-5 font-display text-2xl sm:text-3xl">
-                  You choose the problem.
-                </h3>
+                        <h3 className="mt-1 font-display text-lg">
+                          Your next step.
+                        </h3>
+                      </div>
 
-                <p className="mt-4 text-sm leading-6 text-black/55 dark:text-white/55">
-                  Pick a topic, difficulty, and problem. Solve it at your own
-                  pace and use Articula to evaluate how you reason and
-                  articulate.
-                </p>
+                      <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.14em] text-black/40 dark:text-white/40">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#5B7CFA] shadow-[0_0_8px_rgba(91,124,250,0.28)] dark:bg-[#6D8BFF]" />
+                        Adaptive
+                      </span>
+                    </div>
+                  </div>
 
-                <button
-                  onClick={() => navigate("/problems")}
-                  className="mt-6 text-sm font-medium underline decoration-black/20 underline-offset-4 transition-colors hover:decoration-black sm:mt-7 dark:decoration-white/20 dark:hover:decoration-white"
-                >
-                  Explore problems →
-                </button>
+                  <div className="p-5 sm:p-6">
+                    <div className="rounded-xl bg-[#F7F7F5] p-5 dark:bg-[#222222]">
+                      <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 dark:text-white/40">
+                        Current focus
+                      </p>
+
+                      <p className="mt-3 font-display text-xl">
+                        Complexity analysis
+                      </p>
+
+                      <p className="mt-2 text-sm leading-6 text-black/55 dark:text-white/55">
+                        Clearly state time and space complexity and connect it
+                        to your implementation.
+                      </p>
+
+                      <div className="mt-5 flex items-center gap-3">
+                        <span className="rounded-full border border-black/10 px-3 py-1 text-[9px] uppercase tracking-[0.12em] text-black/45 dark:border-white/10 dark:text-white/45">
+                          Medium
+                        </span>
+
+                        <span className="text-[10px] text-black/40 dark:text-white/40">
+                          Recommended next
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 space-y-3">
+                      {adaptiveSteps.map((step) => (
+                        <div
+                          key={step.number}
+                          className="flex gap-4 border-b border-black/[0.07] pb-3 last:border-b-0 dark:border-white/[0.07]"
+                        >
+                          <span className="font-display text-sm text-black/25 dark:text-white/25">
+                            {step.number}
+                          </span>
+
+                          <div>
+                            <p className="text-sm font-medium">
+                              {step.title}
+                            </p>
+
+                            <p className="mt-1 text-xs leading-5 text-black/45 dark:text-white/45">
+                              {step.text}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </motion.div>
 
               <motion.div
-                whileHover={{ backgroundColor: "rgba(0,0,0,0.02)" }}
-                className="p-7 sm:p-8 md:p-10 dark:hover:bg-white/[0.02]"
+                initial={{ opacity: 0, x: 25 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 0.6 }}
+                className="order-1 md:order-2"
               >
-                <span className="text-xs font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
-                  Interactive
-                </span>
+                <p className="mb-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-black/50 sm:text-sm dark:text-white/50">
+                  Adaptive DSA practice
+                </p>
 
-                <h3 className="mt-5 font-display text-2xl sm:text-3xl">
-                  Articula chooses what's next.
-                </h3>
+                <h2 className="font-display text-4xl leading-[1.05] tracking-[-0.04em] sm:text-5xl md:text-6xl">
+                  Practice that
+                  <br />
+                  <span className="text-black/30 dark:text-white/30">
+                    responds to you.
+                  </span>
+                </h2>
 
-                <p className="mt-4 text-sm leading-6 text-black/55 dark:text-white/55">
-                  Your previous performance becomes context. Articula adapts
-                  the next challenge around what you need to improve.
+                <p className="mt-6 max-w-[450px] text-sm leading-6 text-black/55 sm:text-base dark:text-white/55">
+                  Your previous attempts shape what comes next. Articula looks
+                  at your performance and chooses a useful next challenge
+                  instead of simply giving you another random problem.
                 </p>
 
                 <button
                   onClick={() => navigate("/interactive")}
-                  className="mt-6 text-sm font-medium underline decoration-black/20 underline-offset-4 transition-colors hover:decoration-black sm:mt-7 dark:decoration-white/20 dark:hover:decoration-white"
+                  className="mt-6 text-sm font-medium underline decoration-black/20 underline-offset-4 transition-colors hover:decoration-black dark:decoration-white/20 dark:hover:decoration-white"
                 >
-                  Try interactive practice →
+                  Try adaptive practice →
                 </button>
               </motion.div>
             </div>
@@ -883,7 +754,6 @@ function Home() {
                 transition={{ duration: 0.6 }}
                 className="overflow-hidden rounded-xl border border-black/10 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.06)] sm:rounded-2xl dark:border-white/10 dark:bg-[#1b1b1b] dark:shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
               >
-                {/* Dashboard header */}
                 <div className="flex items-center justify-between border-b border-black/10 px-5 py-4 sm:px-6 sm:py-5 dark:border-white/10">
                   <div>
                     <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-black/40 sm:text-[10px] dark:text-white/40">
@@ -900,7 +770,6 @@ function Home() {
                   </span>
                 </div>
 
-                {/* Metrics */}
                 <div className="grid grid-cols-2 border-b border-black/10 sm:grid-cols-4 dark:border-white/10">
                   {[
                     ["Sessions", "12"],
@@ -928,7 +797,6 @@ function Home() {
                 </div>
 
                 <div className="grid md:grid-cols-[1.15fr_0.85fr]">
-                  {/* Chart */}
                   <div className="border-b border-black/10 p-5 sm:p-6 md:border-b-0 md:border-r dark:border-white/10">
                     <div className="flex items-center justify-between gap-4">
                       <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 sm:text-[10px] dark:text-white/40">
@@ -951,7 +819,7 @@ function Home() {
 
                       <svg
                         viewBox="0 0 500 150"
-                        className="absolute inset-0 h-full w-full overflow-visible"
+                        className="absolute inset-0 h-full w-full overflow-visible text-[#5B7CFA] dark:text-[#6D8BFF]"
                         preserveAspectRatio="none"
                       >
                         <path
@@ -1014,7 +882,6 @@ function Home() {
                     </div>
                   </div>
 
-                  {/* Skills */}
                   <div className="p-5 sm:p-6">
                     <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 sm:text-[10px] dark:text-white/40">
                       Skill breakdown
@@ -1033,7 +900,7 @@ function Home() {
 
                           <div className="mt-1.5 h-1 rounded-full bg-black/[0.07] dark:bg-white/[0.09]">
                             <div
-                              className="h-full rounded-full bg-black dark:bg-white"
+                              className="h-full rounded-full bg-[#5B7CFA] dark:bg-[#6D8BFF]"
                               style={{ width }}
                             />
                           </div>

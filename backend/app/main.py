@@ -963,3 +963,85 @@ def get_user_sessions(
     )
 
     return sessions
+
+
+@app.get(
+    "/interactive/session/{adaptive_session_id}"
+)
+def get_adaptive_session(
+    adaptive_session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    adaptive_session_service = AdaptiveSessionService(r)
+
+    try:
+        return adaptive_session_service.get_adaptive_session(
+            adaptive_session_id=adaptive_session_id,
+            user_id=user_id,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error),
+        )
+
+@app.post(
+    "/interactive/session/{adaptive_session_id}/end"
+)
+def end_adaptive_session(
+    adaptive_session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    adaptive_session_service = AdaptiveSessionService(r)
+
+    try:
+        return adaptive_session_service.end_adaptive_session(
+            adaptive_session_id=adaptive_session_id,
+            user_id=user_id,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+
+@app.get("/interactive/sessions")
+def get_adaptive_sessions(
+    user_id: str = Depends(get_current_user_id),
+):
+    adaptive_session_service = AdaptiveSessionService(r)
+
+    try:
+        return {
+            "sessions": adaptive_session_service.get_user_adaptive_sessions(
+                user_id=user_id
+            )
+        }
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+
+@app.delete("/interactive/session/{adaptive_session_id}")
+def delete_adaptive_session(
+    adaptive_session_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    adaptive_session_service = AdaptiveSessionService(r)
+
+    try:
+        return adaptive_session_service.delete_adaptive_session(
+            adaptive_session_id=adaptive_session_id,
+            user_id=user_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error),
+        )

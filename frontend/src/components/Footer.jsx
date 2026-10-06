@@ -11,6 +11,14 @@ function Footer({ variant = "full" }) {
     "Improve",
   ];
 
+  const openGitHub = () => {
+    window.open(
+      "https://github.com/DhruvJain7/dsa_interview_platform",
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
   // =========================================================
   // MINIMAL FOOTER
   // =========================================================
@@ -23,7 +31,7 @@ function Footer({ variant = "full" }) {
             {/* Brand */}
             <button
               onClick={() => navigate("/")}
-              className="w-fit text-[28px] tracking-tight text-black dark:text-[#F5F5F5]"
+              className="w-fit font-display text-xl tracking-[-0.02em] text-black dark:text-[#F5F5F5]"
             >
               Articula
             </button>
@@ -38,16 +46,15 @@ function Footer({ variant = "full" }) {
               </button>
 
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/dashboard")}
                 className="transition-opacity hover:opacity-50"
               >
                 Dashboard
               </button>
 
               <button
-                type="button"
-                disabled
-                className="cursor-default text-black/30 dark:text-white/30"
+                onClick={() => navigate("/interactive")}
+                className="transition-opacity hover:opacity-50"
               >
                 Interactive
               </button>
@@ -55,6 +62,7 @@ function Footer({ variant = "full" }) {
 
             {/* GitHub */}
             <button
+              onClick={openGitHub}
               aria-label="GitHub"
               className="w-fit text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
             >
@@ -189,7 +197,7 @@ function Footer({ variant = "full" }) {
           {/* Brand */}
           <button
             onClick={() => navigate("/")}
-            className="w-fit text-[28px] tracking-tight text-black dark:text-[#F5F5F5]"
+            className="w-fit font-display text-xl tracking-[-0.02em] text-black dark:text-[#F5F5F5]"
           >
             Articula
           </button>
@@ -204,16 +212,15 @@ function Footer({ variant = "full" }) {
             </button>
 
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/dashboard")}
               className="transition-opacity hover:opacity-50"
             >
               Dashboard
             </button>
 
             <button
-              type="button"
-              disabled
-              className="cursor-default text-black/30 dark:text-white/30"
+              onClick={() => navigate("/interactive")}
+              className="transition-opacity hover:opacity-50"
             >
               Interactive
             </button>
@@ -221,6 +228,7 @@ function Footer({ variant = "full" }) {
 
           {/* GitHub */}
           <button
+            onClick={openGitHub}
             aria-label="GitHub"
             className="w-fit text-black transition-opacity hover:opacity-50 dark:text-[#F5F5F5]"
           >
