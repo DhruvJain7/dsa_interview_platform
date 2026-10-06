@@ -8,6 +8,7 @@ import Practice from "./pages/Practice";
 import Auth from "./pages/Auth";
 import SessionDetail from "./pages/SessionDetail";
 import Interactive from "./pages/Interactive";
+import AdaptiveSessionDetail from "./pages/AdaptiveSessionDetail";
 
 function App() {
   return (
@@ -18,16 +19,29 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
 
       <Route path="/problems" element={<Problems />} />
+
       <Route
         path="/problems/:problemId"
         element={<ProblemDetail />}
       />
+
       <Route
         path="/problems/:problemId/practice"
         element={<Practice />}
       />
-      <Route path="/interactive" element={<Interactive />} />
 
+      <Route
+        path="/interactive"
+        element={<Interactive />}
+      />
+
+      {/* Adaptive Practice Journey */}
+      <Route
+        path="/interactive/session/:adaptiveSessionId"
+        element={<AdaptiveSessionDetail />}
+      />
+
+      {/* Individual Problem Session */}
       <Route
         path="/sessions/:sessionId"
         element={<SessionDetail />}

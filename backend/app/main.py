@@ -439,59 +439,69 @@ def create_adaptive_session(
     adaptive_session_service = AdaptiveSessionService(r)
 
     try:
-        return adaptive_session_service.create_adaptive_session(
-            user_id=user_id,
+        # ---------------------------------------------------------
+        # STEP 1: Create the adaptive session
+        # ---------------------------------------------------------
+        adaptive_session = (
+            adaptive_session_service.create_adaptive_session(
+                user_id=user_id,
+            )
         )
+
+        # ---------------------------------------------------------
+        # STEP 2: Build the existing Adaptive Interviewer graph
+        # ---------------------------------------------------------
+        graph = build_adaptive_graph(r)
+
+        # ---------------------------------------------------------
+        # STEP 3: Run the graph for the initial recommendation
+        # ---------------------------------------------------------
+        graph_result = graph.invoke(
+            {
+                "user_id": user_id,
+                "adaptive_session_id": adaptive_session[
+                    "adaptive_session_id"
+                ],
+                "current_problem_id": "",
+                "current_difficulty": "",
+                "performance_history": [],
+                "strengths": [],
+                "weaknesses": [],
+                "current_goal": "",
+                "problem_candidates": [],
+                "last_evaluation": {},
+                "last_action": "session_started",
+                "next_action": "start_problem",
+            }
+        )
+
+        # ---------------------------------------------------------
+        # STEP 4: Return the agent's initial recommendation
+        # ---------------------------------------------------------
+        return {
+            "adaptive_session_id": adaptive_session[
+                "adaptive_session_id"
+            ],
+            "user_id": user_id,
+            "current_problem_id": graph_result[
+                "current_problem_id"
+            ],
+            "current_difficulty": graph_result[
+                "current_difficulty"
+            ],
+            "current_goal": graph_result[
+                "current_goal"
+            ],
+            "next_action": graph_result[
+                "next_action"
+            ],
+        }
 
     except ValueError as error:
         raise HTTPException(
             status_code=400,
             detail=str(error),
         )
-
-
-@app.get(
-    "/interactive/session/{adaptive_session_id}"
-)
-def get_adaptive_session(
-    adaptive_session_id: str,
-    user_id: str = Depends(get_current_user_id),
-):
-    session = r.hgetall(
-        f"adaptive_session:{adaptive_session_id}"
-    )
-
-    if not session:
-        raise HTTPException(
-            status_code=404,
-            detail="Adaptive session not found",
-        )
-
-    if session.get("user_id") != user_id:
-        raise HTTPException(
-            status_code=404,
-            detail="Adaptive session not found",
-        )
-
-    return {
-        "adaptive_session_id": session[
-            "adaptive_session_id"
-        ],
-        "current_problem_id": session[
-            "current_problem_id"
-        ],
-        "current_difficulty": session[
-            "current_difficulty"
-        ],
-        "current_goal": session[
-            "current_goal"
-        ],
-        "next_action": session[
-            "next_action"
-        ],
-    }
-
-
 @app.post(
     "/interactive/session/{adaptive_session_id}/attach"
 )

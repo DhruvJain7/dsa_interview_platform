@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+
 import { motion } from "framer-motion";
 
 import Navbar from "../components/Navbar";
@@ -31,6 +33,9 @@ function Practice() {
   const [submissionResult, setSubmissionResult] = useState(null);
   const [evaluation, setEvaluation] = useState(null);
   const [submitError, setSubmitError] = useState("");
+
+  // Adaptive session result
+  const [adaptiveResult, setAdaptiveResult] = useState(null);
 
   // Audio recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -112,8 +117,9 @@ function Practice() {
 
       setSessionId(data.session_id);
 
-      // Attach this normal Practice session to the Adaptive Session
-      // only when Practice was launched from Interactive.
+      // Attach this normal Practice session to the
+      // Adaptive Session when Practice was launched
+      // from the Interactive page.
       if (adaptiveSessionId) {
         const attachResponse = await fetch(
           `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/attach?session_id=${data.session_id}`,
@@ -164,6 +170,7 @@ function Practice() {
     setSubmitError("");
     setSubmissionResult(null);
     setEvaluation(null);
+    setAdaptiveResult(null);
 
     try {
       let activeSessionId = sessionId;
@@ -226,6 +233,9 @@ function Practice() {
     setSubmitError("");
 
     try {
+      // ---------------------------------------------------------
+      // STEP 1: Complete the normal interview session
+      // ---------------------------------------------------------
       const response = await fetch(
         `${API_BASE_URL}/sessions/${sessionId}/complete`,
         {
@@ -252,6 +262,50 @@ function Practice() {
       }));
 
       setEvaluation(data.evaluation || null);
+
+      // ---------------------------------------------------------
+      // STEP 2: Process completed session through
+      // the Adaptive Interviewer
+      // ---------------------------------------------------------
+      if (adaptiveSessionId) {
+        try {
+          const adaptiveResponse = await fetch(
+            `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/process?session_id=${sessionId}`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const adaptiveData = await adaptiveResponse.json();
+
+          if (!adaptiveResponse.ok) {
+            throw new Error(
+              adaptiveData.detail ||
+                "Failed to process adaptive session"
+            );
+          }
+
+          console.log(
+            "Adaptive session processed:",
+            adaptiveData
+          );
+
+          setAdaptiveResult(adaptiveData);
+        } catch (adaptiveError) {
+          console.error(
+            "Adaptive processing failed:",
+            adaptiveError
+          );
+
+          setSubmitError(
+            adaptiveError.message ||
+              "Adaptive processing failed."
+          );
+        }
+      }
     } catch (error) {
       console.error(error);
       setSubmitError(error.message);
@@ -290,19 +344,25 @@ function Practice() {
         });
 
         setAudioBlob(blob);
-        stream.getTracks().forEach((track) => track.stop());
+
+        stream
+          .getTracks()
+          .forEach((track) => track.stop());
       };
 
       mediaRecorderRef.current = recorder;
 
       recorder.start();
+
       setIsRecording(true);
       setAudioBlob(null);
       setTranscript("");
     } catch (error) {
       console.error(error);
+
       setSubmitError(
-        error.message || "Unable to access the microphone."
+        error.message ||
+          "Unable to access the microphone."
       );
     }
   };
@@ -320,7 +380,9 @@ function Practice() {
 
   const handleTranscribe = async () => {
     if (!audioBlob) {
-      setSubmitError("Please record your articulation first.");
+      setSubmitError(
+        "Please record your articulation first."
+      );
       return;
     }
 
@@ -383,6 +445,22 @@ function Practice() {
     }
   };
 
+  // -----------------------------------------------------------
+  // Adaptive navigation
+  // -----------------------------------------------------------
+  const handleNextAdaptiveProblem = () => {
+    if (
+      !adaptiveResult?.current_problem_id ||
+      !adaptiveSessionId
+    ) {
+      return;
+    }
+
+    navigate(
+      `/problems/${adaptiveResult.current_problem_id}/practice?adaptive_session=${adaptiveSessionId}`
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#222222]">
@@ -423,9 +501,12 @@ function Practice() {
       <Navbar />
 
       <main className="mx-auto max-w-[1000px] px-8 pb-20 pt-24">
+
         {/* Back to problem */}
         <button
-          onClick={() => navigate(`/problems/${problemId}`)}
+          onClick={() =>
+            navigate(`/problems/${problemId}`)
+          }
           className="mb-10 text-sm text-black/50 transition-colors hover:text-black dark:text-white/50 dark:hover:text-white"
         >
           ← Back to Problem
@@ -549,7 +630,10 @@ function Practice() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            transition={{
+              duration: 0.4,
+              ease: "easeOut",
+            }}
             className="mt-8 border border-black/10 p-6 dark:border-white/10"
           >
             <div className="flex items-center justify-between">
@@ -585,8 +669,14 @@ function Practice() {
         {/* Articulation Evaluation */}
         {evaluation && (
           <motion.section
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{
+              opacity: 0,
+              y: 14,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
             transition={{
               duration: 0.45,
               ease: "easeOut",
@@ -626,7 +716,8 @@ function Practice() {
                 }))
                 .filter(
                   ({ dimension }) =>
-                    dimension && dimension.score != null
+                    dimension &&
+                    dimension.score != null
                 );
 
               const overallScore =
@@ -643,8 +734,14 @@ function Practice() {
                   {/* Overall Score */}
                   {overallScore != null && (
                     <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{
+                        opacity: 0,
+                        y: 8,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                      }}
                       transition={{
                         duration: 0.45,
                         delay: 0.08,
@@ -659,8 +756,12 @@ function Practice() {
 
                           <div className="mt-3 flex items-end gap-2">
                             <motion.span
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
+                              initial={{
+                                opacity: 0,
+                              }}
+                              animate={{
+                                opacity: 1,
+                              }}
                               transition={{
                                 duration: 0.4,
                                 delay: 0.2,
@@ -682,8 +783,14 @@ function Practice() {
                   {/* Overall Feedback */}
                   {evaluation.overall_feedback && (
                     <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{
+                        opacity: 0,
+                        y: 8,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                      }}
                       transition={{
                         duration: 0.45,
                         delay: 0.14,
@@ -699,7 +806,14 @@ function Practice() {
                   {/* Evaluation Dimensions */}
                   <div className="mt-6 grid gap-4 md:grid-cols-2">
                     {scoredDimensions.map(
-                      ({ label, key, dimension }, index) => (
+                      (
+                        {
+                          label,
+                          key,
+                          dimension,
+                        },
+                        index
+                      ) => (
                         <motion.div
                           key={key}
                           initial={{
@@ -712,7 +826,9 @@ function Practice() {
                           }}
                           transition={{
                             duration: 0.45,
-                            delay: 0.08 + index * 0.06,
+                            delay:
+                              0.08 +
+                              index * 0.06,
                             ease: "easeOut",
                           }}
                           className="rounded-xl border border-black/10 p-5 transition-transform duration-200 hover:-translate-y-0.5 dark:border-white/10"
@@ -730,16 +846,23 @@ function Practice() {
                           {/* Score bar */}
                           <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
                             <motion.div
-                              initial={{ width: 0 }}
+                              initial={{
+                                width: 0,
+                              }}
                               animate={{
-                                width: `${(
-                                  Number(dimension.score) / 5
-                                ) * 100}%`,
+                                width: `${
+                                  (Number(
+                                    dimension.score
+                                  ) /
+                                    5) *
+                                  100
+                                }%`,
                               }}
                               transition={{
                                 duration: 0.65,
                                 delay:
-                                  0.18 + index * 0.06,
+                                  0.18 +
+                                  index * 0.06,
                                 ease: "easeOut",
                               }}
                               className="h-full rounded-full bg-black dark:bg-white"
@@ -759,13 +882,20 @@ function Practice() {
                   {/* Strengths */}
                   {evaluation.strengths?.length > 0 && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{
+                        opacity: 0,
+                        y: 10,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                      }}
                       transition={{
                         duration: 0.45,
                         delay:
                           0.18 +
-                          scoredDimensions.length * 0.06,
+                          scoredDimensions.length *
+                            0.06,
                       }}
                       className="mt-8"
                     >
@@ -796,7 +926,9 @@ function Practice() {
                             >
                               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
 
-                              <span>{strength}</span>
+                              <span>
+                                {strength}
+                              </span>
                             </motion.li>
                           )
                         )}
@@ -807,13 +939,20 @@ function Practice() {
                   {/* Improvements */}
                   {evaluation.improvements?.length > 0 && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{
+                        opacity: 0,
+                        y: 10,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                      }}
                       transition={{
                         duration: 0.45,
                         delay:
                           0.24 +
-                          scoredDimensions.length * 0.06,
+                          scoredDimensions.length *
+                            0.06,
                       }}
                       className="mt-8"
                     >
@@ -823,7 +962,10 @@ function Practice() {
 
                       <ul className="mt-4 space-y-3">
                         {evaluation.improvements.map(
-                          (improvement, index) => (
+                          (
+                            improvement,
+                            index
+                          ) => (
                             <motion.li
                               key={index}
                               initial={{
@@ -844,7 +986,9 @@ function Practice() {
                             >
                               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
 
-                              <span>{improvement}</span>
+                              <span>
+                                {improvement}
+                              </span>
                             </motion.li>
                           )
                         )}
@@ -854,6 +998,84 @@ function Practice() {
                 </>
               );
             })()}
+          </motion.section>
+        )}
+
+        {/* ===================================================== */}
+        {/* Adaptive Next Challenge                               */}
+        {/* ===================================================== */}
+
+        {adaptiveResult?.current_problem_id && (
+          <motion.section
+            initial={{
+              opacity: 0,
+              y: 16,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.5,
+              ease: "easeOut",
+            }}
+            className="mt-12 border-t border-black/10 pt-10 dark:border-white/10"
+          >
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/35 dark:text-white/35">
+              Adaptive Interviewer
+            </p>
+
+            <h2 className="mt-3 text-2xl font-medium tracking-tight text-black dark:text-white">
+              Your next challenge
+            </h2>
+
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-black/55 dark:text-white/55">
+              Based on your performance, the Adaptive
+              Interviewer has selected your next problem.
+            </p>
+
+            <div className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10">
+              <div className="flex items-start justify-between gap-6">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.14em] text-black/35 dark:text-white/35">
+                    Recommended Problem
+                  </p>
+
+                  <p className="mt-3 text-xl font-medium text-black dark:text-white">
+                    {adaptiveResult.current_problem_id}
+                  </p>
+                </div>
+
+                {adaptiveResult.current_difficulty && (
+                  <span className="text-xs uppercase tracking-[0.15em] text-black/45 dark:text-white/45">
+                    {adaptiveResult.current_difficulty}
+                  </span>
+                )}
+              </div>
+
+              {adaptiveResult.current_goal && (
+                <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/10">
+                  <p className="text-xs uppercase tracking-[0.14em] text-black/35 dark:text-white/35">
+                    Current Goal
+                  </p>
+
+                  <p className="mt-3 text-sm leading-7 text-black/65 dark:text-white/65">
+                    {adaptiveResult.current_goal}
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-6">
+                <button
+                  onClick={
+                    handleNextAdaptiveProblem
+                  }
+                  className="border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80 dark:border-white dark:bg-white dark:text-black"
+                >
+                  Continue to Next Problem →
+                </button>
+              </div>
+            </div>
           </motion.section>
         )}
 
@@ -878,7 +1100,9 @@ function Practice() {
           {submissionResult?.status === "submitted" && (
             <button
               onClick={handleComplete}
-              disabled={completing || transcribing}
+              disabled={
+                completing || transcribing
+              }
               className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:text-white"
             >
               {completing
