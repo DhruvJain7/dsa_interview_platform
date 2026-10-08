@@ -1,12 +1,49 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
-const getTestSummary = (session) => {
-  const results = session.execution_result?.results || [];
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
+const SKILL_KEYS = [
+  {
+    key: "problem_understanding",
+    label: "Problem Understanding",
+    shortLabel: "Understanding",
+  },
+  {
+    key: "approach",
+    label: "Approach / Logic",
+    shortLabel: "Approach",
+  },
+  {
+    key: "complexity",
+    label: "Complexity",
+    shortLabel: "Complexity",
+  },
+  {
+    key: "clarity_and_articulation",
+    label: "Clarity & Articulation",
+    shortLabel: "Clarity",
+  },
+  {
+    key: "optimization",
+    label: "Optimization",
+    shortLabel: "Optimization",
+  },
+];
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function getTestSummary(session) {
+  const results = session?.execution_result?.results || [];
 
   if (!results.length) {
     return {
@@ -24,47 +61,69 @@ const getTestSummary = (session) => {
     total,
     label: `${passed}/${total} tests passed`,
   };
-};
+}
 
-const getOverallScore = (session) => {
-  const evaluation = session.evaluation;
+function getOverallScore(session) {
+  const evaluation = session?.evaluation;
 
   if (!evaluation) {
     return null;
   }
 
-  const dimensions = [
-    "problem_understanding",
-    "approach",
-    "complexity",
-    "clarity_and_articulation",
-    "optimization",
-  ];
-
-  const scores = dimensions
-    .map((dimension) => evaluation[dimension]?.score)
-    .filter((score) => score != null);
+  const scores = SKILL_KEYS.map(({ key }) => {
+    return evaluation[key]?.score;
+  }).filter((score) => score != null);
 
   if (!scores.length) {
     return null;
   }
 
-  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
-};
+  return (
+    scores.reduce((sum, score) => sum + score, 0) / scores.length
+  );
+}
 
-const formatDate = (dateString) => {
+function formatDate(dateString) {
   if (!dateString) {
     return "";
   }
 
   const date = new Date(dateString);
 
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
   return date.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
-};
+}
+
+function formatProblemName(problemId) {
+  if (!problemId) {
+    return "Untitled Problem";
+  }
+
+  return problemId
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getSkillScore(session, key) {
+  const score = session?.evaluation?.[key]?.score;
+
+  return score != null ? score : null;
+}
+
+function getSkillFeedback(session, key) {
+  return session?.evaluation?.[key]?.feedback || "";
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -77,6 +136,10 @@ function Dashboard() {
   const [deleting, setDeleting] = useState(false);
 
   const token = localStorage.getItem("articula_access_token");
+
+  /* =======================================================
+     FETCH SESSIONS
+  ======================================================= */
 
   useEffect(() => {
     if (!token) {
@@ -110,6 +173,10 @@ function Dashboard() {
 
     fetchSessions();
   }, [token]);
+
+  /* =======================================================
+     DELETE SESSION
+  ======================================================= */
 
   const handleDeleteSession = async () => {
     if (!deleteSessionId || deleting) {
@@ -153,14 +220,23 @@ function Dashboard() {
     }
   };
 
+  /* =======================================================
+     AUTH REDIRECT
+  ======================================================= */
+
   if (!token && !loading) {
     return <Navigate to="/auth" replace />;
   }
 
+  /* =======================================================
+     DASHBOARD METRICS
+  ======================================================= */
+
   const getDashboardMetrics = () => {
     const completedSessions = sessions.filter(
       (session) =>
-        session.status === "completed" && session.evaluation
+        session.status === "completed" &&
+        session.evaluation
     );
 
     const scores = completedSessions
@@ -177,7 +253,8 @@ function Dashboard() {
     let totalTests = 0;
 
     sessions.forEach((session) => {
-      const results = session.execution_result?.results || [];
+      const results =
+        session.execution_result?.results || [];
 
       results.forEach((test) => {
         totalTests += 1;
@@ -207,6 +284,10 @@ function Dashboard() {
 
   const metrics = getDashboardMetrics();
 
+  /* =======================================================
+     COMPLETED SCORED SESSIONS
+  ======================================================= */
+
   const completedScoredSessions = sessions
     .filter(
       (session) =>
@@ -216,31 +297,12 @@ function Dashboard() {
     .slice()
     .reverse();
 
-  const getSkillBreakdown = () => {
-    const dimensions = [
-      {
-        key: "problem_understanding",
-        label: "Problem Understanding",
-      },
-      {
-        key: "approach",
-        label: "Approach / Logic",
-      },
-      {
-        key: "complexity",
-        label: "Complexity",
-      },
-      {
-        key: "clarity_and_articulation",
-        label: "Clarity & Articulation",
-      },
-      {
-        key: "optimization",
-        label: "Optimization",
-      },
-    ];
+  /* =======================================================
+     SKILL BREAKDOWN
+  ======================================================= */
 
-    return dimensions.map((dimension) => {
+  const getSkillBreakdown = () => {
+    return SKILL_KEYS.map((dimension) => {
       const scores = sessions
         .filter(
           (session) =>
@@ -248,7 +310,8 @@ function Dashboard() {
             session.evaluation?.[dimension.key]?.score != null
         )
         .map(
-          (session) => session.evaluation[dimension.key].score
+          (session) =>
+            session.evaluation[dimension.key].score
         );
 
       const average =
@@ -265,6 +328,10 @@ function Dashboard() {
   };
 
   const skillBreakdown = getSkillBreakdown();
+
+  /* =======================================================
+     FOCUS AREAS
+  ======================================================= */
 
   const focusAreas = skillBreakdown
     .filter((skill) => skill.score !== null)
@@ -295,12 +362,20 @@ function Dashboard() {
       };
     });
 
+  /* =========================================================
+     RENDER
+  ========================================================= */
+
   return (
     <div className="min-h-screen bg-white text-black dark:bg-[#222222] dark:text-white">
       <Navbar />
 
       <main className="mx-auto max-w-[1000px] px-8 pb-20 pt-24">
-        {/* Header */}
+
+        {/* =================================================
+            HEADER
+        ================================================== */}
+
         <section>
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
             Dashboard
@@ -316,12 +391,17 @@ function Dashboard() {
           </p>
         </section>
 
-        {/* Overview Metrics */}
+        {/* =================================================
+            OVERVIEW METRICS
+        ================================================== */}
+
         <section className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-gray-200 bg-gray-200 dark:border-[#3a3a3a] dark:bg-[#3a3a3a] md:grid-cols-4">
+
           <div className="bg-white p-6 dark:bg-[#222222]">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Sessions
             </p>
+
             <p className="mt-2 text-2xl font-medium tracking-tight">
               {metrics.sessions}
             </p>
@@ -331,6 +411,7 @@ function Dashboard() {
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Avg. Score
             </p>
+
             <p className="mt-2 text-2xl font-medium tracking-tight">
               {metrics.averageScore !== null
                 ? `${metrics.averageScore.toFixed(1)}/5`
@@ -342,6 +423,7 @@ function Dashboard() {
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Test Pass
             </p>
+
             <p className="mt-2 text-2xl font-medium tracking-tight">
               {metrics.testPassRate !== null
                 ? `${metrics.testPassRate}%`
@@ -353,14 +435,30 @@ function Dashboard() {
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Problems
             </p>
+
             <p className="mt-2 text-2xl font-medium tracking-tight">
               {metrics.problems}
             </p>
           </div>
+
         </section>
 
-        {/* Performance */}
+        {/* =================================================
+            ERROR
+        ================================================== */}
+
+        {error && (
+          <div className="mt-8 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
+            {error}
+          </div>
+        )}
+
+        {/* =================================================
+            PERFORMANCE
+        ================================================== */}
+
         <section className="mt-16">
+
           <div className="mb-8">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
               Performance
@@ -379,12 +477,18 @@ function Dashboard() {
           {completedScoredSessions.length > 0 ? (
             <div className="overflow-x-auto">
               <div className="min-w-[760px]">
+
                 <svg
                   viewBox="0 0 760 220"
                   className="h-[220px] w-full"
                   role="img"
                   aria-label="Articulation score over time"
                 >
+
+                  {/* -----------------------------------------
+                      Y AXIS / GRID
+                  ------------------------------------------ */}
+
                   {[1, 2, 3, 4, 5].map((score) => {
                     const y =
                       190 - ((score - 1) / 4) * 150;
@@ -412,6 +516,10 @@ function Dashboard() {
                       </g>
                     );
                   })}
+
+                  {/* -----------------------------------------
+                      DATA / LINE
+                  ------------------------------------------ */}
 
                   {(() => {
                     const width = 690;
@@ -462,6 +570,8 @@ function Dashboard() {
 
                     return (
                       <g>
+
+                        {/* Trend line */}
                         <path
                           d={path}
                           fill="none"
@@ -469,8 +579,11 @@ function Dashboard() {
                           strokeWidth="2"
                         />
 
+                        {/* Points + scores + dates */}
                         {points.map((point, index) => (
                           <g key={index}>
+
+                            {/* Point */}
                             <circle
                               cx={point.x}
                               cy={point.y}
@@ -478,6 +591,7 @@ function Dashboard() {
                               fill="currentColor"
                             />
 
+                            {/* SCORE ABOVE POINT */}
                             <text
                               x={point.x}
                               y={point.y - 12}
@@ -489,6 +603,7 @@ function Dashboard() {
                               {point.score.toFixed(1)}
                             </text>
 
+                            {/* DATE BELOW */}
                             <text
                               x={point.x}
                               y="215"
@@ -499,12 +614,16 @@ function Dashboard() {
                             >
                               {point.date}
                             </text>
+
                           </g>
                         ))}
+
                       </g>
                     );
                   })()}
+
                 </svg>
+
               </div>
             </div>
           ) : (
@@ -513,10 +632,15 @@ function Dashboard() {
               progress.
             </div>
           )}
+
         </section>
 
-        {/* Skill Breakdown */}
+        {/* =================================================
+            SKILL BREAKDOWN
+        ================================================== */}
+
         <section className="mt-16">
+
           <div className="mb-8">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
               Skill breakdown
@@ -532,6 +656,7 @@ function Dashboard() {
           </div>
 
           <div className="space-y-6">
+
             {skillBreakdown.map((skill) => {
               const percentage = skill.score
                 ? (skill.score / 5) * 100
@@ -539,7 +664,9 @@ function Dashboard() {
 
               return (
                 <div key={skill.key}>
+
                   <div className="mb-2 flex items-center justify-between">
+
                     <span className="text-sm font-medium">
                       {skill.label}
                     </span>
@@ -549,25 +676,36 @@ function Dashboard() {
                         ? `${skill.score.toFixed(1)} / 5`
                         : "—"}
                     </span>
+
                   </div>
 
                   <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-[#333333]">
+
                     <div
-                      className="h-full rounded-full bg-black transition-all dark:bg-white"
+                      className="h-full rounded-full bg-indigo-500 transition-all"
                       style={{
                         width: `${percentage}%`,
                       }}
                     />
+
                   </div>
+
                 </div>
               );
             })}
+
           </div>
+
         </section>
 
-        {/* Focus Areas */}
+        {/* =================================================
+            FOCUS AREAS
+        ================================================== */}
+
         <section className="mt-16">
+
           <div className="mb-8">
+
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
               Focus areas
             </p>
@@ -579,23 +717,35 @@ function Dashboard() {
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               Based on your lowest-scoring articulation skills.
             </p>
+
           </div>
 
           {focusAreas.length > 0 ? (
             <div className="grid gap-px overflow-hidden rounded-xl border border-gray-200 bg-gray-200 dark:border-[#3a3a3a] dark:bg-[#3a3a3a] md:grid-cols-2">
+
               {focusAreas.map((area) => (
+
                 <div
                   key={area.key}
                   className="bg-white p-6 dark:bg-[#222222]"
                 >
+
                   <div className="flex items-start justify-between gap-4">
-                    <h3 className="font-serif text-lg font-medium">
-                      {area.label}
-                    </h3>
+
+                    <div>
+                      <p className="mb-2 text-xs uppercase tracking-[0.14em] text-indigo-500">
+                        Focus
+                      </p>
+
+                      <h3 className="font-serif text-lg font-medium">
+                        {area.label}
+                      </h3>
+                    </div>
 
                     <span className="shrink-0 text-sm tabular-nums text-gray-500 dark:text-gray-400">
                       {area.score.toFixed(1)}/5
                     </span>
+
                   </div>
 
                   {area.feedback && (
@@ -603,8 +753,11 @@ function Dashboard() {
                       {area.feedback}
                     </p>
                   )}
+
                 </div>
+
               ))}
+
             </div>
           ) : (
             <div className="rounded-xl border border-gray-200 p-8 text-sm text-gray-500 dark:border-[#3a3a3a] dark:text-gray-400">
@@ -612,11 +765,17 @@ function Dashboard() {
               improvement.
             </div>
           )}
+
         </section>
 
-        {/* History */}
+        {/* =================================================
+            HISTORY
+        ================================================== */}
+
         <section className="mt-16">
+
           <div className="mb-8 flex items-end justify-between">
+
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
                 History
@@ -631,40 +790,57 @@ function Dashboard() {
               {sessions.length}{" "}
               {sessions.length === 1 ? "session" : "sessions"}
             </span>
+
           </div>
 
           {loading ? (
+
             <div className="rounded-xl border border-gray-200 p-8 text-sm text-gray-500 dark:border-[#3a3a3a] dark:text-gray-400">
               Loading sessions...
             </div>
+
           ) : error ? (
+
             <div className="rounded-xl border border-gray-200 p-8 text-sm text-gray-500 dark:border-[#3a3a3a] dark:text-gray-400">
               {error}
             </div>
+
           ) : sessions.length === 0 ? (
+
             <div className="rounded-xl border border-gray-200 p-8 dark:border-[#3a3a3a]">
+
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 No sessions yet.
               </p>
 
               <button
                 onClick={() => navigate("/problems")}
-                className="mt-4 text-sm font-medium underline underline-offset-4"
+                className="mt-4 text-sm font-medium text-indigo-500 underline underline-offset-4 transition-colors hover:text-indigo-600"
               >
                 Start practicing
               </button>
+
             </div>
+
           ) : (
+
             <div className="divide-y divide-gray-200 border-y border-gray-200 dark:divide-[#3a3a3a] dark:border-[#3a3a3a]">
+
               {sessions.map((session) => {
-                const testSummary = getTestSummary(session);
-                const overallScore = getOverallScore(session);
+
+                const testSummary =
+                  getTestSummary(session);
+
+                const overallScore =
+                  getOverallScore(session);
 
                 return (
+
                   <div
                     key={session.session_id}
                     className="group flex w-full items-center justify-between gap-6 py-5"
                   >
+
                     <button
                       onClick={() =>
                         navigate(
@@ -673,22 +849,26 @@ function Dashboard() {
                       }
                       className="min-w-0 flex-1 text-left transition-opacity hover:opacity-70"
                     >
+
                       <div className="flex items-center gap-3">
+
                         <h3 className="truncate font-serif text-lg font-medium">
-                          {session.problem_id
-                            ?.replace(/_/g, " ")
-                            .replace(/\b\w/g, (char) =>
-                              char.toUpperCase()
-                            )}
+                          {formatProblemName(
+                            session.problem_id
+                          )}
                         </h3>
 
                         <span className="text-xs text-gray-400 dark:text-gray-500">
                           {session.language}
                         </span>
+
                       </div>
 
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                        <span>{testSummary.label}</span>
+
+                        <span>
+                          {testSummary.label}
+                        </span>
 
                         <span>•</span>
 
@@ -698,17 +878,26 @@ function Dashboard() {
                               session.created_at
                           )}
                         </span>
+
                       </div>
+
                     </button>
 
                     <div className="flex shrink-0 items-center gap-4">
+
                       {overallScore !== null && (
                         <span className="text-sm tabular-nums text-gray-500 dark:text-gray-400">
                           {overallScore.toFixed(1)}/5
                         </span>
                       )}
 
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                      <span
+                        className={`text-xs ${
+                          session.status === "completed"
+                            ? "text-indigo-500"
+                            : "text-gray-400 dark:text-gray-500"
+                        }`}
+                      >
                         {session.status}
                       </span>
 
@@ -720,7 +909,7 @@ function Dashboard() {
                             session.session_id
                           );
                         }}
-                        className="rounded-md px-2 py-1 text-xs text-gray-400 opacity-0 transition-opacity hover:text-black group-hover:opacity-100 dark:text-gray-500 dark:hover:text-white"
+                        className="rounded-md px-2 py-1 text-xs text-gray-400 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100 dark:text-gray-500"
                       >
                         Delete
                       </button>
@@ -728,21 +917,34 @@ function Dashboard() {
                       <span className="text-gray-400 dark:text-gray-500">
                         →
                       </span>
+
                     </div>
+
                   </div>
+
                 );
               })}
+
             </div>
+
           )}
+
         </section>
+
       </main>
 
       <Footer variant="minimal" />
 
-      {/* Delete Confirmation */}
+      {/* =================================================
+          DELETE CONFIRMATION
+      ================================================== */}
+
       {deleteSessionId && (
+
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl dark:border-[#3a3a3a] dark:bg-[#222222]">
+
             <h2 className="font-serif text-xl font-medium">
               Delete this session?
             </h2>
@@ -753,6 +955,7 @@ function Dashboard() {
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
+
               <button
                 type="button"
                 onClick={() => setDeleteSessionId(null)}
@@ -768,12 +971,19 @@ function Dashboard() {
                 disabled={deleting}
                 className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black"
               >
-                {deleting ? "Deleting..." : "Delete session"}
+                {deleting
+                  ? "Deleting..."
+                  : "Delete session"}
               </button>
+
             </div>
+
           </div>
+
         </div>
+
       )}
+
     </div>
   );
 }

@@ -10,6 +10,7 @@ import SessionDetail from "./pages/SessionDetail";
 import Interactive from "./pages/Interactive";
 import AdaptiveSessionDetail from "./pages/AdaptiveSessionDetail";
 
+
 function App() {
   return (
     <Routes>
@@ -51,6 +52,7 @@ function App() {
         path="*"
         element={<Navigate to="/" replace />}
       />
+      
     </Routes>
   );
 }

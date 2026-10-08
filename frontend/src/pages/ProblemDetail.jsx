@@ -5,6 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+const API_BASE_URL = "http://127.0.0.1:8000";
+
 function ProblemDetail() {
   const { problemId } = useParams();
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ function ProblemDetail() {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/problems/${problemId}`
+          `${API_BASE_URL}/problems/${problemId}`
         );
 
         if (response.status === 404) {
@@ -45,12 +47,16 @@ function ProblemDetail() {
     fetchProblem();
   }, [problemId]);
 
+  /* ---------------------------------------------
+     Loading
+  --------------------------------------------- */
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#222222]">
         <Navbar />
 
-        <main className="mx-auto max-w-[1350px] px-6 pb-24 pt-32 md:px-16">
+        <main className="mx-auto max-w-[1200px] px-6 pb-24 pt-28 sm:px-8 md:px-12 lg:px-16">
           <p className="text-sm text-black/50 dark:text-white/50">
             Loading problem...
           </p>
@@ -61,19 +67,23 @@ function ProblemDetail() {
     );
   }
 
+  /* ---------------------------------------------
+     Not Found
+  --------------------------------------------- */
+
   if (notFound || !problem) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#222222]">
         <Navbar />
 
-        <main className="mx-auto max-w-[1350px] px-6 pb-24 pt-32 md:px-16">
+        <main className="mx-auto max-w-[1200px] px-6 pb-24 pt-28 sm:px-8 md:px-12 lg:px-16">
           <p className="text-sm text-black/50 dark:text-white/50">
             Problem not found.
           </p>
 
           <button
             onClick={() => navigate("/problems")}
-            className="mt-6 text-sm font-medium text-black transition-opacity hover:opacity-50 dark:text-white"
+            className="mt-5 text-sm font-medium text-indigo-500 transition-colors hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
           >
             ← Back to Problems
           </button>
@@ -88,14 +98,17 @@ function ProblemDetail() {
     <div className="min-h-screen bg-white dark:bg-[#222222]">
       <Navbar />
 
-      <main className="mx-auto max-w-[1200px] px-6 pb-24 pt-32 md:px-16">
-        {/* Back */}
+      <main className="mx-auto max-w-[1200px] px-6 pb-24 pt-28 sm:px-8 md:px-12 lg:px-16">
+        {/* ---------------------------------------------
+            Back
+        --------------------------------------------- */}
+
         <motion.button
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
           onClick={() => navigate("/problems")}
-          className="group mb-12 text-sm text-black/50 transition-colors hover:text-black dark:text-white/50 dark:hover:text-white"
+          className="group mb-10 text-sm text-black/45 transition-colors hover:text-indigo-500 dark:text-white/45 dark:hover:text-indigo-300"
         >
           <span className="mr-2 inline-block transition-transform duration-200 group-hover:-translate-x-1">
             ←
@@ -103,7 +116,10 @@ function ProblemDetail() {
           Back to Problems
         </motion.button>
 
-        {/* Header */}
+        {/* ---------------------------------------------
+            Header
+        --------------------------------------------- */}
+
         <motion.header
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -111,26 +127,37 @@ function ProblemDetail() {
             duration: 0.5,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="border-b border-black/10 pb-10 dark:border-white/10"
+          className="border-b border-black/10 pb-9 dark:border-white/10"
         >
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/35">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-500 dark:text-indigo-300">
                 {problem.topic}
               </p>
 
-              <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.05] tracking-[-0.035em] text-black dark:text-[#F5F5F5] md:text-6xl">
+              <h1 className="mt-3 max-w-4xl font-display text-3xl leading-[1.08] tracking-[-0.03em] text-black dark:text-[#F5F5F5] sm:text-4xl md:text-5xl">
                 {problem.title}
               </h1>
             </div>
 
-            <span className="shrink-0 text-xs font-medium uppercase tracking-[0.18em] text-black/50 dark:text-white/45">
+            <span
+              className={`shrink-0 text-xs font-medium uppercase tracking-[0.18em] ${
+                problem.difficulty === "easy"
+                  ? "text-black/45 dark:text-white/45"
+                  : problem.difficulty === "medium"
+                  ? "text-black/60 dark:text-white/60"
+                  : "text-black dark:text-white"
+              }`}
+            >
               {problem.difficulty}
             </span>
           </div>
         </motion.header>
 
-        {/* Problem */}
+        {/* ---------------------------------------------
+            Problem Description
+        --------------------------------------------- */}
+
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,18 +166,21 @@ function ProblemDetail() {
             delay: 0.08,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="border-b border-black/10 py-12 dark:border-white/10"
+          className="border-b border-black/10 py-10 dark:border-white/10 sm:py-11"
         >
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/35 dark:text-white/30">
             Problem
           </p>
 
-          <p className="mt-5 max-w-4xl text-base leading-8 text-black/65 dark:text-white/65 md:text-lg">
+          <p className="mt-4 max-w-4xl text-[15px] leading-7 text-black/65 dark:text-white/65 sm:text-base sm:leading-8">
             {problem.description}
           </p>
         </motion.section>
 
-        {/* Examples */}
+        {/* ---------------------------------------------
+            Examples
+        --------------------------------------------- */}
+
         {problem.examples?.length > 0 && (
           <motion.section
             initial={{ opacity: 0, y: 16 }}
@@ -160,46 +190,46 @@ function ProblemDetail() {
               delay: 0.14,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="border-b border-black/10 py-12 dark:border-white/10"
+            className="border-b border-black/10 py-10 dark:border-white/10 sm:py-11"
           >
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/35 dark:text-white/30">
               Examples
             </p>
 
-            <div className="mt-7 space-y-4">
+            <div className="mt-6 space-y-3">
               {problem.examples.map((example, index) => (
                 <div
                   key={index}
-                  className="border border-black/10 bg-[#fafaf8] p-6 dark:border-white/10 dark:bg-white/[0.025]"
+                  className="border border-black/10 bg-[#fafaf8] p-5 dark:border-white/10 dark:bg-white/[0.025] sm:p-6"
                 >
                   <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/40 dark:text-white/35">
                     Example {String(index + 1).padStart(2, "0")}
                   </p>
 
-                  <div className="mt-5 grid gap-5 md:grid-cols-2">
+                  <div className="mt-4 grid gap-5 sm:grid-cols-2">
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/40 dark:text-white/35">
+                      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-black/40 dark:text-white/35">
                         Input
                       </p>
 
-                      <p className="mt-2 font-mono text-sm text-black/75 dark:text-white/70">
+                      <p className="mt-2 break-words font-mono text-sm text-black/75 dark:text-white/70">
                         {example.input}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/40 dark:text-white/35">
+                      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-black/40 dark:text-white/35">
                         Output
                       </p>
 
-                      <p className="mt-2 font-mono text-sm text-black/75 dark:text-white/70">
+                      <p className="mt-2 break-words font-mono text-sm text-black/75 dark:text-white/70">
                         {example.output}
                       </p>
                     </div>
                   </div>
 
                   {example.explanation && (
-                    <p className="mt-5 max-w-3xl text-sm leading-7 text-black/55 dark:text-white/50">
+                    <p className="mt-4 max-w-3xl text-sm leading-6 text-black/55 dark:text-white/50">
                       {example.explanation}
                     </p>
                   )}
@@ -209,7 +239,10 @@ function ProblemDetail() {
           </motion.section>
         )}
 
-        {/* Constraints */}
+        {/* ---------------------------------------------
+            Constraints
+        --------------------------------------------- */}
+
         {problem.constraints?.filter(
           (constraint) =>
             !/^Constraint \d+$/i.test(constraint.trim())
@@ -222,13 +255,13 @@ function ProblemDetail() {
               delay: 0.2,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="border-b border-black/10 py-12 dark:border-white/10"
+            className="border-b border-black/10 py-10 dark:border-white/10 sm:py-11"
           >
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/35 dark:text-white/30">
               Constraints
             </p>
 
-            <ul className="mt-6 max-w-3xl space-y-3">
+            <ul className="mt-5 max-w-3xl space-y-2.5">
               {problem.constraints
                 .filter(
                   (constraint) =>
@@ -239,9 +272,10 @@ function ProblemDetail() {
                 .map((constraint, index) => (
                   <li
                     key={index}
-                    className="flex gap-3 text-sm leading-7 text-black/60 dark:text-white/55"
+                    className="flex gap-3 text-sm leading-6 text-black/60 dark:text-white/55"
                   >
-                    <span className="mt-3 h-1 w-1 shrink-0 rounded-full bg-black/30 dark:bg-white/30" />
+                    <span className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-black/30 dark:bg-white/30" />
+
                     <span>{constraint}</span>
                   </li>
                 ))}
@@ -249,19 +283,25 @@ function ProblemDetail() {
           </motion.section>
         )}
 
-        {/* Tags */}
+        {/* ---------------------------------------------
+            Tags
+        --------------------------------------------- */}
+
         {problem.tags?.length > 0 && (
           <motion.section
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.24 }}
-            className="border-b border-black/10 py-10 dark:border-white/10"
+            transition={{
+              duration: 0.5,
+              delay: 0.24,
+            }}
+            className="border-b border-black/10 py-8 dark:border-white/10"
           >
             <div className="flex flex-wrap gap-2">
               {problem.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="border border-black/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/45 dark:border-white/10 dark:text-white/40"
+                  className="border border-black/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/45 transition-colors hover:border-indigo-500/40 hover:text-indigo-500 dark:border-white/10 dark:text-white/40 dark:hover:border-indigo-400/40 dark:hover:text-indigo-300"
                 >
                   {tag}
                 </span>
@@ -270,7 +310,10 @@ function ProblemDetail() {
           </motion.section>
         )}
 
-        {/* Before you code */}
+        {/* ---------------------------------------------
+            Before You Code
+        --------------------------------------------- */}
+
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -278,19 +321,20 @@ function ProblemDetail() {
             duration: 0.5,
             delay: 0.28,
           }}
-          className="py-16"
+          className="py-14 sm:py-16"
         >
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/35 dark:text-white/30">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-500 dark:text-indigo-300">
             Before you code
           </p>
 
-          <h2 className="mt-4 max-w-2xl font-display text-3xl tracking-[-0.025em] text-black dark:text-[#F5F5F5] md:text-4xl">
+          <h2 className="mt-3 max-w-2xl font-display text-2xl leading-tight tracking-[-0.025em] text-black dark:text-[#F5F5F5] sm:text-3xl">
             Think first. Then articulate.
           </h2>
 
-          <p className="mt-5 max-w-2xl text-base leading-7 text-black/55 dark:text-white/50">
-            Explain how you would approach this problem. Focus on your
-            reasoning, edge cases, and complexity before writing the solution.
+          <p className="mt-4 max-w-2xl text-[15px] leading-7 text-black/55 dark:text-white/50 sm:text-base">
+            Explain how you would approach this problem. Focus on
+            your reasoning, edge cases, and complexity before writing
+            the solution.
           </p>
 
           <motion.button
@@ -299,9 +343,10 @@ function ProblemDetail() {
             onClick={() =>
               navigate(`/problems/${problem.id}/practice`)
             }
-            className="mt-8 inline-flex items-center gap-3 bg-black px-6 py-3.5 text-sm font-medium text-white transition-opacity hover:opacity-80 dark:bg-white dark:text-black"
+            className="mt-7 inline-flex items-center gap-3 bg-black px-6 py-3.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500 dark:bg-white dark:text-black dark:hover:bg-indigo-300"
           >
             Start Practice
+
             <span>→</span>
           </motion.button>
         </motion.section>

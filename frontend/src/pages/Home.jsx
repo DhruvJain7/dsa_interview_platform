@@ -96,40 +96,91 @@ function Home() {
           margin-top: 4rem;
         }
 
-        @media (min-width: 768px) and (max-width: 1400px) {
+        /*
+         * Laptop / constrained desktop
+         *
+         * Designed for common MDM laptop sizes such as:
+         * 1280x720
+         * 1366x768
+         *
+         * The important difference here is that we reduce the visual
+         * footprint without relying on aggressive transform scaling.
+         */
+        @media (min-width: 768px) and (max-width: 1399px) {
+          .articula-hero {
+            padding-top: 5.75rem;
+            padding-bottom: 3.5rem;
+          }
+
+          .articula-hero-headline {
+            font-size: clamp(3.6rem, 6.8vw, 5.6rem);
+          }
+
+          .articula-hero-description {
+            margin-top: 1.35rem;
+          }
+
+          .articula-hero-actions {
+            margin-top: 1.5rem;
+          }
+
+          .articula-product {
+            margin-top: 3rem;
+            max-width: 820px;
+          }
+
+          .articula-flow {
+            margin-top: 2.75rem;
+            max-width: 820px;
+          }
+
           .articula-left-outer {
-            left: -270px !important;
-            width: 610px !important;
+            left: -300px !important;
+            top: 150px !important;
+            width: 570px !important;
+            height: 300px !important;
           }
 
           .articula-left-inner {
-            left: -185px !important;
-            width: 455px !important;
+            left: -220px !important;
+            top: 205px !important;
+            width: 420px !important;
+            height: 220px !important;
           }
 
           .articula-right-outer {
-            right: -270px !important;
-            width: 610px !important;
+            right: -300px !important;
+            top: 150px !important;
+            width: 570px !important;
+            height: 300px !important;
           }
 
           .articula-right-inner {
-            right: -185px !important;
-            width: 455px !important;
+            right: -220px !important;
+            top: 205px !important;
+            width: 420px !important;
+            height: 220px !important;
           }
         }
 
-        @media (min-width: 768px) and (max-height: 760px) {
+        /*
+         * Short laptop screens.
+         *
+         * Keep the hero compact vertically so the first viewport
+         * doesn't feel crowded.
+         */
+        @media (min-width: 768px) and (max-height: 780px) {
           .articula-hero {
-            padding-top: 5.5rem;
+            padding-top: 5.25rem;
             padding-bottom: 3rem;
           }
 
           .articula-hero-headline {
-            font-size: clamp(3.5rem, 7vw, 5.8rem);
+            font-size: clamp(3.4rem, 6.3vw, 5.2rem);
           }
 
           .articula-hero-description {
-            margin-top: 1.15rem;
+            margin-top: 1rem;
           }
 
           .articula-hero-actions {
@@ -137,37 +188,29 @@ function Home() {
           }
 
           .articula-product {
-            margin-top: 2.5rem;
-            transform: scale(0.92);
-            transform-origin: top center;
-            margin-bottom: -2.5rem;
+            margin-top: 2.75rem;
           }
 
           .articula-flow {
-            margin-top: 2rem;
-            transform: scale(0.82);
-            transform-origin: top center;
-            margin-bottom: -2.5rem;
-          }
-
-          .articula-side-orbits {
-            transform: scaleY(0.82);
-            transform-origin: center;
+            margin-top: 2.5rem;
           }
         }
 
-        @media (min-width: 768px) and (max-height: 650px) {
+        /*
+         * Very short desktop screens.
+         */
+        @media (min-width: 768px) and (max-height: 680px) {
           .articula-hero {
-            padding-top: 4.75rem;
-            padding-bottom: 2rem;
+            padding-top: 4.5rem;
+            padding-bottom: 2.5rem;
           }
 
           .articula-hero-headline {
-            font-size: clamp(3.2rem, 6.5vw, 5rem);
+            font-size: clamp(3.1rem, 5.8vw, 4.8rem);
           }
 
           .articula-hero-description {
-            margin-top: 0.9rem;
+            margin-top: 0.8rem;
           }
 
           .articula-hero-actions {
@@ -175,23 +218,18 @@ function Home() {
           }
 
           .articula-product {
-            margin-top: 2rem;
-            transform: scale(0.84);
-            margin-bottom: -4rem;
+            margin-top: 2.25rem;
           }
 
           .articula-flow {
-            margin-top: 1.25rem;
-            transform: scale(0.72);
-            margin-bottom: -4rem;
-          }
-
-          .articula-side-orbits {
-            transform: scale(0.82);
+            margin-top: 2rem;
           }
         }
 
-        @media (min-width: 1280px) and (min-height: 800px) {
+        /*
+         * Large desktop.
+         */
+        @media (min-width: 1400px) and (min-height: 800px) {
           .articula-hero {
             padding-top: 8rem;
             padding-bottom: 6rem;
@@ -205,6 +243,37 @@ function Home() {
             margin-top: 4.5rem;
           }
         }
+
+        /*
+         * Mobile.
+         */
+        @media (max-width: 767px) {
+          .articula-hero {
+            padding-top: 5.5rem;
+            padding-bottom: 4rem;
+          }
+
+          .articula-hero-headline {
+            font-size: clamp(3.25rem, 16vw, 5rem);
+            line-height: 0.9;
+          }
+
+          .articula-hero-description {
+            margin-top: 1.5rem;
+          }
+
+          .articula-hero-actions {
+            margin-top: 1.5rem;
+          }
+
+          .articula-product {
+            margin-top: 3rem;
+          }
+
+          .articula-flow {
+            margin-top: 3rem;
+          }
+        }
       `}</style>
 
       <Navbar />
@@ -213,6 +282,7 @@ function Home() {
         {/* =====================================================
             HERO
         ====================================================== */}
+
         <section
           className="
             articula-hero
@@ -227,6 +297,7 @@ function Home() {
           {/* ===================================================
               SIDE REASONING ORBITS
           ==================================================== */}
+
           <div className="articula-side-orbits pointer-events-none absolute inset-0 overflow-hidden">
             {/* LEFT OUTER ORBIT */}
             <motion.div
@@ -338,6 +409,7 @@ function Home() {
           </div>
 
           {/* HERO CONTENT */}
+
           <div className="relative z-10 mx-auto max-w-[1100px]">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -394,30 +466,32 @@ function Home() {
             </motion.div>
 
             {/* PRODUCT PREVIEW */}
+
             <motion.div
               initial={{ opacity: 0, y: 35 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.35 }}
-              className="articula-product relative mx-auto max-w-[920px]"
+              className="articula-product relative mx-auto w-full max-w-[920px]"
             >
               <div className="overflow-hidden rounded-2xl border border-black/10 bg-white text-left shadow-[0_30px_80px_rgba(0,0,0,0.08)] dark:border-white/10 dark:bg-[#1b1b1b] dark:shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
-                <div className="flex items-center justify-between border-b border-black/10 px-5 py-4 dark:border-white/10">
-                  <div>
+                <div className="flex items-center justify-between gap-4 border-b border-black/10 px-4 py-4 sm:px-5 dark:border-white/10">
+                  <div className="min-w-0">
                     <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
                       Articula
                     </p>
-                    <p className="mt-1 font-display text-lg">
+
+                    <p className="mt-1 truncate font-display text-base sm:text-lg">
                       Longest Substring Without Repeating Characters
                     </p>
                   </div>
 
-                  <span className="rounded-full border border-black/10 px-3 py-1 text-[9px] uppercase tracking-[0.15em] text-black/45 dark:border-white/10 dark:text-white/45">
+                  <span className="shrink-0 rounded-full border border-black/10 px-3 py-1 text-[9px] uppercase tracking-[0.15em] text-black/45 dark:border-white/10 dark:text-white/45">
                     Medium
                   </span>
                 </div>
 
                 <div className="grid md:grid-cols-[1.05fr_0.95fr]">
-                  <div className="border-b border-black/10 p-5 dark:border-white/10 md:border-b-0 md:border-r">
+                  <div className="border-b border-black/10 p-4 sm:p-5 dark:border-white/10 md:border-b-0 md:border-r">
                     <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 dark:text-white/40">
                       Explain your approach
                     </p>
@@ -440,7 +514,7 @@ function Home() {
                     </div>
                   </div>
 
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
                     <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-black/40 dark:text-white/40">
                       Evaluation
                     </p>
@@ -453,10 +527,11 @@ function Home() {
                         ["Articulation", "78%"],
                       ].map(([label, width]) => (
                         <div key={label}>
-                          <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-black/55 dark:text-white/55">
+                          <div className="flex items-center justify-between gap-3 text-[10px]">
+                            <span className="truncate text-black/55 dark:text-white/55">
                               {label}
                             </span>
+
                             <span className="font-medium">{width}</span>
                           </div>
 
@@ -490,6 +565,7 @@ function Home() {
             </motion.div>
 
             {/* FLOW */}
+
             <motion.div
               initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -521,6 +597,7 @@ function Home() {
         {/* =====================================================
             ARTICULA METHOD
         ====================================================== */}
+
         <section
           id="articula-method"
           className="border-t border-black/[0.08] px-5 py-20 dark:border-white/[0.08] sm:px-6 sm:py-24 md:px-16"
@@ -592,6 +669,7 @@ function Home() {
         {/* =====================================================
             ADAPTIVE PRACTICE
         ====================================================== */}
+
         <section className="border-t border-black/[0.08] px-5 py-20 dark:border-white/[0.08] sm:px-6 sm:py-24 md:px-16">
           <div className="mx-auto max-w-[1200px]">
             <div className="grid gap-12 md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-20">
@@ -604,7 +682,7 @@ function Home() {
               >
                 <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_25px_70px_rgba(0,0,0,0.06)] dark:border-white/10 dark:bg-[#1b1b1b] dark:shadow-[0_25px_70px_rgba(0,0,0,0.2)]">
                   <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-[9px] uppercase tracking-[0.17em] text-black/40 dark:text-white/40">
                           Adaptive practice
@@ -615,7 +693,7 @@ function Home() {
                         </h3>
                       </div>
 
-                      <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.14em] text-black/40 dark:text-white/40">
+                      <span className="flex shrink-0 items-center gap-2 text-[9px] uppercase tracking-[0.14em] text-black/40 dark:text-white/40">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#5B7CFA] shadow-[0_0_8px_rgba(91,124,250,0.28)] dark:bg-[#6D8BFF]" />
                         Adaptive
                       </span>
@@ -637,7 +715,7 @@ function Home() {
                         to your implementation.
                       </p>
 
-                      <div className="mt-5 flex items-center gap-3">
+                      <div className="mt-5 flex flex-wrap items-center gap-3">
                         <span className="rounded-full border border-black/10 px-3 py-1 text-[9px] uppercase tracking-[0.12em] text-black/45 dark:border-white/10 dark:text-white/45">
                           Medium
                         </span>
@@ -713,6 +791,7 @@ function Home() {
         {/* =====================================================
             DASHBOARD / PROGRESS
         ====================================================== */}
+
         <section className="border-t border-black/[0.08] px-5 py-20 dark:border-white/[0.08] sm:px-6 sm:py-24 md:px-16">
           <div className="mx-auto max-w-[1350px]">
             <div className="grid gap-10 md:grid-cols-[0.7fr_1.3fr] md:items-center md:gap-12">
@@ -754,7 +833,7 @@ function Home() {
                 transition={{ duration: 0.6 }}
                 className="overflow-hidden rounded-xl border border-black/10 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.06)] sm:rounded-2xl dark:border-white/10 dark:bg-[#1b1b1b] dark:shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
               >
-                <div className="flex items-center justify-between border-b border-black/10 px-5 py-4 sm:px-6 sm:py-5 dark:border-white/10">
+                <div className="flex items-center justify-between gap-4 border-b border-black/10 px-5 py-4 sm:px-6 sm:py-5 dark:border-white/10">
                   <div>
                     <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-black/40 sm:text-[10px] dark:text-white/40">
                       Dashboard
@@ -765,7 +844,7 @@ function Home() {
                     </h3>
                   </div>
 
-                  <span className="text-[9px] uppercase tracking-[0.15em] text-black/35 sm:text-[10px] dark:text-white/35">
+                  <span className="shrink-0 text-[9px] uppercase tracking-[0.15em] text-black/35 sm:text-[10px] dark:text-white/35">
                     Overview
                   </span>
                 </div>
@@ -779,11 +858,29 @@ function Home() {
                   ].map(([label, value], index) => (
                     <div
                       key={label}
-                      className={`p-4 sm:p-5 ${
-                        index < 3
-                          ? "border-r border-black/10 dark:border-white/10"
-                          : ""
-                      }`}
+                      className={`
+                        p-4 sm:p-5
+                        ${
+                          index % 2 === 0
+                            ? "border-r border-black/10 sm:border-r dark:border-white/10"
+                            : ""
+                        }
+                        ${
+                          index < 2
+                            ? "border-b border-black/10 sm:border-b-0 dark:border-white/10"
+                            : ""
+                        }
+                        ${
+                          index === 1
+                            ? "sm:border-r border-black/10 dark:border-white/10"
+                            : ""
+                        }
+                        ${
+                          index === 2
+                            ? "sm:border-r border-black/10 dark:border-white/10"
+                            : ""
+                        }
+                      `}
                     >
                       <p className="text-[9px] uppercase tracking-[0.14em] text-black/40 sm:text-[10px] dark:text-white/40">
                         {label}

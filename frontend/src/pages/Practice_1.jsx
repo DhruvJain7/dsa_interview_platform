@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+
 import {
   useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
+
 import { motion } from "framer-motion";
 
 import Navbar from "../components/Navbar";
@@ -19,24 +21,12 @@ function Practice() {
   const adaptiveSessionId =
     searchParams.get("adaptive_session");
 
-  // -----------------------------------------------------------
-  // Problem state
-  // -----------------------------------------------------------
-
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  // -----------------------------------------------------------
-  // Code state
-  // -----------------------------------------------------------
-
   const [language, setLanguage] = useState("python");
   const [code, setCode] = useState("");
-
-  // -----------------------------------------------------------
-  // Practice session state
-  // -----------------------------------------------------------
 
   const [sessionId, setSessionId] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(false);
@@ -136,7 +126,17 @@ function Practice() {
   }, [problemId]);
 
   // -----------------------------------------------------------
-  // Reset problem-specific state whenever problemId changes
+  // Reset problem-specific state whenever problemId changes.
+  //
+  // This is important for:
+  //
+  // Problem A
+  //    ↓
+  // Continue to Next Problem
+  //    ↓
+  // Problem B
+  //
+  // without a browser refresh.
   // -----------------------------------------------------------
 
   useEffect(() => {
@@ -182,7 +182,7 @@ function Practice() {
     );
   };
 
-    // -----------------------------------------------------------
+  // -----------------------------------------------------------
   // Create Practice Session
   // -----------------------------------------------------------
 
@@ -230,7 +230,8 @@ function Practice() {
       setSessionId(data.session_id);
 
       // -------------------------------------------------------
-      // Attach Practice session to Adaptive Session
+      // Attach normal Practice session to Adaptive Session
+      // only when Practice was launched from Interactive.
       // -------------------------------------------------------
 
       if (adaptiveSessionId) {
@@ -241,8 +242,7 @@ function Practice() {
               method: "POST",
 
               headers: {
-                Authorization:
-                  `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
               },
             }
           );
@@ -386,8 +386,7 @@ function Practice() {
           method: "POST",
 
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -419,7 +418,7 @@ function Practice() {
 
       // -------------------------------------------------------
       // STEP 2
-      // Send completed session to Adaptive Practice
+      // Send completed session to Adaptive Interviewer
       // -------------------------------------------------------
 
       if (adaptiveSessionId) {
@@ -676,76 +675,66 @@ function Practice() {
   // End Adaptive Session
   // -----------------------------------------------------------
 
-  const requestEndAdaptiveSession =
-    () => {
-      if (!adaptiveSessionId) return;
+  const requestEndAdaptiveSession = () => {
+    if (!adaptiveSessionId) return;
 
-      const token = getToken();
+    const token = getToken();
+    if (!token) {
+      setSubmitError(
+        "Please log in before ending the interactive session."
+      );
+      return;
+    }
 
-      if (!token) {
-        setSubmitError(
-          "Please log in before ending the interactive session."
-        );
+    setShowEndSessionModal(true);
+  };
 
-        return;
-      }
+  const handleEndAdaptiveSession = async () => {
+    if (!adaptiveSessionId) return;
 
-      setShowEndSessionModal(true);
-    };
+    const token = getToken();
+    if (!token) {
+      setSubmitError(
+        "Please log in before ending the interactive session."
+      );
+      return;
+    }
 
-  const handleEndAdaptiveSession =
-    async () => {
-      if (!adaptiveSessionId) return;
+    setShowEndSessionModal(false);
+    setEndingAdaptiveSession(true);
+    setSubmitError("");
 
-      const token = getToken();
-
-      if (!token) {
-        setSubmitError(
-          "Please log in before ending the interactive session."
-        );
-
-        return;
-      }
-
-      setShowEndSessionModal(false);
-      setEndingAdaptiveSession(true);
-      setSubmitError("");
-
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/end`,
-          {
-            method: "POST",
-
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data =
-          await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.detail ||
-              "Failed to end interactive session"
-          );
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/interactive/session/${adaptiveSessionId}/end`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-        setAdaptiveSessionSummary(data);
-        setAdaptiveSessionCompleted(true);
-      } catch (error) {
-        console.error(error);
+      const data = await response.json();
 
-        setSubmitError(error.message);
-      } finally {
-        setEndingAdaptiveSession(false);
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+            "Failed to end interactive session"
+        );
       }
-    };
 
-      // -----------------------------------------------------------
+      setAdaptiveSessionSummary(data);
+      setAdaptiveSessionCompleted(true);
+    } catch (error) {
+      console.error(error);
+      setSubmitError(error.message);
+    } finally {
+      setEndingAdaptiveSession(false);
+    }
+  };
+
+  // -----------------------------------------------------------
   // Loading
   // -----------------------------------------------------------
 
@@ -754,7 +743,7 @@ function Practice() {
       <div className="min-h-screen bg-white dark:bg-[#222222]">
         <Navbar />
 
-        <main className="mx-auto max-w-[1000px] px-6 pb-20 pt-24 sm:px-8">
+        <main className="mx-auto max-w-[1000px] px-8 pb-20 pt-24">
           <p className="text-sm text-black/50 dark:text-white/50">
             Loading problem...
           </p>
@@ -772,7 +761,7 @@ function Practice() {
       <div className="min-h-screen bg-white dark:bg-[#222222]">
         <Navbar />
 
-        <main className="mx-auto max-w-[1000px] px-6 pb-20 pt-24 sm:px-8">
+        <main className="mx-auto max-w-[1000px] px-8 pb-20 pt-24">
           <p className="text-sm text-black/50 dark:text-white/50">
             Problem not found.
           </p>
@@ -800,30 +789,32 @@ function Practice() {
     adaptiveSessionSummary
   ) {
     const journey =
-      adaptiveSessionSummary.journey || [];
+      adaptiveSessionSummary.journey ||
+      [];
 
     const strengths =
-      adaptiveSessionSummary.strengths || [];
+      adaptiveSessionSummary.strengths ||
+      [];
 
     const weaknesses =
-      adaptiveSessionSummary.weaknesses || [];
+      adaptiveSessionSummary.weaknesses ||
+      [];
 
     return (
       <div className="min-h-screen bg-white dark:bg-[#222222]">
         <Navbar />
 
-        <main className="mx-auto max-w-[1000px] px-6 pb-20 pt-24 sm:px-8">
-
+        <main className="mx-auto max-w-[1000px] px-8 pb-20 pt-24">
           <div className="max-w-3xl">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-indigo-500 dark:text-indigo-400">
-              Adaptive Practice
+            <p className="text-sm uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
+              Interactive Session
             </p>
 
-            <h1 className="mt-3 font-display text-3xl tracking-tight text-black dark:text-[#F5F5F5] sm:text-4xl">
+            <h1 className="mt-4 font-display text-5xl tracking-tight text-black dark:text-[#F5F5F5] md:text-6xl">
               Session Completed
             </h1>
 
-            <p className="mt-4 text-sm leading-7 text-black/60 dark:text-white/60 sm:text-base">
+            <p className="mt-6 text-lg leading-8 text-black/60 dark:text-white/60">
               You've completed your adaptive
               practice session. Your learning
               journey has been saved.
@@ -831,48 +822,44 @@ function Practice() {
           </div>
 
           {/* Session summary */}
-
-          <section className="mt-10 grid gap-4 md:grid-cols-2">
-
-            <div className="border border-black/10 p-5 dark:border-white/10">
+          <section className="mt-14 grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-black/10 p-6 dark:border-white/10">
               <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
                 Problems Completed
               </p>
 
-              <p className="mt-3 text-3xl font-medium text-black dark:text-white">
+              <p className="mt-4 text-4xl font-medium text-black dark:text-white">
                 {journey.length}
               </p>
             </div>
 
-            <div className="border border-black/10 p-5 dark:border-white/10">
+            <div className="rounded-2xl border border-black/10 p-6 dark:border-white/10">
               <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
                 Current Focus
               </p>
 
-              <p className="mt-3 text-sm leading-7 text-black/70 dark:text-white/70">
+              <p className="mt-4 text-sm leading-7 text-black/70 dark:text-white/70">
                 {adaptiveSessionSummary.current_goal ||
                   "Adaptive practice"}
               </p>
             </div>
-
           </section>
 
           {/* Strengths */}
-
           {strengths.length > 0 && (
-            <section className="mt-10">
+            <section className="mt-12">
               <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
                 Strengths
               </p>
 
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-5 space-y-3">
                 {strengths.map(
                   (strength, index) => (
                     <li
                       key={index}
                       className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
                     >
-                      <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                      <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
 
                       <span>
                         {strength}
@@ -885,14 +872,13 @@ function Practice() {
           )}
 
           {/* Areas to improve */}
-
           {weaknesses.length > 0 && (
-            <section className="mt-10">
+            <section className="mt-12">
               <p className="text-xs uppercase tracking-[0.15em] text-black/40 dark:text-white/40">
                 Areas to Improve
               </p>
 
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-5 space-y-3">
                 {weaknesses.map(
                   (weakness, index) => (
                     <li
@@ -912,16 +898,14 @@ function Practice() {
           )}
 
           {/* Actions */}
-
-          <div className="mt-12 flex flex-wrap gap-3 border-t border-black/10 pt-7 dark:border-white/10">
-
+          <div className="mt-14 flex flex-wrap gap-4 border-t border-black/10 pt-8 dark:border-white/10">
             <button
               onClick={() =>
                 navigate(
                   `/interactive/session/${adaptiveSessionId}`
                 )
               }
-              className="border border-indigo-500 bg-indigo-500 px-5 py-3 text-sm text-white transition-opacity hover:opacity-85"
+              className="border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80 dark:border-white dark:bg-white dark:text-black"
             >
               View Learning Journey →
             </button>
@@ -930,13 +914,11 @@ function Practice() {
               onClick={() =>
                 navigate("/interactive")
               }
-              className="border border-black/15 px-5 py-3 text-sm text-black transition-colors hover:border-indigo-500 hover:text-indigo-500 dark:border-white/15 dark:text-white dark:hover:text-indigo-400"
+              className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 dark:border-white dark:text-white"
             >
               Start New Session
             </button>
-
           </div>
-
         </main>
       </div>
     );
@@ -948,53 +930,45 @@ function Practice() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#222222]">
-
       <Navbar />
 
-      <main className="mx-auto max-w-[1000px] px-6 pb-20 pt-24 sm:px-8">
+      <main className="mx-auto max-w-[1000px] px-8 pb-20 pt-24">
 
-        {/* Back */}
-
+        {/* Back to problem */}
         <button
           onClick={() =>
             navigate(
               `/problems/${problemId}`
             )
           }
-          className="mb-8 text-sm text-black/50 transition-colors hover:text-indigo-500 dark:text-white/50 dark:hover:text-indigo-400"
+          className="mb-10 text-sm text-black/50 transition-colors hover:text-black dark:text-white/50 dark:hover:text-white"
         >
           ← Back to Problem
         </button>
 
-        {/* Problem Header */}
-
+        {/* Problem header */}
         <div>
-
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-indigo-500 dark:text-indigo-400">
+          <p className="text-sm uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
             {problem.topic}
           </p>
 
-          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-
-            <h1 className="font-display text-3xl tracking-tight text-black dark:text-[#F5F5F5] sm:text-4xl">
+          <div className="mt-4 flex items-start justify-between gap-6">
+            <h1 className="font-display text-5xl tracking-tight text-black dark:text-[#F5F5F5] md:text-6xl">
               {problem.title}
             </h1>
 
-            <span className="text-xs font-medium uppercase tracking-[0.15em] text-black/45 dark:text-white/45 sm:mt-2">
+            <span className="mt-2 text-sm uppercase tracking-wider text-black/50 dark:text-white/45">
               {problem.difficulty}
             </span>
-
           </div>
 
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-black/65 dark:text-white/65 sm:text-base">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-black/65 dark:text-white/65">
             {problem.description}
           </p>
-
         </div>
 
-        {/* Code Editor */}
-
-        <section className="mt-10">
+        {/* Code editor */}
+        <section className="mt-16">
           <CodeEditor
             key={problem.id}
             problemId={problem.id}
@@ -1005,21 +979,17 @@ function Practice() {
           />
         </section>
 
-                {/* -------------------------------------------------------
-            Articulate
-        ------------------------------------------------------- */}
-
-        <section className="mt-12 border-t border-black/10 pt-8 dark:border-white/10">
-
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-indigo-500 dark:text-indigo-400">
+        {/* Articulate */}
+        <div className="mt-16 border-t border-black/10 pt-10 dark:border-white/10">
+          <p className="text-sm uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
             Articulate
           </p>
 
-          <h2 className="mt-3 font-display text-2xl tracking-tight text-black dark:text-[#F5F5F5] sm:text-3xl">
+          <h2 className="mt-4 font-display text-4xl text-black dark:text-[#F5F5F5]">
             Articulate your solution.
           </h2>
 
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-black/55 dark:text-white/50">
+          <p className="mt-4 max-w-2xl text-black/55 dark:text-white/50">
             Explain your approach, edge cases,
             and complexity out loud. Articula
             will transcribe your explanation and
@@ -1028,15 +998,13 @@ function Practice() {
           </p>
 
           {/* Recording controls */}
-
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-
+          <div className="mt-6 flex flex-wrap items-center gap-4">
             {!isRecording ? (
               <button
                 onClick={
                   handleStartRecording
                 }
-                className="border border-indigo-500 bg-indigo-500 px-5 py-3 text-sm text-white transition-opacity hover:opacity-85"
+                className="border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80 dark:border-white dark:bg-white dark:text-black"
               >
                 Start Recording
               </button>
@@ -1045,132 +1013,68 @@ function Practice() {
                 onClick={
                   handleStopRecording
                 }
-                className="border border-black/20 px-5 py-3 text-sm text-black transition-colors hover:border-red-400 hover:text-red-500 dark:border-white/20 dark:text-white"
+                className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 dark:border-white dark:text-white"
               >
                 Stop Recording
               </button>
             )}
 
             {isRecording && (
-              <div className="flex items-center gap-2 text-sm text-red-500">
+              <div className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60">
                 <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+
                 Recording...
               </div>
             )}
 
-            {!isRecording && audioBlob && (
-              <>
-                <p className="text-sm text-black/45 dark:text-white/45">
-                  Recording captured.
-                </p>
+            {!isRecording &&
+              audioBlob && (
+                <>
+                  <p className="text-sm text-black/50 dark:text-white/50">
+                    Recording captured.
+                  </p>
 
-                <button
-                  onClick={
-                    handleTranscribe
-                  }
-                  disabled={transcribing}
-                  className="border border-black/15 px-5 py-3 text-sm text-black transition-colors hover:border-indigo-500 hover:text-indigo-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:text-white dark:hover:text-indigo-400"
-                >
-                  {transcribing
-                    ? "Transcribing..."
-                    : "Upload & Transcribe →"}
-                </button>
-              </>
-            )}
-
+                  <button
+                    onClick={
+                      handleTranscribe
+                    }
+                    disabled={
+                      transcribing
+                    }
+                    className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:text-white"
+                  >
+                    {transcribing
+                      ? "Transcribing..."
+                      : "Upload & Transcribe →"}
+                  </button>
+                </>
+              )}
           </div>
 
           {/* Transcript */}
-
           {transcript && (
-            <div className="mt-7 border border-black/10 bg-black/[0.02] p-5 dark:border-white/10 dark:bg-white/[0.025]">
-
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
+            <div className="mt-8 border border-black/10 bg-[#fafaf8] p-6 dark:border-white/10 dark:bg-white/[0.025]">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
                 Transcript
               </p>
 
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-black/75 dark:text-white/75">
+              <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-black/75 dark:text-white/75">
                 {transcript}
               </p>
-
             </div>
           )}
-
-        </section>
+        </div>
 
         {/* Error */}
-
         {submitError && (
-          <div className="mt-6 border border-red-500/20 bg-red-500/5 px-5 py-4 text-sm text-red-600 dark:text-red-400">
+          <div className="mt-8 border border-red-500/20 bg-red-500/5 px-5 py-4 text-sm text-red-600 dark:text-red-400">
             {submitError}
           </div>
         )}
 
-        {/* Submission Result */}
-
+        {/* Submission result */}
         {submissionResult && (
           <motion.div
-            initial={{
-              opacity: 0,
-              y: 10,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              duration: 0.35,
-              ease: "easeOut",
-            }}
-            className="mt-7 border border-black/10 p-5 dark:border-white/10"
-          >
-
-            <div className="flex items-center justify-between gap-4">
-
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
-                Submission
-              </p>
-
-              <span className="text-xs font-medium uppercase tracking-[0.15em] text-black dark:text-white">
-                {submissionResult.status}
-              </span>
-
-            </div>
-
-            <div className="mt-5">
-
-              {submissionResult.execution_result?.success ? (
-                <p className="text-sm text-black dark:text-white">
-                  All test cases passed.
-                </p>
-              ) : (
-                <p className="text-sm text-black dark:text-white">
-                  The solution did not pass
-                  all test cases.
-                </p>
-              )}
-
-            </div>
-
-            {submissionResult.execution_result?.error && (
-              <pre className="mt-4 overflow-x-auto whitespace-pre-wrap bg-black/[0.03] p-4 text-xs leading-6 text-black/70 dark:bg-white/[0.04] dark:text-white/70">
-                {
-                  submissionResult
-                    .execution_result
-                    .error
-                }
-              </pre>
-            )}
-
-          </motion.div>
-        )}
-
-        {/* -------------------------------------------------------
-            Evaluation
-        ------------------------------------------------------- */}
-
-        {evaluation && (
-          <motion.section
             initial={{
               opacity: 0,
               y: 12,
@@ -1180,26 +1084,81 @@ function Practice() {
               y: 0,
             }}
             transition={{
+              duration: 0.4,
+              ease: "easeOut",
+            }}
+            className="mt-8 border border-black/10 p-6 dark:border-white/10"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
+                Submission
+              </p>
+
+              <span className="text-xs font-medium uppercase tracking-[0.15em] text-black dark:text-white">
+                {submissionResult.status}
+              </span>
+            </div>
+
+            <div className="mt-6">
+              {submissionResult
+                .execution_result
+                ?.success ? (
+                <p className="text-sm text-black dark:text-white">
+                  All test cases passed.
+                </p>
+              ) : (
+                <p className="text-sm text-black dark:text-white">
+                  The solution did not pass
+                  all test cases.
+                </p>
+              )}
+            </div>
+
+            {submissionResult
+              .execution_result
+              ?.error && (
+              <pre className="mt-4 overflow-x-auto whitespace-pre-wrap bg-black/[0.03] p-4 text-xs leading-6 text-black/70 dark:bg-white/[0.04] dark:text-white/70">
+                {
+                  submissionResult
+                    .execution_result
+                    .error
+                }
+              </pre>
+            )}
+          </motion.div>
+        )}
+
+        {/* ----------------------------------------------------- */}
+        {/* Articulation Evaluation                              */}
+        {/* ----------------------------------------------------- */}
+
+        {evaluation && (
+          <motion.section
+            initial={{
+              opacity: 0,
+              y: 14,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
               duration: 0.45,
               ease: "easeOut",
             }}
-            className="mt-12"
+            className="mt-16"
           >
-
             <div>
-
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-indigo-500 dark:text-indigo-400">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/35 dark:text-white/35">
                 Evaluation
               </p>
 
-              <h2 className="mt-2 text-xl font-medium tracking-tight text-black dark:text-white sm:text-2xl">
+              <h2 className="mt-2 text-2xl font-medium tracking-tight">
                 Your Articulation Review
               </h2>
-
             </div>
 
             {(() => {
-
               const dimensions = [
                 [
                   "Problem Understanding",
@@ -1258,7 +1217,6 @@ function Practice() {
               return (
                 <>
                   {/* Overall Score */}
-
                   {overallScore != null && (
                     <motion.div
                       initial={{
@@ -1270,45 +1228,46 @@ function Practice() {
                         y: 0,
                       }}
                       transition={{
-                        duration: 0.4,
+                        duration: 0.45,
                         delay: 0.08,
                       }}
-                      className="mt-6 border border-black/10 p-5 dark:border-white/10"
+                      className="mt-7 rounded-2xl border border-black/10 p-6 dark:border-white/10"
                     >
+                      <div className="flex items-end justify-between gap-6">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.14em] text-black/35 dark:text-white/35">
+                            Overall Score
+                          </p>
 
-                      <p className="text-xs uppercase tracking-[0.15em] text-black/35 dark:text-white/35">
-                        Overall Score
-                      </p>
+                          <div className="mt-3 flex items-end gap-2">
+                            <motion.span
+                              initial={{
+                                opacity: 0,
+                              }}
+                              animate={{
+                                opacity: 1,
+                              }}
+                              transition={{
+                                duration: 0.4,
+                                delay: 0.2,
+                              }}
+                              className="text-4xl font-medium tracking-tight"
+                            >
+                              {overallScore.toFixed(
+                                1
+                              )}
+                            </motion.span>
 
-                      <div className="mt-2 flex items-end gap-2">
-
-                        <motion.span
-                          initial={{
-                            opacity: 0,
-                          }}
-                          animate={{
-                            opacity: 1,
-                          }}
-                          transition={{
-                            duration: 0.4,
-                            delay: 0.2,
-                          }}
-                          className="text-4xl font-medium tracking-tight text-indigo-500 dark:text-indigo-400"
-                        >
-                          {overallScore.toFixed(1)}
-                        </motion.span>
-
-                        <span className="mb-1 text-sm text-black/40 dark:text-white/40">
-                          / 5
-                        </span>
-
+                            <span className="mb-1 text-sm text-black/40 dark:text-white/40">
+                              / 5
+                            </span>
+                          </div>
+                        </div>
                       </div>
-
                     </motion.div>
                   )}
 
                   {/* Overall Feedback */}
-
                   {evaluation.overall_feedback && (
                     <motion.div
                       initial={{
@@ -1320,10 +1279,10 @@ function Practice() {
                         y: 0,
                       }}
                       transition={{
-                        duration: 0.4,
+                        duration: 0.45,
                         delay: 0.14,
                       }}
-                      className="mt-5 border border-black/10 p-5 dark:border-white/10"
+                      className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10"
                     >
                       <p className="text-sm leading-7 text-black/70 dark:text-white/70">
                         {
@@ -1333,10 +1292,8 @@ function Practice() {
                     </motion.div>
                   )}
 
-                  {/* Dimensions */}
-
-                  <div className="mt-5 grid gap-3 md:grid-cols-2">
-
+                  {/* Evaluation Dimensions */}
+                  <div className="mt-6 grid gap-4 md:grid-cols-2">
                     {scoredDimensions.map(
                       (
                         {
@@ -1350,57 +1307,59 @@ function Practice() {
                           key={key}
                           initial={{
                             opacity: 0,
-                            y: 8,
+                            y: 10,
                           }}
                           animate={{
                             opacity: 1,
                             y: 0,
                           }}
                           transition={{
-                            duration: 0.4,
+                            duration: 0.45,
                             delay:
                               0.08 +
-                              index * 0.05,
+                              index *
+                                0.06,
                             ease: "easeOut",
                           }}
-                          className="border border-black/10 p-5 transition-transform duration-200 hover:-translate-y-0.5 dark:border-white/10"
+                          className="rounded-xl border border-black/10 p-5 transition-transform duration-200 hover:-translate-y-0.5 dark:border-white/10"
                         >
-
                           <div className="flex items-center justify-between gap-4">
-
                             <h3 className="text-sm font-medium">
                               {label}
                             </h3>
 
-                            <span className="text-sm text-indigo-500 dark:text-indigo-400">
-                              {dimension.score}/5
+                            <span className="text-sm text-black/50 dark:text-white/50">
+                              {
+                                dimension.score
+                              }
+                              /5
                             </span>
-
                           </div>
 
                           <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
-
                             <motion.div
                               initial={{
                                 width: 0,
                               }}
                               animate={{
-                                width: `${(
-                                  Number(
+                                width: `${
+                                  (Number(
                                     dimension.score
-                                  ) / 5
-                                ) * 100}%`,
+                                  ) /
+                                    5) *
+                                  100
+                                }%`,
                               }}
                               transition={{
                                 duration: 0.65,
                                 delay:
                                   0.18 +
-                                  index * 0.06,
+                                  index *
+                                    0.06,
                                 ease: "easeOut",
                               }}
-                              className="h-full rounded-full bg-indigo-500 dark:bg-indigo-400"
+                              className="h-full rounded-full bg-black dark:bg-white"
                             />
-
                           </div>
 
                           {dimension.feedback && (
@@ -1410,41 +1369,37 @@ function Practice() {
                               }
                             </p>
                           )}
-
                         </motion.div>
                       )
                     )}
-
                   </div>
 
                   {/* Strengths */}
-
-                  {evaluation.strengths?.length > 0 && (
+                  {evaluation.strengths
+                    ?.length > 0 && (
                     <motion.div
                       initial={{
                         opacity: 0,
-                        y: 8,
+                        y: 10,
                       }}
                       animate={{
                         opacity: 1,
                         y: 0,
                       }}
                       transition={{
-                        duration: 0.4,
+                        duration: 0.45,
                         delay:
                           0.18 +
                           scoredDimensions.length *
                             0.06,
                       }}
-                      className="mt-7"
+                      className="mt-8"
                     >
-
                       <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/35 dark:text-white/35">
                         Strengths
                       </p>
 
-                      <ul className="mt-3 space-y-3">
-
+                      <ul className="mt-4 space-y-3">
                         {evaluation.strengths.map(
                           (
                             strength,
@@ -1464,11 +1419,12 @@ function Practice() {
                                 duration: 0.35,
                                 delay:
                                   0.22 +
-                                  index * 0.05,
+                                  index *
+                                    0.05,
                               }}
                               className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
                             >
-                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
 
                               <span>
                                 {strength}
@@ -1476,39 +1432,36 @@ function Practice() {
                             </motion.li>
                           )
                         )}
-
                       </ul>
                     </motion.div>
                   )}
 
                   {/* Improvements */}
-
-                  {evaluation.improvements?.length > 0 && (
+                  {evaluation.improvements
+                    ?.length > 0 && (
                     <motion.div
                       initial={{
                         opacity: 0,
-                        y: 8,
+                        y: 10,
                       }}
                       animate={{
                         opacity: 1,
                         y: 0,
                       }}
                       transition={{
-                        duration: 0.4,
+                        duration: 0.45,
                         delay:
                           0.24 +
                           scoredDimensions.length *
                             0.06,
                       }}
-                      className="mt-7"
+                      className="mt-8"
                     >
-
                       <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/35 dark:text-white/35">
                         Areas to Improve
                       </p>
 
-                      <ul className="mt-3 space-y-3">
-
+                      <ul className="mt-4 space-y-3">
                         {evaluation.improvements.map(
                           (
                             improvement,
@@ -1528,133 +1481,120 @@ function Practice() {
                                 duration: 0.35,
                                 delay:
                                   0.28 +
-                                  index * 0.05,
+                                  index *
+                                    0.05,
                               }}
                               className="flex gap-3 text-sm leading-7 text-black/70 dark:text-white/70"
                             >
                               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/40 dark:bg-white/40" />
 
                               <span>
-                                {improvement}
+                                {
+                                  improvement
+                                }
                               </span>
                             </motion.li>
                           )
                         )}
-
                       </ul>
                     </motion.div>
                   )}
-
                 </>
               );
             })()}
-
           </motion.section>
         )}
 
-        {/* -------------------------------------------------------
-            Adaptive Practice
-        ------------------------------------------------------- */}
+        {/* ----------------------------------------------------- */}
+        {/* Adaptive Next Challenge                              */}
+        {/* ----------------------------------------------------- */}
 
         {adaptiveResult?.current_problem_id && (
           <motion.section
             initial={{
               opacity: 0,
-              y: 12,
+              y: 16,
             }}
             animate={{
               opacity: 1,
               y: 0,
             }}
             transition={{
-              duration: 0.45,
+              duration: 0.5,
               ease: "easeOut",
             }}
-            className="mt-12 border-t border-black/10 pt-8 dark:border-white/10"
+            className="mt-12 border-t border-black/10 pt-10 dark:border-white/10"
           >
-
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-indigo-500 dark:text-indigo-400">
-              Adaptive Practice
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/35 dark:text-white/35">
+              Adaptive Interviewer
             </p>
 
-            <h2 className="mt-2 text-xl font-medium tracking-tight text-black dark:text-white sm:text-2xl">
+            <h2 className="mt-3 text-2xl font-medium tracking-tight text-black dark:text-white">
               Your next challenge
             </h2>
 
             <p className="mt-3 max-w-2xl text-sm leading-7 text-black/55 dark:text-white/55">
-              Articula adapted your next
-              practice based on your
-              evaluation.
+              Based on your performance,
+              the Adaptive Interviewer has
+              selected your next problem.
             </p>
 
-            <div className="mt-5 border border-black/10 p-5 dark:border-white/10">
-
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-
+            <div className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10">
+              <div className="flex items-start justify-between gap-6">
                 <div>
-
                   <p className="text-xs uppercase tracking-[0.14em] text-black/35 dark:text-white/35">
                     Recommended Problem
                   </p>
 
-                  <p className="mt-2 text-lg font-medium text-black dark:text-white">
+                  <p className="mt-3 text-xl font-medium text-black dark:text-white">
                     {
                       adaptiveResult.current_problem_id
                     }
                   </p>
-
                 </div>
 
                 {adaptiveResult.current_difficulty && (
-                  <span className="text-xs font-medium uppercase tracking-[0.15em] text-indigo-500 dark:text-indigo-400">
+                  <span className="text-xs uppercase tracking-[0.15em] text-black/45 dark:text-white/45">
                     {
                       adaptiveResult.current_difficulty
                     }
                   </span>
                 )}
-
               </div>
 
               {adaptiveResult.current_goal && (
-                <div className="mt-5 border-t border-black/10 pt-5 dark:border-white/10">
-
+                <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/10">
                   <p className="text-xs uppercase tracking-[0.14em] text-black/35 dark:text-white/35">
-                    Current Focus
+                    Current Goal
                   </p>
 
-                  <p className="mt-2 text-sm leading-7 text-black/65 dark:text-white/65">
+                  <p className="mt-3 text-sm leading-7 text-black/65 dark:text-white/65">
                     {
                       adaptiveResult.current_goal
                     }
                   </p>
-
                 </div>
               )}
 
-              <div className="mt-5">
-
+              <div className="mt-6">
                 <button
                   onClick={
                     handleNextAdaptiveProblem
                   }
-                  className="border border-indigo-500 bg-indigo-500 px-5 py-3 text-sm text-white transition-opacity hover:opacity-85"
+                  className="border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80 dark:border-white dark:bg-white dark:text-black"
                 >
                   Continue to Next Problem →
                 </button>
-
               </div>
-
             </div>
-
           </motion.section>
         )}
 
-        {/* -------------------------------------------------------
-            Submit / Evaluate / End Session
-        ------------------------------------------------------- */}
+        {/* ----------------------------------------------------- */}
+        {/* Submit / Evaluate / End Session                      */}
+        {/* ----------------------------------------------------- */}
 
-        <div className="mt-10 flex flex-wrap justify-end gap-3 border-t border-black/10 pt-7 dark:border-white/10">
-
+        <div className="mt-12 flex flex-wrap justify-end gap-4 border-t border-black/10 pt-8 dark:border-white/10">
           <button
             onClick={handleSubmit}
             disabled={
@@ -1665,7 +1605,7 @@ function Practice() {
               submissionResult?.status ===
                 "completed"
             }
-            className="border border-indigo-500 bg-indigo-500 px-5 py-3 text-sm text-white transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
+            className="border border-black bg-black px-6 py-3 text-sm text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:bg-white dark:text-black"
           >
             {submitting ||
             sessionLoading
@@ -1683,7 +1623,7 @@ function Practice() {
                 completing ||
                 transcribing
               }
-              className="border border-black/15 px-5 py-3 text-sm text-black transition-colors hover:border-indigo-500 hover:text-indigo-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:text-white dark:hover:border-indigo-400 dark:hover:text-indigo-400"
+              className="border border-black px-6 py-3 text-sm text-black transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:text-white"
             >
               {completing
                 ? "Evaluating..."
@@ -1691,6 +1631,7 @@ function Practice() {
             </button>
           )}
 
+          {/* Only visible during Adaptive Practice */}
           {adaptiveSessionId && (
             <button
               onClick={
@@ -1701,19 +1642,14 @@ function Practice() {
                 completing ||
                 transcribing
               }
-              className="border border-red-500/30 px-5 py-3 text-sm text-red-600 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-400/30 dark:text-red-400"
+              className="border border-red-500/40 px-6 py-3 text-sm text-red-600 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-400/40 dark:text-red-400"
             >
               {endingAdaptiveSession
                 ? "Ending Session..."
                 : "End Interactive Session"}
             </button>
           )}
-
         </div>
-
-        {/* -------------------------------------------------------
-            End Session Modal
-        ------------------------------------------------------- */}
 
         {showEndSessionModal && (
           <div
@@ -1722,80 +1658,49 @@ function Practice() {
             aria-modal="true"
             aria-labelledby="end-session-title"
           >
-
             <motion.div
-              initial={{
-                opacity: 0,
-                y: 12,
-                scale: 0.98,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                scale: 1,
-              }}
-              transition={{
-                duration: 0.2,
-                ease: "easeOut",
-              }}
-              className="w-full max-w-md border border-black/10 bg-white p-7 shadow-xl dark:border-white/10 dark:bg-[#222222]"
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-7 shadow-xl dark:border-white/10 dark:bg-[#222222]"
             >
-
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
-                Adaptive Practice
+                Interactive Session
               </p>
 
               <h2
                 id="end-session-title"
-                className="mt-3 text-xl font-medium tracking-tight text-black dark:text-white sm:text-2xl"
+                className="mt-3 text-2xl font-medium tracking-tight text-black dark:text-white"
               >
                 End this session?
               </h2>
 
               <p className="mt-3 text-sm leading-7 text-black/60 dark:text-white/60">
-                Your current adaptive journey
-                will be marked as completed.
-                You can still view your learning
-                journey afterward.
+                Your current adaptive journey will be marked as completed. You can still view your learning journey afterward.
               </p>
 
               <div className="mt-7 flex flex-wrap justify-end gap-3">
-
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowEndSessionModal(false)
-                  }
-                  disabled={
-                    endingAdaptiveSession
-                  }
-                  className="border border-black/15 px-5 py-3 text-sm text-black transition-colors hover:border-indigo-500 hover:text-indigo-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:text-white dark:hover:text-indigo-400"
+                  onClick={() => setShowEndSessionModal(false)}
+                  disabled={endingAdaptiveSession}
+                  className="border border-black/15 px-5 py-3 text-sm text-black transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:text-white"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="button"
-                  onClick={
-                    handleEndAdaptiveSession
-                  }
-                  disabled={
-                    endingAdaptiveSession
-                  }
-                  className="border border-indigo-500 bg-indigo-500 px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
+                  onClick={handleEndAdaptiveSession}
+                  disabled={endingAdaptiveSession}
+                  className="border border-black bg-black px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:bg-white dark:text-black"
                 >
-                  {endingAdaptiveSession
-                    ? "Ending Session..."
-                    : "End Session"}
+                  {endingAdaptiveSession ? "Ending Session..." : "End Session"}
                 </button>
-
               </div>
-
             </motion.div>
-
           </div>
         )}
-
       </main>
     </div>
   );

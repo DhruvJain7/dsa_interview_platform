@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+const API_BASE_URL = "http://127.0.0.1:8000";
+
 function Problems() {
   const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ function Problems() {
     setLoading(true);
 
     fetch(
-      `http://127.0.0.1:8000/problems${query ? `?${query}` : ""}`
+      `${API_BASE_URL}/problems${query ? `?${query}` : ""}`
     )
       .then((response) => {
         if (!response.ok) {
@@ -67,13 +69,11 @@ function Problems() {
   return (
     <div className="min-h-screen bg-white dark:bg-[#222222]">
       <div className="relative min-h-screen bg-white dark:bg-[#222222]">
-
         {/* Navbar */}
         <Navbar />
 
         {/* Main Content */}
-        <main className="mx-auto max-w-[1350px] px-6 pb-24 pt-32 md:px-16">
-
+        <main className="mx-auto max-w-[1350px] px-6 pb-24 pt-28 sm:px-8 md:px-12 lg:px-16">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -82,17 +82,17 @@ function Problems() {
               duration: 0.5,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="mb-10 max-w-[650px]"
+            className="mb-9 max-w-[650px]"
           >
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-500 dark:text-indigo-300">
               Practice
             </p>
 
-            <h1 className="mt-4 font-display text-3xl leading-tight tracking-[-0.03em] text-black dark:text-[#F5F5F5] md:text-4xl">
+            <h1 className="mt-4 font-display text-3xl leading-tight tracking-[-0.03em] text-black dark:text-[#F5F5F5] sm:text-4xl">
               Choose a problem.
             </h1>
 
-            <p className="mt-4 max-w-[600px] text-base leading-7 text-black/55 dark:text-white/50">
+            <p className="mt-4 max-w-[600px] text-sm leading-7 text-black/55 dark:text-white/50 sm:text-base">
               Pick a problem and practice explaining your solution,
               not just writing it.
             </p>
@@ -105,16 +105,20 @@ function Problems() {
             transition={{
               duration: 0.45,
               delay: 0.1,
+              ease: [0.22, 1, 0.36, 1],
             }}
-            className="mb-10 flex flex-col gap-4 border-y border-black/10 py-5 dark:border-white/10 sm:flex-row"
+            className="mb-10 flex flex-col gap-3 border-y border-black/10 py-5 dark:border-white/10 sm:flex-row sm:items-center"
           >
-
             {/* Topic */}
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <select
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="w-full appearance-none rounded-full border border-black/15 bg-white px-5 py-3 pr-11 text-sm text-black outline-none transition-colors hover:border-black/30 focus:border-black/40 dark:border-white/15 dark:bg-[#222222] dark:text-white dark:hover:border-white/30 dark:focus:border-white/40 sm:w-auto"
+                className={`w-full appearance-none rounded-full border bg-white px-5 py-3 pr-11 text-sm outline-none transition-all duration-200 dark:bg-[#222222] sm:w-auto ${
+                  topic
+                    ? "border-indigo-500/60 text-indigo-600 dark:border-indigo-400/60 dark:text-indigo-300"
+                    : "border-black/15 text-black hover:border-black/30 focus:border-indigo-500/60 dark:border-white/15 dark:text-white dark:hover:border-white/30 dark:focus:border-indigo-400/60"
+                }`}
               >
                 <option value="">All Topics</option>
                 <option value="arrays">Arrays</option>
@@ -129,17 +133,27 @@ function Problems() {
                 <option value="heaps">Heaps</option>
               </select>
 
-              <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-xs text-black/40 dark:text-white/40">
+              <span
+                className={`pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-xs ${
+                  topic
+                    ? "text-indigo-500 dark:text-indigo-300"
+                    : "text-black/40 dark:text-white/40"
+                }`}
+              >
                 ↓
               </span>
             </div>
 
             {/* Difficulty */}
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full appearance-none rounded-full border border-black/15 bg-white px-5 py-3 pr-11 text-sm text-black outline-none transition-colors hover:border-black/30 focus:border-black/40 dark:border-white/15 dark:bg-[#222222] dark:text-white dark:hover:border-white/30 dark:focus:border-white/40 sm:w-auto"
+                className={`w-full appearance-none rounded-full border bg-white px-5 py-3 pr-11 text-sm outline-none transition-all duration-200 dark:bg-[#222222] sm:w-auto ${
+                  difficulty
+                    ? "border-indigo-500/60 text-indigo-600 dark:border-indigo-400/60 dark:text-indigo-300"
+                    : "border-black/15 text-black hover:border-black/30 focus:border-indigo-500/60 dark:border-white/15 dark:text-white dark:hover:border-white/30 dark:focus:border-indigo-400/60"
+                }`}
               >
                 <option value="">All Difficulties</option>
                 <option value="easy">Easy</option>
@@ -147,15 +161,34 @@ function Problems() {
                 <option value="hard">Hard</option>
               </select>
 
-              <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-xs text-black/40 dark:text-white/40">
+              <span
+                className={`pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-xs ${
+                  difficulty
+                    ? "text-indigo-500 dark:text-indigo-300"
+                    : "text-black/40 dark:text-white/40"
+                }`}
+              >
                 ↓
               </span>
             </div>
+
+            {/* Clear Filters */}
+            {(topic || difficulty) && (
+              <button
+                onClick={() => {
+                  setTopic("");
+                  setDifficulty("");
+                }}
+                className="w-fit px-2 py-2 text-xs font-medium uppercase tracking-[0.14em] text-black/40 transition-colors hover:text-indigo-500 dark:text-white/35 dark:hover:text-indigo-300"
+              >
+                Clear filters
+              </button>
+            )}
           </motion.div>
 
           {/* Loading */}
           {loading ? (
-            <div className="py-20 text-center">
+            <div className="border-t border-black/10 py-20 text-center dark:border-white/10">
               <motion.p
                 animate={{
                   opacity: [0.4, 1, 0.4],
@@ -171,7 +204,6 @@ function Problems() {
               </motion.p>
             </div>
           ) : problems.length === 0 ? (
-
             /* Empty State */
             <motion.div
               initial={{ opacity: 0 }}
@@ -185,10 +217,20 @@ function Problems() {
               <p className="mt-3 text-sm text-black/50 dark:text-white/40">
                 Try changing your filters.
               </p>
+
+              {(topic || difficulty) && (
+                <button
+                  onClick={() => {
+                    setTopic("");
+                    setDifficulty("");
+                  }}
+                  className="mt-5 text-sm font-medium text-indigo-500 transition-colors hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
+                >
+                  Clear filters
+                </button>
+              )}
             </motion.div>
-
           ) : (
-
             /* Problem List */
             <motion.div
               initial="hidden"
@@ -207,9 +249,11 @@ function Problems() {
                 <motion.button
                   key={problem.id}
                   variants={rowVariants}
-                  onClick={() => navigate(`/problems/${problem.id}`)}
+                  onClick={() =>
+                    navigate(`/problems/${problem.id}`)
+                  }
                   whileHover={{
-                    x: 6,
+                    x: 4,
                     transition: {
                       duration: 0.2,
                       ease: "easeOut",
@@ -218,17 +262,16 @@ function Problems() {
                   whileTap={{
                     scale: 0.995,
                   }}
-                  className="group relative flex w-full items-center gap-5 border-b border-black/10 py-7 text-left transition-colors duration-200 hover:bg-black/[0.025] dark:border-white/10 dark:hover:bg-white/[0.025] md:gap-8"
+                  className="group relative flex w-full items-center gap-4 border-b border-black/10 py-6 text-left transition-colors duration-200 hover:bg-black/[0.018] dark:border-white/10 dark:hover:bg-white/[0.018] sm:gap-5 md:gap-8 md:py-7"
                 >
-
                   {/* Number */}
-                  <span className="w-8 shrink-0 text-xs font-medium tracking-[0.15em] text-black/30 dark:text-white/30 md:w-10">
+                  <span className="w-7 shrink-0 text-xs font-medium tracking-[0.15em] text-black/30 transition-colors duration-200 group-hover:text-indigo-500 dark:text-white/30 dark:group-hover:text-indigo-300 sm:w-8 md:w-10">
                     {String(index + 1).padStart(2, "0")}
                   </span>
 
                   {/* Problem Information */}
                   <div className="min-w-0 flex-1">
-                    <h2 className="font-display text-xl leading-tight tracking-[-0.02em] text-black transition-colors duration-200 group-hover:text-black/70 dark:text-[#F5F5F5] dark:group-hover:text-white/70 md:text-2xl">
+                    <h2 className="font-display text-xl leading-tight tracking-[-0.02em] text-black transition-colors duration-200 group-hover:text-black/65 dark:text-[#F5F5F5] dark:group-hover:text-white/70 md:text-2xl">
                       {problem.title}
                     </h2>
 
@@ -253,20 +296,20 @@ function Problems() {
                       problem.difficulty === "easy"
                         ? "text-black/45 dark:text-white/45"
                         : problem.difficulty === "medium"
-                          ? "text-black/65 dark:text-white/65"
-                          : "text-black dark:text-white"
+                        ? "text-black/60 dark:text-white/60"
+                        : "text-black dark:text-white"
                     }`}
                   >
                     {problem.difficulty}
                   </span>
 
                   {/* Practice */}
-                  <div className="flex w-24 shrink-0 items-center justify-end gap-2 text-sm font-medium text-black/0 transition-colors duration-200 group-hover:text-black dark:text-white/0 dark:group-hover:text-white">
-                    <span className="hidden sm:inline">
+                  <div className="flex w-8 shrink-0 items-center justify-end gap-2 text-sm font-medium text-transparent transition-colors duration-200 sm:w-24 dark:text-transparent">
+                    <span className="hidden sm:inline group-hover:text-indigo-500 dark:group-hover:text-indigo-300">
                       Practice
                     </span>
 
-                    <span className="translate-x-[-6px] text-lg opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                    <span className="translate-x-[-6px] text-lg opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:text-indigo-500 group-hover:opacity-100 dark:group-hover:text-indigo-300">
                       →
                     </span>
                   </div>
@@ -274,15 +317,13 @@ function Problems() {
               ))}
             </motion.div>
           )}
-
         </main>
 
-        {/* Minimal footer for working page */}
+        {/* Footer */}
         <Footer
           onNavigate={undefined}
           variant="minimal"
         />
-
       </div>
     </div>
   );
