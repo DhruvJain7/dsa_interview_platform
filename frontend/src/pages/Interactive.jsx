@@ -369,9 +369,9 @@ function Interactive() {
           transition={transition}
           className="max-w-3xl"
         >
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-black/35 dark:text-white/35">
-            Interactive Practice
-          </p>
+<p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+  Interactive Practice
+</p>
 
           <h1 className="mt-3 font-serif text-4xl font-medium tracking-tight md:text-5xl">
             Practice how you think.
@@ -419,9 +419,9 @@ function Interactive() {
           >
             <div className="rounded-2xl border border-black/10 p-8 dark:border-white/10 md:p-10">
               <div className="max-w-2xl">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-black/35 dark:text-white/35">
-                  Adaptive Practice
-                </p>
+            <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+  Adaptive Practice
+</span>
 
                 <h2 className="mt-4 font-serif text-3xl font-medium tracking-tight">
                   Start your practice journey.
@@ -491,7 +491,7 @@ function Interactive() {
                     startInteractivePractice
                   }
                   disabled={loading}
-                  className="mt-9 rounded-md bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black"
+                  className="mt-9 rounded-md  bg-indigo-600 text-white hover:bg-indigo-700 px-5 py-3 text-sm font-medium  transition hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black"
                 >
                   {loading
                     ? "Preparing your practice..."
@@ -629,31 +629,22 @@ function Interactive() {
             className="mt-14"
           >
             <div className="mb-5 flex items-center gap-3">
-              <motion.span
-                animate={{
-                  opacity: [0.4, 1, 0.4],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                }}
-                className="h-2 w-2 rounded-full bg-black dark:bg-white"
-              />
-
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-black/40 dark:text-white/40">
-                Adaptive Practice · Ready
-              </p>
+          <div className="flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
+  <span className="h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+  Ready for practice
+</div>
             </div>
 
             <div className="rounded-2xl border border-black/10 p-8 dark:border-white/10 md:p-10">
               <div className="max-w-2xl">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-black/35 dark:text-white/35">
-                  Your practice focus
-                </p>
+             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-400">
+  Practice Focus
+</p>
 
                 <h2 className="mt-4 font-serif text-3xl font-medium tracking-tight">
                   {currentGoal}
                 </h2>
+  
 
                 <p className="mt-4 text-sm leading-7 text-black/50 dark:text-white/50">
                   Articula has analyzed your current
@@ -731,7 +722,7 @@ function Interactive() {
                     onClick={
                       handleViewJourney
                     }
-                    className="self-start rounded-md border border-black/10 px-4 py-2 text-xs font-medium transition hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5 sm:self-auto"
+                    className="self-start rounded-md border border-indigo-200 px-4 py-2 text-indigo-600 font-medium transition hover:bg-indigo-50 dark:border-indigo-900 dark:text-indigo-400 dark:hover:bg-indigo-950/30 sm:self-auto"
                   >
                     View Learning Journey →
                   </button>
