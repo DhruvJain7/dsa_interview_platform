@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+redis
+python-dotenv
+python-jose[cryptography]
+bcrypt
+httpx
+assemblyai
+langchain-openai
+langgraph
+python-multipart

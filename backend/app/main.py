@@ -38,7 +38,11 @@ def escape_tag(value: str) -> str:
     return value.replace("\\", "\\\\").replace("}", "\\}")
 
 
-app = FastAPI(title="Articula")
+app = FastAPI(
+    title="Articula",
+    openapi_url="/api/openapi.json",
+    docs_url="/api/docs",
+)
 
 
 # Redis connection

@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "/api";
 
 /* =========================================================
    CONSTANTS

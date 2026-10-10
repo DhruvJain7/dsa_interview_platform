@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import CodeEditor from "../components/CodeEditor";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "/api";
 
 function Practice() {
   const { problemId } = useParams();
